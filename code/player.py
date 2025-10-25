@@ -1,6 +1,6 @@
 from utils import format_time
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import filedialog 
 import tkinter.ttk as ttk
 import vlc
 import os
@@ -26,55 +26,55 @@ class PlaylistPlayer:
         self.update_time()
         self.loop_enabled = False
         
-        self.shuffle_enabled = False     
-          
-        
+        self.shuffle_enabled = False      
         
     def bind_events(self):
         self.listbox.bind("<Double-Button-1>", self.on_double_click)
         self.time_slider.bind("<ButtonRelease-1>", self.seek_on_release)
 
     def load_files(self):
+        # 📂 Opens file dialog to select multiple media files
         files = filedialog.askopenfilenames()
         if files:
             self.playlist = list(files)
+            # 🧹 Clears the current listbox display
             self.listbox.delete(0, tk.END)
+
             for f in self.playlist:
                 self.listbox.insert(tk.END, os.path.basename(f))
-
-
                 
 
-            # Reproducir automáticamente el primer track
+            # 🔊 Auto-launch: selects and plays the first track
             self.current_index = 0
             self.listbox.selection_set(0)
             self.listbox.activate(0)
             self.play_from_selection()
+
             
     def play_from_selection(self):
         if self.current_index is None:
             return
-
         filepath = self.playlist[self.current_index]
-
+        
         # Create the Media and assign it to the Player
         media = self.vlc_instance.media_new(filepath)
         self.player.set_media(media)
 
-        # Detect if it is video
+        # 📼 Detect if it is video
         if filepath.lower().endswith(('.mp4', '.avi', '.mkv', '.mov')):
-            #self.toggle_fullscreen()
             self.listbox.grid_remove()
-            self.video_frame.grid(row=1, column=0, columnspan=2)     
+            self.video_frame.grid(row=1, column=0, padx=20, pady=(20, 0), sticky="nsew")
+# , columnspan=2
             self.root.update_idletasks()
             self.embed_video()     
         else:
             self.video_frame.grid_remove()
-            self.listbox.grid(row=1, column=0, columnspan=2)
+            self.listbox.grid(row=1, column=0, columnspan=2)#, columnspan=2
+
             
         self.player.play()
 
-        # Update duration and time after playing
+        # ⏱️ Update duration and time after playing
         self.root.after(500, self.set_duration)
         self.update_time()
 
@@ -82,11 +82,14 @@ class PlaylistPlayer:
         self.player.pause()
 
     def stop(self):
-        self.player.stop()
+        self.player.stop() # ⏹️ Stop playback and reset UI
         self.updating_slider = True
         self.time_slider.set(0)
         self.current_time_label.config(text="00:00")
-        
+    
+  
+
+ 
         self.updating_slider = False
                     
     def play_previous(self):
@@ -103,7 +106,7 @@ class PlaylistPlayer:
 
         if self.shuffle_enabled:
             next_index = random.randint(0, len(self.playlist) - 1)
-            # Evitar repetir la misma canción
+            # 🎶 Avoid repeating the same song
             while next_index == self.current_index and len(self.playlist) > 1:
                 next_index = random.randint(0, len(self.playlist) - 1)
             self.current_index = next_index
@@ -111,7 +114,7 @@ class PlaylistPlayer:
             if self.current_index is not None and self.current_index < len(self.playlist) - 1:
                 self.current_index += 1
             else:
-                return  # Fin de la lista
+                return  # End of list
 
         self.listbox.selection_clear(0, tk.END)
         self.listbox.selection_set(self.current_index)
@@ -147,7 +150,7 @@ class PlaylistPlayer:
                 self.current_time_label.config(text=self.format_time(current_time))
                 self.updating_slider = False
         else:
-            # Si no está reproduciendo y el tiempo actual está cerca del final
+            # If it is not playing and the current time is near the end
             if self.duration > 0 and current_time >= self.duration - 1000:
                 if self.loop_enabled:
                     self.play_from_selection()
@@ -170,8 +173,8 @@ class PlaylistPlayer:
             
     def toggle_loop(self):
         self.loop_enabled = not self.loop_enabled
-        estado =  "#7FF530" if self.loop_enabled else "#C2DDAC"
-        self.loop_button.config(bg=f"{estado}")
+        state =  "#7FF530" if self.loop_enabled else "#C2DDAC"
+        self.loop_button.config(bg=f"{state}")
 
     def toggle_shuffle(self):
         self.shuffle_enabled = not self.shuffle_enabled
@@ -179,21 +182,26 @@ class PlaylistPlayer:
         self.shuffle_button.config(bg=color)
 
     def on_drop(self, event):
+        # 📂 Extract list of dropped files from the drag event
         files = self.root.tk.splitlist(event.data)
-            
+        
+        SUPPORTED_FORMATS = (
+    '.mp3', '.wav', '.flac',  # 🎶 Audio
+    '.mp4', '.avi', '.mkv', '.mov', '.webm'  # 🎥 Video
+)
+
         for f in files:
-            if f.lower().endswith(('.mp3', '.wav', '.flac', '.mp4', '.avi', '.mkv')):
+            if f.lower().endswith(SUPPORTED_FORMATS):
                 self.playlist.append(f)
                 self.listbox.insert(tk.END, os.path.basename(f))
-            else:
+            else:             
                 self.video_frame.grid_remove()
-                self.listbox.grid(row=1, column=0, columnspan=2)
-
+                self.listbox.grid(row=1, column=0) # reset layout , columnspan=2
+                
+                # 🔁 Attempt to play current selection (fallback behavior)
                 self.play_from_selection()
 
-
-
-        # Automatically play the first one if nothing is playing
+        # 🔊 Auto-play last added file if nothing is currently playing
         if self.current_index is None and self.playlist:
             self.current_index = len(self.playlist) - 1
             self.listbox.selection_clear(0, tk.END)
@@ -202,9 +210,7 @@ class PlaylistPlayer:
             self.play_from_selection()
 
     def embed_video(self):
-        
-        #self.root.update()
-        
+        # 📺 Embed video stream into the UI frame based on OS
         video_id = self.video_frame.winfo_id()
         system = platform.system()
 
@@ -215,19 +221,19 @@ class PlaylistPlayer:
         elif system == "Darwin":  # macOS
             self.player.set_nsobject(video_id)
         else:
-            print("Sistema no compatible para incrustar vídeo.")
+            print("Unsupported system to embed video.")
 
     def toggle_fullscreen(self):
         self.fullscreen = not getattr(self, "fullscreen", False)
         self.root.attributes("-fullscreen", self.fullscreen)
 
         if self.fullscreen:
-            # Ocultar otros elementos
+            # Hide elements
             self.listbox.grid_remove()
             self.control_frame.grid_remove()
             self.slider.grid_remove()
         else:
-            # Restaurar elementos
+            # Restore elements
             self.listbox.grid()
             self.control_frame.grid()
             self.slider.grid()
@@ -248,36 +254,42 @@ class PlaylistPlayer:
         
         self.top_frame.grid_rowconfigure(1, minsize=0, weight=0)
         
-        self.video_frame.grid(row=0, column=0, sticky="nsew")  # ocupar toda la ventana
-        
-
-        # Expandir el video_frame
-
+        self.video_frame.grid(row=0, column=0, padx=0, pady=0, sticky="nsew")  # ocupar toda la ventana
+        # Expand the video_frame
         self.top_frame.grid_rowconfigure(0, weight=1)
         self.top_frame.grid_columnconfigure(0, weight=1)
 
     def exit_fullscreen_video(self):
         self.root.attributes("-fullscreen", False)
 
-        # Restaurar elementos
-  
+        # Restore elements
         self.main_frame.grid_rowconfigure(0, weight=1)  # vídeo
         self.main_frame.grid_columnconfigure(0, weight=1)
         
+        
         self.top_frame.grid_rowconfigure(1, weight=1)
         self.top_frame.grid_columnconfigure(0, weight=1)
-        
-        self.video_frame.grid(row=1, column=0,  padx=20, pady=(20, 0))
-        
-        self.time_slider.grid(row=2, column=0, padx=20, sticky="nsew")
+          
+        self.listbox.grid(row=1, column=0, padx=20, pady=(20, 0), sticky="nsew")
 
+        self.video_frame.grid(row=1, column=0, padx=20, pady=(20, 0), sticky="nsew")  
         
+     
+        self.time_slider.grid(row=2, column=0, padx=20, sticky="nsew")
+        self.current_time_label.grid(row=3, column=0, padx=(0, 470))
+        self.total_time_label.grid(row=3, column=0, padx=(470, 0))
+        
+        
+
         self.right_frame.grid(row=2, column=2, sticky="n")
         self.left_frame.grid(row=2, column=0, sticky="n")
         self.central_frame.grid(row=2, column=1, sticky="n")
         
-        self.current_time_label.grid(row=3, column=0, padx=(0, 630))# side="left", padx=30, pady=(0,54)
-        self.total_time_label.grid(row=3, column=0, padx=(630, 0))# side="right", padx=30, pady=(0,54)
+        print(self.current_time_label.winfo_exists())
+        print(self.total_time_label.winfo_exists())
+        print(self.time_slider.winfo_exists())
+        
+
 
 
         

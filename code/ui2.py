@@ -4,31 +4,25 @@ import tkinter.ttk as ttk
 from PIL import Image, ImageTk
 from tkinterdnd2 import DND_FILES, TkinterDnD
 import vlc 
+import os
 
 def setup_ui(self):
         self.root.title("Reproductor con lista")
         self.root.configure(bg="#82726D")
         self.root.geometry("550x480")
         self.root.title("1979_MODEL  ___  media_player >> by DODOROVSKY")
-        self.root.iconbitmap('tkinter cursos/object oriented tkinter/dodorovsky.ico')
-        
+        self.root.iconbitmap('media_player/graphics/backgrounds/dodorovsky.ico')
         
         # Main Frame
-
         self.main_frame = tk.Frame(self.root, bg='#3C3A3A')
         self.main_frame.grid(row=0, column=0, sticky="nsew")
-
-        #self.root.attributes("-fullscreen", True)
         
-        #self.root.attributes("-fullscreen", False)
-
         self.root.grid_rowconfigure(0, weight=1)
         self.root.grid_columnconfigure(0, weight=1)
         
         self.main_frame.grid_rowconfigure(0, weight=1)  # vídeo
         self.main_frame.grid_columnconfigure(0, weight=1)
 
-        
         # Top Frame for Video and Listbox
         self.top_frame = tk.Frame(self.main_frame, bg='#3C3A3A')
         self.top_frame.grid(row=0, column=0, columnspan=3, sticky="nsew")
@@ -37,12 +31,12 @@ def setup_ui(self):
         self.top_frame.grid_columnconfigure(0, weight=1)
 
         self.listbox = tk.Listbox(self.top_frame, bg="black", fg="#197F0F", width=110, height=18, selectbackground="#267227", selectforeground="lime")
-        self.listbox.grid(row=1, column=0, padx=20, pady=(20, 0), sticky="nsew")      
+        self.listbox.grid(row=1, column=0, padx=20, pady=(20, 0))      
         self.listbox.drop_target_register(DND_FILES)
         self.listbox.dnd_bind('<<Drop>>', self.on_drop)
-
-        self.video_frame = tk.Frame(self.top_frame, width=662, height=290, bg="pink")
-        self.video_frame.grid(row=1, column=0,  sticky="nsew")
+        
+        self.video_frame = tk.Frame(self.top_frame, width=400, height=255, bg="black")
+        self.video_frame.grid(row=1, column=0, padx=20, pady=(20, 0), sticky="nsew")
         self.video_frame.drop_target_register(DND_FILES)
         self.video_frame.dnd_bind('<<Drop>>', self.on_drop)
         self.video_frame.grid_forget()
@@ -55,12 +49,10 @@ def setup_ui(self):
         self.time_slider = ttk.Scale(self.top_frame, from_=0, to=100, orient="horizontal", value=0, length=664, style="TScale")
         self.time_slider.grid(row=2, column=0, padx=20, sticky="nsew")
         
-        
         self.current_time_label = tk.Label(self.top_frame, text="--:--", font=("Terminal", 8), fg="#218514", bg='#3C3A3A')
-        self.current_time_label.grid(row=3, column=0, padx=(0, 470))# side="left", padx=30, pady=(0,54)
+        self.current_time_label.grid(row=3, column=0, padx=(0, 470))
         self.total_time_label = tk.Label(self.top_frame, text="--:--", font=("Terminal", 8), fg="#218514", bg='#3C3A3A')
-        self.total_time_label.grid(row=3, column=0, padx=(470, 0))# side="right", padx=30, pady=(0,54)
-        
+        self.total_time_label.grid(row=3, column=0, padx=(470, 0))
         
         # Left Frame
         self.left_frame = tk.Frame(self.main_frame, bg='#3C3A3A')
@@ -107,20 +99,19 @@ def setup_ui(self):
         self.next_label = tk.Label(self.central_frame, text="NEXT", fg="#EDE8E6",font=("Helvetica", 7), bg='#3C3A3A')
         self.next_label.grid(row=2, column=2)
         
-        # Define Player Control Buttons
-        self.play_btn_img = ImageTk.PhotoImage(Image.open('media_player/audio_buttons/play_pl.png').resize((70, 20)))       
-        self.pause_btn_img = ImageTk.PhotoImage(Image.open('media_player/audio_buttons/pausa_pl.png').resize((35,20)))
-        self.stop_btn_img = ImageTk.PhotoImage(Image.open('media_player/audio_buttons/stop_pl.png').resize((35,20)))
-        self.previous_img = ImageTk.PhotoImage(Image.open('media_player/audio_buttons/prev.png').resize((40,8)))
-        self.next_img = ImageTk.PhotoImage(Image.open('media_player/audio_buttons/next.png').resize((40,8)))
-
-        
+        # Define Control Images
+        self.play_btn_img = ImageTk.PhotoImage(Image.open('media_player/graphics/buttons_control/play.png').resize((70, 20)))       
+        self.pause_btn_img = ImageTk.PhotoImage(Image.open('media_player/graphics/buttons_control/pause.png').resize((35,20)))
+        self.stop_btn_img = ImageTk.PhotoImage(Image.open('media_player/graphics/buttons_control/stop.png').resize((35,20)))
+        self.previous_img = ImageTk.PhotoImage(Image.open('media_player/graphics/buttons_control/prev.png').resize((40,8)))
+        self.next_img = ImageTk.PhotoImage(Image.open('media_player/graphics/buttons_control/next.png').resize((40,8)))
+   
         # Control Buttons
         self.pause_button = tk.Button(self.central_frame, image=self.pause_btn_img, command=self.pause)
         self.pause_button.grid(row=1, column=0, padx=1)
         
         self.stop_button = tk.Button(self.central_frame, image=self.stop_btn_img, command=self.stop)
-        self.stop_button.grid(row=1, column=2, padx=1)
+        self.stop_button.grid(row=1, column=1, padx=1) 
         
         self.play_button = tk.Button(self.central_frame, image=self.play_btn_img, command=self.play_from_selection)
         self.play_button.grid(row=1, column=2, padx=1)
@@ -144,10 +135,8 @@ def setup_ui(self):
         meter_label = tk.Label(self.right_frame, text="______\n _____\n____\n___\n__\n_\n.", bg='#3C3A3A', fg="#A66A02")
         meter_label.grid(row=0, column=2, padx=1, pady=(5, 0))
         
-
-        self.fullscreen_button = tk.Button(self.left_frame, text="Video Full Screen", font=("Helvetica", 7), command=self.enter_fullscreen_video, bg="#9CC27D")
+        self.fullscreen_button = tk.Button(self.left_frame, text="⬜ Full Screen", font=("Helvetica", 7), command=self.enter_fullscreen_video, bg="#C4A98A")
         self.fullscreen_button.grid(row=4, column=0, padx=10, pady=(5, 20))
-
         self.root.bind("<Escape>", lambda e: self.exit_fullscreen_video())
 
         
