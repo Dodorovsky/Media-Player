@@ -25,8 +25,16 @@ class PlaylistPlayer:
         self.bind_events()
         self.update_time()
         self.loop_enabled = False
-        
         self.shuffle_enabled = False      
+        self.overlay_window = None
+        self.overlay_visible = False
+        self.overlay_hide_timer = None
+
+        self.last_mouse_position = None
+        self.mouse_tracker_active = False
+
+
+
         
     def bind_events(self):
         self.listbox.bind("<Double-Button-1>", self.on_double_click)
@@ -240,6 +248,8 @@ class PlaylistPlayer:
 
     def enter_fullscreen_video(self):
         self.root.attributes("-fullscreen", True)
+        self.mouse_tracker_active = True
+        self.track_mouse_movement()
 
         # Ocultar todos los elementos excepto el vídeo
         self.listbox.grid_remove()
@@ -258,6 +268,37 @@ class PlaylistPlayer:
         # Expand the video_frame
         self.top_frame.grid_rowconfigure(0, weight=1)
         self.top_frame.grid_columnconfigure(0, weight=1)
+        
+    # Crear ventana flotante de overlay
+        if not self.overlay_window:
+            self.overlay_window = tk.Toplevel(self.root)
+            self.overlay_window.overrideredirect(True)
+            self.overlay_window.attributes("-topmost", True)
+            self.overlay_window.attributes("-alpha", 0.9)
+            self.overlay_window.configure(bg="#222222")
+
+            # Controles flotantes
+            play_btn = tk.Button(self.overlay_window, text="▶", command=self.play_from_selection, bg="#222222", fg="white", bd=0)
+            pause_btn = tk.Button(self.overlay_window, text="⏸", command=self.pause, bg="#222222", fg="white", bd=0)
+            stop_btn = tk.Button(self.overlay_window, text="⏹", command=self.stop, bg="#222222", fg="white", bd=0)
+
+            play_btn.pack(side="left", padx=10)
+            pause_btn.pack(side="left", padx=10)
+            stop_btn.pack(side="left", padx=10)
+
+        # Posicionar al fondo de la pantalla
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+        self.overlay_window.geometry(f"300x40+{int((screen_width-300)/2)}+{screen_height-50}")
+        self.overlay_window.deiconify()
+        self.overlay_visible = True
+
+        # Detectar movimiento global
+        self.track_mouse_movement()
+
+
+        self.show_overlay()
+
 
     def exit_fullscreen_video(self):
         self.root.attributes("-fullscreen", False)
@@ -278,24 +319,64 @@ class PlaylistPlayer:
         self.time_slider.grid(row=2, column=0, padx=20, sticky="nsew")
         self.current_time_label.grid(row=3, column=0, padx=(0, 470))
         self.total_time_label.grid(row=3, column=0, padx=(470, 0))
-        
-        
 
         self.right_frame.grid(row=2, column=2, sticky="n")
         self.left_frame.grid(row=2, column=0, sticky="n")
         self.central_frame.grid(row=2, column=1, sticky="n")
         
-        print(self.current_time_label.winfo_exists())
-        print(self.total_time_label.winfo_exists())
-        print(self.time_slider.winfo_exists())
+        if self.overlay_window:
+            self.overlay_window.destroy()
+            self.overlay_window = None
+            self.overlay_visible = False
+            self.root.unbind("<Motion>")
+        self.fullscreen = False
+        self.mouse_tracker_active = False
+
+            
+    def on_mouse_move(self, event=None):
+        if getattr(self, "fullscreen", False):
+            self.show_overlay()
+
+    def show_overlay(self):
+        if self.overlay_window:
+            self.overlay_window.deiconify()
+            self.overlay_window.lift()
+            self.overlay_visible = True
+
+            if self.overlay_hide_timer:
+                self.root.after_cancel(self.overlay_hide_timer)
+            self.overlay_hide_timer = self.root.after(3000, self.hide_overlay)
+
+
+    def hide_overlay(self):
+        if self.overlay_window:
+            self.overlay_window.withdraw()
+            #self.overlay_visible = False
+            
+    def track_mouse_movement(self):
+        if not self.mouse_tracker_active:
+            return
+
+        # Obtener posición relativa del ratón dentro de root
+        x = self.root.winfo_pointerx() - self.root.winfo_rootx()
+        y = self.root.winfo_pointery() - self.root.winfo_rooty()
+        current_position = (x, y)
+
+        if self.last_mouse_position != current_position:
+            self.last_mouse_position = current_position
+            self.show_overlay()
+
+        self.root.after(300, self.track_mouse_movement)
+
+
+
+
+
+
+
         
 
-
-
         
-
-        
-
 
 
 
