@@ -257,10 +257,10 @@ class PlaylistPlayer:
         self.total_time_label.grid_remove()
         self.current_time_label.grid_remove()
         
-        self.central_frame.grid_remove()  # si tenés un frame con botones
-        self.right_frame.grid_remove()  # si tenés un frame con botones
-        self.left_frame.grid_remove()  # si tenés un frame con botones
-        self.time_slider.grid_remove()         # si tenés un slider de tiempo
+        self.central_frame.grid_remove()  
+        self.right_frame.grid_remove()
+        self.left_frame.grid_remove()  
+        self.time_slider.grid_remove()         
         
         self.top_frame.grid_rowconfigure(1, minsize=0, weight=0)
         
@@ -269,7 +269,7 @@ class PlaylistPlayer:
         self.top_frame.grid_rowconfigure(0, weight=1)
         self.top_frame.grid_columnconfigure(0, weight=1)
         
-    # Crear ventana flotante de overlay
+        # Create floating overlay window
         if not self.overlay_window:
             self.overlay_window = tk.Toplevel(self.root)
             self.overlay_window.overrideredirect(True)
@@ -286,14 +286,14 @@ class PlaylistPlayer:
             pause_btn.pack(side="left", padx=10)
             stop_btn.pack(side="left", padx=10)
 
-        # Posicionar al fondo de la pantalla
+        # Position at the bottom of the screen
         screen_width = self.root.winfo_screenwidth()
         screen_height = self.root.winfo_screenheight()
         self.overlay_window.geometry(f"300x40+{int((screen_width-300)/2)}+{screen_height-50}")
         self.overlay_window.deiconify()
         self.overlay_visible = True
 
-        # Detectar movimiento global
+        # Detect global movement
         self.track_mouse_movement()
 
 
@@ -357,7 +357,7 @@ class PlaylistPlayer:
         if not self.mouse_tracker_active:
             return
 
-        # Obtener posición relativa del ratón dentro de root
+        # Get relative mouse position within root
         x = self.root.winfo_pointerx() - self.root.winfo_rootx()
         y = self.root.winfo_pointery() - self.root.winfo_rooty()
         current_position = (x, y)
