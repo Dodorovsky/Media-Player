@@ -1,5 +1,6 @@
 from modules.utils import format_time
-from modules.vumeter import VUMeter
+from modules.vumeter_real import RealVUMeter
+
 from modules.overlay import FloatingOverlay
 from ui2 import setup_ui
 import tkinter as tk
@@ -17,7 +18,6 @@ class PlaylistPlayer:
         self.vlc_instance = vlc.Instance()
         self.player = self.vlc_instance.media_player_new()
 
-        
         self.playlist = []
         self.current_index = None
         self.duration = 0
@@ -43,6 +43,7 @@ class PlaylistPlayer:
     stop_callback=self.stop
     
 )
+        
        
     def bind_events(self):
         self.listbox.bind("<Double-Button-1>", self.on_double_click)
@@ -71,11 +72,11 @@ class PlaylistPlayer:
         if self.current_index is None:
             return
         filepath = self.playlist[self.current_index]
-        
+
         # Create the Media and assign it to the Player
         media = self.vlc_instance.media_new(filepath)
         self.player.set_media(media)
-        
+
         # 📼 Detect if it is video
         if filepath.lower().endswith(('.mp4', '.avi', '.mkv', '.mov')):
             self.listbox.grid_remove()
