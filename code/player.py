@@ -1,6 +1,6 @@
 from utils import format_time
 import tkinter as tk
-from tkinter import filedialog 
+from tkinter import filedialog, messagebox 
 import tkinter.ttk as ttk
 import vlc
 import os
@@ -29,13 +29,10 @@ class PlaylistPlayer:
         self.overlay_window = None
         self.overlay_visible = False
         self.overlay_hide_timer = None
-
         self.last_mouse_position = None
         self.mouse_tracker_active = False
-
-
-
-        
+        self.pantlla_completa = False
+       
     def bind_events(self):
         self.listbox.bind("<Double-Button-1>", self.on_double_click)
         self.time_slider.bind("<ButtonRelease-1>", self.seek_on_release)
@@ -43,6 +40,7 @@ class PlaylistPlayer:
     def load_files(self):
         # 📂 Opens file dialog to select multiple media files
         files = filedialog.askopenfilenames()
+
         if files:
             self.playlist = list(files)
             # 🧹 Clears the current listbox display
@@ -50,15 +48,14 @@ class PlaylistPlayer:
 
             for f in self.playlist:
                 self.listbox.insert(tk.END, os.path.basename(f))
-                
-
+                self.current_file_is_audio = f.lower().endswith((".mp3", ".wav", ".flac"))
+            self.pantlla_completa =False
             # 🔊 Auto-launch: selects and plays the first track
             self.current_index = 0
             self.listbox.selection_set(0)
             self.listbox.activate(0)
             self.play_from_selection()
-
-            
+                    
     def play_from_selection(self):
         if self.current_index is None:
             return
@@ -67,19 +64,24 @@ class PlaylistPlayer:
         # Create the Media and assign it to the Player
         media = self.vlc_instance.media_new(filepath)
         self.player.set_media(media)
-
+        
         # 📼 Detect if it is video
         if filepath.lower().endswith(('.mp4', '.avi', '.mkv', '.mov')):
             self.listbox.grid_remove()
             self.video_frame.grid(row=1, column=0, padx=20, pady=(20, 0), sticky="nsew")
-# , columnspan=2
+        
             self.root.update_idletasks()
             self.embed_video()     
         else:
             self.video_frame.grid_remove()
             self.listbox.grid(row=1, column=0, columnspan=2)#, columnspan=2
-
             
+        if self.pantlla_completa:
+            self.video_frame.grid(row=0, column=0, sticky="nsew")
+            self.top_frame.grid_rowconfigure(0, weight=1)
+            self.top_frame.grid_columnconfigure(0, weight=1)
+            self.video_frame.grid(row=0, column=0, padx=0, pady=0, sticky="nsew")
+                        
         self.player.play()
 
         # ⏱️ Update duration and time after playing
@@ -94,10 +96,6 @@ class PlaylistPlayer:
         self.updating_slider = True
         self.time_slider.set(0)
         self.current_time_label.config(text="00:00")
-    
-  
-
- 
         self.updating_slider = False
                     
     def play_previous(self):
@@ -204,7 +202,7 @@ class PlaylistPlayer:
                 self.listbox.insert(tk.END, os.path.basename(f))
             else:             
                 self.video_frame.grid_remove()
-                self.listbox.grid(row=1, column=0) # reset layout , columnspan=2
+                self.listbox.grid(row=1, column=0) 
                 
                 # 🔁 Attempt to play current selection (fallback behavior)
                 self.play_from_selection()
@@ -247,23 +245,24 @@ class PlaylistPlayer:
             self.slider.grid()
 
     def enter_fullscreen_video(self):
+        if self.current_file_is_audio:
+            messagebox.showinfo("Full screen mode", "Full screen mode is disabled for audio files")
+            return  # Lock full screen if it is audio
+
         self.root.attributes("-fullscreen", True)
         self.mouse_tracker_active = True
         self.track_mouse_movement()
-
-        # Ocultar todos los elementos excepto el vídeo
-        self.listbox.grid_remove()
+        self.pantlla_completa = True
         
+        # Hide all elements except the video
+        self.listbox.grid_remove()  
         self.total_time_label.grid_remove()
-        self.current_time_label.grid_remove()
-        
+        self.current_time_label.grid_remove()      
         self.central_frame.grid_remove()  
         self.right_frame.grid_remove()
         self.left_frame.grid_remove()  
-        self.time_slider.grid_remove()         
-        
-        self.top_frame.grid_rowconfigure(1, minsize=0, weight=0)
-        
+        self.time_slider.grid_remove()            
+        self.top_frame.grid_rowconfigure(1, minsize=0, weight=0) 
         self.video_frame.grid(row=0, column=0, padx=0, pady=0, sticky="nsew")  # ocupar toda la ventana
         # Expand the video_frame
         self.top_frame.grid_rowconfigure(0, weight=1)
@@ -277,7 +276,7 @@ class PlaylistPlayer:
             self.overlay_window.attributes("-alpha", 0.9)
             self.overlay_window.configure(bg="#222222")
 
-            # Controles flotantes
+            # Floating controls
             play_btn = tk.Button(self.overlay_window, text="▶", command=self.play_from_selection, bg="#222222", fg="white", bd=0)
             pause_btn = tk.Button(self.overlay_window, text="⏸", command=self.pause, bg="#222222", fg="white", bd=0)
             stop_btn = tk.Button(self.overlay_window, text="⏹", command=self.stop, bg="#222222", fg="white", bd=0)
@@ -296,9 +295,7 @@ class PlaylistPlayer:
         # Detect global movement
         self.track_mouse_movement()
 
-
         self.show_overlay()
-
 
     def exit_fullscreen_video(self):
         self.root.attributes("-fullscreen", False)
@@ -307,15 +304,10 @@ class PlaylistPlayer:
         self.main_frame.grid_rowconfigure(0, weight=1)  # vídeo
         self.main_frame.grid_columnconfigure(0, weight=1)
         
-        
         self.top_frame.grid_rowconfigure(1, weight=1)
-        self.top_frame.grid_columnconfigure(0, weight=1)
-          
+        self.top_frame.grid_columnconfigure(0, weight=1)     
         self.listbox.grid(row=1, column=0, padx=20, pady=(20, 0), sticky="nsew")
-
-        self.video_frame.grid(row=1, column=0, padx=20, pady=(20, 0), sticky="nsew")  
-        
-     
+        self.video_frame.grid(row=1, column=0, padx=20, pady=(20, 0), sticky="nsew")   
         self.time_slider.grid(row=2, column=0, padx=20, sticky="nsew")
         self.current_time_label.grid(row=3, column=0, padx=(0, 470))
         self.total_time_label.grid(row=3, column=0, padx=(470, 0))
@@ -331,8 +323,7 @@ class PlaylistPlayer:
             self.root.unbind("<Motion>")
         self.fullscreen = False
         self.mouse_tracker_active = False
-
-            
+     
     def on_mouse_move(self, event=None):
         if getattr(self, "fullscreen", False):
             self.show_overlay()
@@ -346,7 +337,6 @@ class PlaylistPlayer:
             if self.overlay_hide_timer:
                 self.root.after_cancel(self.overlay_hide_timer)
             self.overlay_hide_timer = self.root.after(3000, self.hide_overlay)
-
 
     def hide_overlay(self):
         if self.overlay_window:
@@ -377,7 +367,6 @@ class PlaylistPlayer:
         
 
         
-
 
 
 
