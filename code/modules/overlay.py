@@ -1,12 +1,12 @@
 import tkinter as tk
 
 class FloatingOverlay:
-    def __init__(self, master, play_callback, pause_callback, stop_callback):
+    def __init__(self, master, play_callback, pause_callback, stop_callback, exit_fullscreen_callback ):
         self.master = master
         self.play_callback = play_callback
         self.pause_callback = pause_callback
         self.stop_callback = stop_callback
-
+        self.exit_fullscreen_callback = exit_fullscreen_callback
         self.overlay_window = None
         self.overlay_visible = False
         self.overlay_hide_timer = None
@@ -30,6 +30,16 @@ class FloatingOverlay:
         play_btn.pack(side="left", padx=10)
         pause_btn.pack(side="left", padx=10)
         stop_btn.pack(side="left", padx=10)
+        
+        exit_btn = tk.Button(
+    self.overlay_window,
+    text="⬅ Exit Fullscreen",
+    command=self.exit_fullscreen_callback,
+    bg="#222222",
+    fg="white",
+    bd=0
+)
+        exit_btn.pack(side="left", padx=10)
 
         self.position_overlay()
         self.mouse_tracker_active = True

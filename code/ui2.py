@@ -5,6 +5,8 @@ from PIL import Image, ImageTk
 from tkinterdnd2 import DND_FILES, TkinterDnD
 import vlc 
 import os
+from modules.vumeter import VUMeter
+
 
 def setup_ui(self):
         self.root.title("Reproductor con lista")
@@ -139,9 +141,18 @@ def setup_ui(self):
         self.fullscreen_button.grid(row=4, column=0, padx=10, pady=(5, 20))
         self.root.bind("<Escape>", lambda e: self.exit_fullscreen_video())
 
-        
-        
-        
+        self.vumeter = VUMeter(self.root)
+
+        def update_vumeter():
+                volume = self.player.audio_get_volume()
+                self.vumeter.update(volume)
+                self.root.after(500, update_vumeter)
+
+        update_vumeter()
+
+
+
+
         
         
         

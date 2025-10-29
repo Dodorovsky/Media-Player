@@ -1,11 +1,12 @@
-from utils import format_time
+from modules.utils import format_time
+from modules.vumeter import VUMeter
 from modules.overlay import FloatingOverlay
+from ui2 import setup_ui
 import tkinter as tk
 from tkinter import filedialog, messagebox 
 import tkinter.ttk as ttk
 import vlc
 import os
-from ui2 import setup_ui
 import random
 
 import platform 
@@ -38,7 +39,9 @@ class PlaylistPlayer:
     master=self.root,
     play_callback=self.play_from_selection,
     pause_callback=self.pause,
+    exit_fullscreen_callback = self.exit_fullscreen_video,
     stop_callback=self.stop
+    
 )
        
     def bind_events(self):
@@ -146,7 +149,7 @@ class PlaylistPlayer:
         if length > 0:
             self.duration = length
             self.time_slider.config(to=length)
-            self.total_time_label.config(text=f"{self.format_time(length)}")
+            self.total_time_label.config(text=f"{format_time(length)}")
         else:
             # Try again shortly if duration is not yet available
             self.root.after(500, self.set_duration)
@@ -161,7 +164,7 @@ class PlaylistPlayer:
             if current_time >= 0 and current_time != self.time_slider.get():
                 self.updating_slider = True
                 self.time_slider.set(current_time)
-                self.current_time_label.config(text=self.format_time(current_time))
+                self.current_time_label.config(text=format_time(current_time))
                 self.updating_slider = False
         else:
             # If it is not playing and the current time is near the end
@@ -178,12 +181,6 @@ class PlaylistPlayer:
         if selection:
             self.current_index = selection[0]
             self.play_from_selection()
-
-    def format_time(self, ms):
-        seconds = ms // 1000
-        minutes = seconds // 60
-        seconds = seconds % 60
-        return f"{minutes:02}:{seconds:02}"
             
     def toggle_loop(self):
         self.loop_enabled = not self.loop_enabled
@@ -346,6 +343,9 @@ class PlaylistPlayer:
         self.root.after(300, self.track_mouse_movement)
 
 
+
+
+    
 
 
 
