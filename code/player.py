@@ -1,4 +1,5 @@
 from utils import format_time
+from modules.overlay import FloatingOverlay
 import tkinter as tk
 from tkinter import filedialog, messagebox 
 import tkinter.ttk as ttk
@@ -32,6 +33,13 @@ class PlaylistPlayer:
         self.last_mouse_position = None
         self.mouse_tracker_active = False
         self.pantlla_completa = False
+        
+        self.overlay = FloatingOverlay(
+    master=self.root,
+    play_callback=self.play_from_selection,
+    pause_callback=self.pause,
+    stop_callback=self.stop
+)
        
     def bind_events(self):
         self.listbox.bind("<Double-Button-1>", self.on_double_click)
@@ -269,28 +277,7 @@ class PlaylistPlayer:
         self.top_frame.grid_columnconfigure(0, weight=1)
         
         # Create floating overlay window
-        if not self.overlay_window:
-            self.overlay_window = tk.Toplevel(self.root)
-            self.overlay_window.overrideredirect(True)
-            self.overlay_window.attributes("-topmost", True)
-            self.overlay_window.attributes("-alpha", 0.9)
-            self.overlay_window.configure(bg="#222222")
-
-            # Floating controls
-            play_btn = tk.Button(self.overlay_window, text="▶", command=self.play_from_selection, bg="#222222", fg="white", bd=0)
-            pause_btn = tk.Button(self.overlay_window, text="⏸", command=self.pause, bg="#222222", fg="white", bd=0)
-            stop_btn = tk.Button(self.overlay_window, text="⏹", command=self.stop, bg="#222222", fg="white", bd=0)
-
-            play_btn.pack(side="left", padx=10)
-            pause_btn.pack(side="left", padx=10)
-            stop_btn.pack(side="left", padx=10)
-
-        # Position at the bottom of the screen
-        screen_width = self.root.winfo_screenwidth()
-        screen_height = self.root.winfo_screenheight()
-        self.overlay_window.geometry(f"300x40+{int((screen_width-300)/2)}+{screen_height-50}")
-        self.overlay_window.deiconify()
-        self.overlay_visible = True
+        self.overlay.create_overlay()
 
         # Detect global movement
         self.track_mouse_movement()
@@ -317,7 +304,7 @@ class PlaylistPlayer:
         self.central_frame.grid(row=2, column=1, sticky="n")
         
         if self.overlay_window:
-            self.overlay_window.destroy()
+            self.overlay.destroy_overlay()
             self.overlay_window = None
             self.overlay_visible = False
             self.root.unbind("<Motion>")
