@@ -80,14 +80,16 @@ class PlaylistPlayer:
         # 📼 Detect if it is video
         if filepath.lower().endswith(('.mp4', '.avi', '.mkv', '.mov')):
             self.listbox.grid_remove()
-            self.video_frame.grid(row=1, column=0, padx=20, pady=(20, 0), sticky="nsew")
-        
+            
+            
+            self.video_frame.grid(row=1, column=0, padx=0, pady=0, sticky="nsew")
+            
             self.root.update_idletasks()
             self.embed_video()     
         else:
             self.video_frame.grid_remove()
-            self.listbox.grid(row=1, column=0, columnspan=2)#, columnspan=2
-            
+            self.listbox.grid(row=1, column=0, padx=0, pady=0) 
+            self.power_label_img.grid(row=0, column=0, padx=0, pady=5)
         if self.pantlla_completa:
             self.video_frame.grid(row=0, column=0, sticky="nsew")
             self.top_frame.grid_rowconfigure(0, weight=1)
@@ -263,7 +265,10 @@ class PlaylistPlayer:
         # Hide all elements except the video
         self.listbox.grid_remove()  
         self.total_time_label.grid_remove()
-        self.current_time_label.grid_remove()      
+        self.current_time_label.grid_remove()  
+        self.vu_frame.grid_remove()
+        self.power_on_label.grid_remove()
+        self.power_label_img.grid_remove()
         self.central_frame.grid_remove()  
         self.right_frame.grid_remove()
         self.left_frame.grid_remove()  
@@ -273,6 +278,7 @@ class PlaylistPlayer:
         # Expand the video_frame
         self.top_frame.grid_rowconfigure(0, weight=1)
         self.top_frame.grid_columnconfigure(0, weight=1)
+        
         
         # Create floating overlay window
         self.overlay.create_overlay()
@@ -286,21 +292,27 @@ class PlaylistPlayer:
         self.root.attributes("-fullscreen", False)
 
         # Restore elements
-        self.main_frame.grid_rowconfigure(0, weight=1)  # vídeo
         self.main_frame.grid_columnconfigure(0, weight=1)
+        self.main_frame.grid_columnconfigure(1, weight=1)
+        self.main_frame.grid_columnconfigure(2, weight=1)
+        self.main_frame.grid_columnconfigure(3, weight=1)
         
         self.top_frame.grid_rowconfigure(1, weight=1)
         self.top_frame.grid_columnconfigure(0, weight=1)     
         self.listbox.grid(row=1, column=0, padx=20, pady=(20, 0), sticky="nsew")
-        self.video_frame.grid(row=1, column=0, padx=20, pady=(20, 0), sticky="nsew")   
-        self.time_slider.grid(row=2, column=0, padx=20, sticky="nsew")
-        self.current_time_label.grid(row=3, column=0, padx=(0, 470))
-        self.total_time_label.grid(row=3, column=0, padx=(470, 0))
-
-        self.right_frame.grid(row=2, column=2, sticky="n")
-        self.left_frame.grid(row=2, column=0, sticky="n")
-        self.central_frame.grid(row=2, column=1, sticky="n")
+        self.video_frame.grid(row=1, column=0, padx=0, pady=(20, 0), sticky="nsew")
+        self.time_slider.grid(row=2, column=0, padx=0, sticky="nsew")
+        self.current_time_label.grid(row=3, column=0, padx=(0, 500))
+        self.total_time_label.grid(row=3, column=0, padx=(500, 0))
         
+        self.vu_frame.grid(row=2, column=0, sticky="nsew")
+        self.right_frame.grid(row=2, column=3, sticky="n")
+        self.left_frame.grid(row=2, column=1, sticky="n")
+        self.central_frame.grid(row=2, column=2, sticky="n")
+        self.power_label_img.grid(row=0, column=0, padx=0, pady=5)
+
+        
+
         if self.overlay_window:
             self.overlay.destroy_overlay()
             self.overlay_window = None
