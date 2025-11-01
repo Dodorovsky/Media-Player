@@ -1,8 +1,10 @@
 from modules.utils import format_time
-from modules.vumeter_real import RealVUMeter
+#from modules.vumeter_real import RealVUMeter
+#from modules.vu_meter_experiment import VUMeterExperimental
+from modules.vu_meter_experiment import VUColumn
 
 from modules.overlay import FloatingOverlay
-from ui2 import setup_ui
+from ui import setup_ui
 import tkinter as tk
 from tkinter import filedialog, messagebox 
 import tkinter.ttk as ttk
@@ -80,8 +82,6 @@ class PlaylistPlayer:
         # 📼 Detect if it is video
         if filepath.lower().endswith(('.mp4', '.avi', '.mkv', '.mov')):
             self.listbox.grid_remove()
-            
-            
             self.video_frame.grid(row=1, column=0, padx=0, pady=0, sticky="nsew")
             
             self.root.update_idletasks()
@@ -92,9 +92,7 @@ class PlaylistPlayer:
             self.power_label_img.grid(row=0, column=0, padx=0, pady=5)
         if self.pantlla_completa:
             self.video_frame.grid(row=0, column=0, sticky="nsew")
-            self.top_frame.grid_rowconfigure(0, weight=1)
-            self.top_frame.grid_columnconfigure(0, weight=1)
-            self.video_frame.grid(row=0, column=0, padx=0, pady=0, sticky="nsew")
+            self.video_frame.grid(row=1, column=0, padx=0, pady=0, sticky="nsew")
                         
         self.player.play()
 
@@ -188,7 +186,7 @@ class PlaylistPlayer:
     def toggle_loop(self):
         self.loop_enabled = not self.loop_enabled
         state =  "#7FF530" if self.loop_enabled else "#C2DDAC"
-        self.loop_button.config(bg=f"{state}")
+        self.loop_button.config(bg="f{state}")
 
     def toggle_shuffle(self):
         self.shuffle_enabled = not self.shuffle_enabled
@@ -255,31 +253,43 @@ class PlaylistPlayer:
     def enter_fullscreen_video(self):
         if self.current_file_is_audio:
             messagebox.showinfo("Full screen mode", "Full screen mode is disabled for audio files")
-            return  # Lock full screen if it is audio
-
+            return
+        self.root.update_idletasks()
         self.root.attributes("-fullscreen", True)
         self.mouse_tracker_active = True
         self.track_mouse_movement()
         self.pantlla_completa = True
-        
-        # Hide all elements except the video
-        self.listbox.grid_remove()  
-        self.total_time_label.grid_remove()
-        self.current_time_label.grid_remove()  
-        self.vu_frame.grid_remove()
-        self.power_on_label.grid_remove()
-        self.power_label_img.grid_remove()
-        self.central_frame.grid_remove()  
+
+        # Ocultar todos los elementos excepto el video
+        self.black_frame.grid_remove()
+        self.controls_frame.grid_remove()
+        self.central_frame.grid_remove()
         self.right_frame.grid_remove()
-        self.left_frame.grid_remove()  
-        self.time_slider.grid_remove()            
-        self.top_frame.grid_rowconfigure(1, minsize=0, weight=0) 
-        self.video_frame.grid(row=0, column=0, padx=0, pady=0, sticky="nsew")  # ocupar toda la ventana
-        # Expand the video_frame
-        self.top_frame.grid_rowconfigure(0, weight=1)
+        self.left_frame.grid_remove()
+        self.vu_frame_left.grid_remove()
+        self.vu_frame_right.grid_remove()
+        
+        self.listbox.grid_remove()
+        self.time_slider.grid_remove()
+        self.current_time_label.grid_remove()
+        self.total_time_label.grid_remove()
+        
+        self.main_frame.grid_rowconfigure(1, weight=0, minsize=0)
+        self.main_frame.grid_rowconfigure(2, weight=0, minsize=0)
+
+        self.top_frame.grid_rowconfigure(0, minsize=0, weight=0) 
+        self.top_frame.grid_rowconfigure(2, minsize=0, weight=0)
+        self.top_frame.grid_rowconfigure(3, minsize=0, weight=0)  
+        self.video_frame.grid(row=1, column=0, padx=0, pady=0, sticky="nsew")
+        
+        #self.main_frame.grid_rowconfigure(0, weight=1)
+        #self.main_frame.grid_columnconfigure(0, weight=1)
+        
+        self.top_frame.grid_rowconfigure(1, weight=1)
+        
         self.top_frame.grid_columnconfigure(0, weight=1)
-        
-        
+
+ 
         # Create floating overlay window
         self.overlay.create_overlay()
 
@@ -296,22 +306,24 @@ class PlaylistPlayer:
         self.main_frame.grid_columnconfigure(1, weight=1)
         self.main_frame.grid_columnconfigure(2, weight=1)
         self.main_frame.grid_columnconfigure(3, weight=1)
-        
+
         self.top_frame.grid_rowconfigure(1, weight=1)
-        self.top_frame.grid_columnconfigure(0, weight=1)     
-        self.listbox.grid(row=1, column=0, padx=20, pady=(20, 0), sticky="nsew")
-        self.video_frame.grid(row=1, column=0, padx=0, pady=(20, 0), sticky="nsew")
-        self.time_slider.grid(row=2, column=0, padx=0, sticky="nsew")
-        self.current_time_label.grid(row=3, column=0, padx=(0, 500))
-        self.total_time_label.grid(row=3, column=0, padx=(500, 0))
+        self.top_frame.grid_columnconfigure(0, weight=1)   
         
-        self.vu_frame.grid(row=2, column=0, sticky="nsew")
+        self.black_frame.grid(sticky="nsew")
+        self.power_label_img.grid(row=0, column=1,pady=(5,0))
+        self.power_on_label.grid(row=0, column=0, padx=(250,0), pady=(5,0))
+        self.video_frame.grid(row=1, column=0, padx=0, pady=(0), sticky="nsew")
+        self.time_slider.grid(row=2, column=0, padx=0, sticky="nsew")
+        self.current_time_label.grid(row=3, column=0, padx=(0, 540))
+        self.total_time_label.grid(row=3, column=0, padx=(540, 0))
+    
+        self.controls_frame.grid(row=0, column=1, padx=(30, 0), pady=(5,0))
+        self.vu_frame_left.grid(row=2, column=0, padx=0, sticky="w")
+        self.vu_frame_right.grid(row=2, column=4, sticky="e")
         self.right_frame.grid(row=2, column=3, sticky="n")
         self.left_frame.grid(row=2, column=1, sticky="n")
         self.central_frame.grid(row=2, column=2, sticky="n")
-        self.power_label_img.grid(row=0, column=0, padx=0, pady=5)
-
-        
 
         if self.overlay_window:
             self.overlay.destroy_overlay()

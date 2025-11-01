@@ -7,23 +7,21 @@ class RealVUMeter(tk.Frame):
     def __init__(self, master, device_id=1, **kwargs):
         super().__init__(master, **kwargs)
         self.device_id = device_id
-        self.canvas = tk.Canvas(self, width=60, height=120, bg="#3C3A3A")
-        self.canvas.configure(highlightbackground="#3C3A3A")
+        self.canvas = tk.Canvas(self, width=60, height=120, bg="#232121")
+        self.canvas.configure(highlightbackground="#232121")
         self.canvas.grid()
 
-        # Parámetros visuales
+        # Visual parameters
         self.num_columns = 2
         self.num_segments = 20
         self.segment_height = 5
         self.spacing = 2
         self.column_spacing = 20
 
-
-        
         vumeter_width = self.num_columns * self.column_spacing
         x_offset = (70 - vumeter_width) // 2
 
-        # Crear matriz de segmentos
+        # Create segment matrix
         self.segments = []
         for col in range(self.num_columns):
             column_segments = []
@@ -49,7 +47,6 @@ class RealVUMeter(tk.Frame):
                 return "red"
 
         def callback(indata, frames, time, status):
-            
             self.left_volume = np.linalg.norm(indata[:, 0]) * 5 
             self.right_volume = np.linalg.norm(indata[:, 1]) * 5
             for seg_index, rect in enumerate(self.segments[0]):  # columna izquierda
