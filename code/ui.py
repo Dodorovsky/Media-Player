@@ -13,7 +13,7 @@ def setup_ui(self):
         self.root.title("Reproductor con lista")
         self.root.configure(bg="#82726D")
         self.root.geometry("600x470")
-        self.root.title("->- 9000 MEDI/\ PL/\YER")
+        self.root.title("DKY__9000 MEDI/\ PL/\YER")
         self.root.iconbitmap('media_player/graphics/backgrounds/dodorovsky.ico')
         
         # Main Frame
@@ -43,7 +43,7 @@ def setup_ui(self):
         self.top_frame.grid_columnconfigure(0, weight=1)
         
 
-        self.listbox = tk.Listbox(self.top_frame, bg="black", fg="#197F0F", width=110, height=16, selectbackground="#267227", selectforeground="lime",bd=0, highlightthickness=0, relief="flat")
+        self.listbox = tk.Listbox(self.top_frame, bg="black", fg="#197F0F", width=110, height=16, selectbackground="#6A8785", selectforeground="lime",bd=0, highlightthickness=0, relief="flat")
         self.listbox.grid(row=1, column=0, padx=0, pady=0)      
         self.listbox.drop_target_register(DND_FILES)
         self.listbox.dnd_bind('<<Drop>>', self.on_drop)
@@ -62,10 +62,10 @@ def setup_ui(self):
         self.time_slider = ttk.Scale(self.top_frame, from_=0, to=100, orient="horizontal", value=0, length=700, style="TScale")# 664
         self.time_slider.grid(row=2, column=0, padx=0, sticky="nsew")
         
-        self.current_time_label = tk.Label(self.top_frame, text="--:--", font=("Terminal", 9), fg="#E9E4B2", bg='#3A3535')
+        self.current_time_label = tk.Label(self.top_frame, text="--:--", font=("Terminal", 8), fg="#E9E4B2", bg='#3A3535')##E9E4B2, #FFFCE8
         self.current_time_label.grid(row=3, column=0, padx=(0, 540))
-        self.total_time_label = tk.Label(self.top_frame, text="--:--", font=("Terminal", 9), fg="#E9E4B2", bg='#3A3535')
-        self.total_time_label.grid(row=3, column=0, padx=(540, 0))
+        self.total_time_label = tk.Label(self.top_frame, text="--:--", font=("Terminal", 8), fg="#E9E4B2", bg='#3A3535')#CAFFFE
+        self.total_time_label.grid(row=3, column=0, padx=(533, 0))
         
         # Vumeter Frame
         self.vu_frame_left = tk.Frame(self.main_frame, bg='#3A3535')
@@ -76,7 +76,7 @@ def setup_ui(self):
         
         # Left Frame
         self.left_frame = tk.Frame(self.main_frame, bg="#3A3535")
-        self.left_frame.grid(row=2, column=1, sticky="w")
+        self.left_frame.grid(row=2, column=1, padx=(0, 15))
         
         # Central Frame
         self.central_frame = tk.Frame(self.main_frame, bg='#3A3535')
@@ -88,50 +88,47 @@ def setup_ui(self):
         
         # Controls Frame
         self.controls_frame = tk.LabelFrame(self.central_frame, text='CONTROLS->- ', font=("Terminal", 8), bg="#3A3535", fg="green")#fg="#E1B19E",  labelanchor="n",
-        self.controls_frame.grid(row=0, column=1, padx=(30, 0), pady=(5,0))
+        self.controls_frame.grid(row=0, column=1, padx=(10, 0), pady=(5,0))
         # Load button label-Frame
-        self.load_label_frame = tk.Label(self.left_frame, text='LOAD', font=("Terminal", 8), bg="#3A3535", fg="green")#fg="#E1B19E"
-        self.load_label_frame.grid(padx=(25,0), pady=(5,0))
+        self.load_label_frame = tk.Label(self.left_frame, text='LOAD_MEDIA', font=("Terminal", 8), bg="#3A3535", fg="green")#fg="#E1B19E"
+        self.load_label_frame.grid(padx=(5,0), pady=(5,0))
         
         # Load Button
         self.load_button = tk.Button(self.left_frame, command=self.load_files, bg="#F0C74C")
-        self.load_button.grid(padx=(25,0),pady=5)
+        self.load_button.grid(padx=(5,0),pady=5)
         
-        # Control Labels
-        #self.label_pause = tk.Label(self.central_frame, fg="#EDE8E6", text="PAUSE", font=("Terminal", 8), bg='#3A3535')
-        #self.label_pause.grid(row=0, column=0, padx=(8,0), pady=(10,0))
-        #self.label_stop = tk.Label(self.central_frame, text="STOP", fg="#EDE8E6",  font=("Terminal", 8),bg='#3A3535')
-        #self.label_stop.grid(row=0, column=1, padx=(0,3),pady=(10,0))
-        #self.label_play = tk.Label(self.central_frame, text="PLAY", font=("Terminal", 8), fg="#EDE8E6", bg='#3A3535')
-        #self.label_play.grid(row=0, column=2, padx=1, pady=(10,0))
-        
-        #self.prev_label = tk.Label(self.central_frame, text="PREV", fg="#EDE8E6", font=("Terminal", 8), bg='#3A3535')
-        #self.prev_label.grid(row=2, columnspan=3, padx=(0,30), pady=(5, 0))
-        #self.next_label = tk.Label(self.central_frame, text="NEXT", fg="#EDE8E6",font=("Terminal", 8), bg='#3A3535')
-        #self.next_label.grid(row=2, columnspan=3, padx=(60,0), pady=(5, 0))
+
         
         # Define Control Images
-        self.play_btn_img = ImageTk.PhotoImage(Image.open('media_player/graphics/buttons_control/play.png').resize((80, 23)))       
-        self.pause_btn_img = ImageTk.PhotoImage(Image.open('media_player/graphics/buttons_control/pause.png').resize((40,23)))
-        self.stop_btn_img = ImageTk.PhotoImage(Image.open('media_player/graphics/buttons_control/stop.png').resize((40,23)))
+        self.play_off = ImageTk.PhotoImage(Image.open('media_player/graphics/buttons_control/play_off_b.png').resize((60, 20)))
+        self.play_on = ImageTk.PhotoImage(Image.open('media_player/graphics/buttons_control/play_on_filter.png').resize((60, 20)))       
+       
+        self.pause_off = ImageTk.PhotoImage(Image.open('media_player/graphics/buttons_control/pausa_off_b.png').resize((35,20)))
+        self.pause_on = ImageTk.PhotoImage(Image.open('media_player/graphics/buttons_control/pausa_on_b.png').resize((35,20)))
+
+        self.stop_off = ImageTk.PhotoImage(Image.open('media_player/graphics/buttons_control/stop_off_b.png').resize((35,20)))
+        self.stop_on = ImageTk.PhotoImage(Image.open('media_player/graphics/buttons_control/stop_on_b.png').resize((35,20)))
+
         self.previous_img = ImageTk.PhotoImage(Image.open('media_player/graphics/buttons_control/prev.png').resize((48,9)))
         self.next_img = ImageTk.PhotoImage(Image.open('media_player/graphics/buttons_control/next.png').resize((48,9)))
-        self.power_light_img = ImageTk.PhotoImage(Image.open('media_player/graphics/buttons_control/power_light.png').resize((20, 20)))
-
+        self.hal_on = ImageTk.PhotoImage(Image.open('media_player/graphics/buttons_control/power_light.png').resize((21, 21)))#20,20
+        #self.hal_dim  = ImageTk.PhotoImage(Image.open('media_player/graphics/buttons_control/hall_dim.png').resize((21, 21)))#20,20
 
         self.power_on_label = tk.Label(self.black_frame,  text="POWER", font=("terminal", 6), fg="#E9E4B2", bg='#232121')
         self.power_on_label.grid(row=0, column=0, padx=(250,0), pady=(5,0))
-        self.power_label_img = tk.Label(self.black_frame, image=self.power_light_img, bg='#232121')
-        self.power_label_img.grid(row=0, column=1,pady=(5,0))
+        self.hal_label = tk.Label(self.black_frame, image=self.hal_on, bg='#232121')
+        self.hal_label.grid(row=0, column=1,pady=(5,3))
+        
+        self.hal_frames = [ImageTk.PhotoImage(Image.open(f"media_player/graphics/hal_frames/hal_dim_{i}.png").resize((21,21))) for i in range(1,11)]
         
         # Control Buttons
-        self.pause_button = tk.Button(self.controls_frame, image=self.pause_btn_img, command=self.pause)
+        self.pause_button = tk.Button(self.controls_frame, image=self.pause_off, command=self.pause)
         self.pause_button.grid(row=1, column=0, pady=(10,5), padx=(15,4))
         
-        self.stop_button = tk.Button(self.controls_frame, image=self.stop_btn_img, command=self.stop)
+        self.stop_button = tk.Button(self.controls_frame, image=self.stop_on, command=self.stop)
         self.stop_button.grid(row=1, column=1, pady=(10,5), padx=(0,3)) 
         
-        self.play_button = tk.Button(self.controls_frame, image=self.play_btn_img, command=self.play_from_selection)
+        self.play_button = tk.Button(self.controls_frame, image=self.play_off, command=self.play_from_selection)
         self.play_button.grid(row=1, column=2, pady=(10,5), padx=(10,15))
 
         self.prev_button = tk.Button(self.controls_frame, image=self.previous_img, command=self.play_previous)
@@ -140,20 +137,19 @@ def setup_ui(self):
         self.next_button = tk.Button(self.controls_frame, image=self.next_img, command=self.play_next)
         self.next_button.grid( row=3, columnspan=3, padx=(80,0), pady=(5, 10))
         
-        # Volume label
-        self.volume_label_frame = tk.Label(self.right_frame, text='VOLUME', font=("Terminal", 8), bg="#3A3535", fg="green")#fg="#E1B19E"
-        self.volume_label_frame.grid(padx=(0), pady=(25,0))
         
         # Volume Labels
-        self.volume_label = tk.Label(self.right_frame, text="50", bg='#3A3535', font=("Terminal", 9),fg="#C8C49B")
-        self.volume_label.grid(padx=(0), pady=(3))
+        self.volume_label = tk.Label(self.right_frame, text="50", bg='#3A3535', font=("Terminal", 8),fg="#E9E4B2")#D5FBFB
+        self.volume_label.grid(padx=((0,10)), pady=(25,3))
 
         # Volume SLider
         self.volume_slider =  ttk.Scale(self.right_frame, from_=1, to=100, orient="horizontal", command=self.set_volume, length=110, style="TScale")
-        self.volume_slider.grid(padx=(0))
+        self.volume_slider.grid(padx=(9,15))
         self.volume_slider.set(50)
 
-
+        # Volume label
+        self.volume_label_frame = tk.Label(self.right_frame, text='···VOLUME···', font=("Terminal", 8), bg="#3A3535", fg="green")#fg="#E1B19E"
+        self.volume_label_frame.grid(padx=(0,8), pady=(5,0))
 
         # Random Button
         self.shuffle_button = tk.Button(self.central_frame, text="RANDOM", font=("Terminal", 8), bg="#BDCCD6", command=self.toggle_shuffle)
@@ -169,8 +165,8 @@ def setup_ui(self):
         #meter_label = tk.Label(self.right_frame, text="______\n _____\n____\n___\n__\n_\n.", bg='#3C3A3A', fg="#E7D3B0")
         #meter_label.grid(row=0, column=3, padx=(5,40), pady=(10,0))
         
-        self.fullscreen_button = tk.Button(self.left_frame, text="VIDEO\nFULL SCREEN", font=("Terminal", 8), command=self.enter_fullscreen_video, bg="#E0E0B6")##F7EAC3
-        self.fullscreen_button.grid(padx=(20,0), pady=(10,30))
+        self.fullscreen_button = tk.Button(self.left_frame, text="VIDEO\nFULL SCREEN", font=("Terminal", 8), command=self.enter_fullscreen_video, bg="#EBE1AD")##F7EAC3
+        self.fullscreen_button.grid(padx=(5,0), pady=(10,30))
         self.root.bind("<Escape>", lambda e: self.exit_fullscreen_video())
         
         self.left_vu = VUColumn(self.vu_frame_left, channel_index=0)
@@ -184,12 +180,16 @@ def setup_ui(self):
 
         self.right_vu_label = tk.Label(self.vu_frame_right, text="RIGHT", font=("Terminal", 8), bg="#3A3535", fg="#E9E4B2")
         self.right_vu_label.grid(padx=(0,15), pady=(0,5))
+        
+        self.breathe_hal()
 
         def update_vumeter():
                 
                 self.root.after(500, update_vumeter)
 
         update_vumeter()
+        
+
 
 
 

@@ -36,6 +36,9 @@ class PlaylistPlayer:
         self.last_mouse_position = None
         self.mouse_tracker_active = False
         self.pantlla_completa = False
+        self.pause = False
+        self.stop = False
+        self.play = False
         
         self.overlay = FloatingOverlay(
     master=self.root,
@@ -54,6 +57,7 @@ class PlaylistPlayer:
     def load_files(self):
         # 📂 Opens file dialog to select multiple media files
         files = filedialog.askopenfilenames()
+        self.stop_button.config(image=self.stop_off)
 
         if files:
             self.playlist = list(files)
@@ -74,10 +78,11 @@ class PlaylistPlayer:
         if self.current_index is None:
             return
         filepath = self.playlist[self.current_index]
-
+        self.play_button.config(image=self.play_on)
         # Create the Media and assign it to the Player
         media = self.vlc_instance.media_new(filepath)
         self.player.set_media(media)
+        
 
         # 📼 Detect if it is video
         if filepath.lower().endswith(('.mp4', '.avi', '.mkv', '.mov')):
@@ -89,7 +94,19 @@ class PlaylistPlayer:
         else:
             self.video_frame.grid_remove()
             self.listbox.grid(row=1, column=0, padx=0, pady=0) 
-            self.power_label_img.grid(row=0, column=0, padx=0, pady=5)
+            self.power_on_label.grid(row=0, column=0, padx=(250,0), pady=(5,0))
+            self.hal_label.grid(row=0, column=1,pady=(5,5))
+            self.stop_button.config(image=self.stop_off )
+            self.pause_button.config(image=self.pause_off)
+            self.left_vu_label.config(fg="#CAFFFE")
+            self.right_vu_label.config(fg="#CAFFFE")
+            self.current_time_label.config(fg="#CAFFFE")
+            self.total_time_label.config(fg="#CAFFFE")
+            self.volume_label.config(fg="#CAFFFE")
+            self.play = True
+            self.stop = False
+
+            
         if self.pantlla_completa:
             self.video_frame.grid(row=0, column=0, sticky="nsew")
             self.video_frame.grid(row=1, column=0, padx=0, pady=0, sticky="nsew")
@@ -101,14 +118,76 @@ class PlaylistPlayer:
         self.update_time()
 
     def pause(self):
-        self.player.pause()
 
+        self.player.pause()
+        
+        if self.stop:
+            self.pause_button.config(image=self.pause_off)
+            self.left_vu_label.config(fg="#E9E4B2")
+            self.right_vu_label.config(fg="#E9E4B2")
+            self.volume_label.config(fg="#E9E4B2")
+
+        elif not self.pause and  self.play:
+            self.play_button.config(image=self.play_off)
+            self.pause_button.config(image=self.pause_on)
+            self.left_vu_label.config(fg="#E9E4B2")
+            self.right_vu_label.config(fg="#E9E4B2")
+            self.current_time_label.config(fg="#E9E4B2")
+            self.total_time_label.config(fg="#E9E4B2")
+            self.volume_label.config(fg="#E9E4B2")
+            #self.stop_button.config(image=self.stop_btn_img )
+            self.pause = True
+            self.play = False
+                  
+        elif self.pause and not self.play:
+            self.play_button.config(image=self.play_on)
+            self.pause_button.config(image=self.pause_off)
+            self.left_vu_label.config(fg="#CAFFFE")
+            self.right_vu_label.config(fg="#CAFFFE")
+            self.current_time_label.config(fg="#CAFFFE")
+            self.total_time_label.config(fg="#CAFFFE")
+            self.volume_label.config(fg="#CAFFFE")
+            self.pause = False
+            self.play = True
+            
+        elif self.pause and self.play:
+            self.pause_button.config(image=self.pause_on)
+            self.play_button.config(image=self.play_off)
+            self.left_vu_label.config(fg="#E9E4B2")
+            self.right_vu_label.config(fg="#E9E4B2")
+            self.current_time_label.config(fg="#E9E4B2")
+            self.total_time_label.config(fg="#E9E4B2")
+            self.volume_label.config(fg="#E9E4B2")
+            self.pause = False
+            self.play = False
+        elif not self.pause and not self.play:
+            self.play_button.config(image=self.play_on)
+            self.pause_button.config(image=self.pause_off)
+            self.left_vu_label.config(fg="#CAFFFE")
+            self.right_vu_label.config(fg="#CAFFFE")
+            self.current_time_label.config(fg="#CAFFFE")
+            self.total_time_label.config(fg="#CAFFFE")
+            self.volume_label.config(fg="#CAFFFE")
+            self.play = True
+        else:
+            pass
+           
     def stop(self):
         self.player.stop() # ⏹️ Stop playback and reset UI
         self.updating_slider = True
         self.time_slider.set(0)
         self.current_time_label.config(text="00:00")
         self.updating_slider = False
+        self.play_button.config(image=self.play_off)
+        self.stop_button.config(image=self.stop_on)
+        self.pause_button.config(image=self.pause_off)
+        self.left_vu_label.config(fg="#E9E4B2")
+        self.right_vu_label.config(fg="#E9E4B2")
+        self.current_time_label.config(fg="#E9E4B2")
+        self.total_time_label.config(fg="#E9E4B2")
+        self.volume_label.config(fg="#E9E4B2")
+        self.stop = True
+        self.play = False
                     
     def play_previous(self):
         if self.current_index is not None and self.current_index > 0:
@@ -311,7 +390,7 @@ class PlaylistPlayer:
         self.top_frame.grid_columnconfigure(0, weight=1)   
         
         self.black_frame.grid(sticky="nsew")
-        self.power_label_img.grid(row=0, column=1,pady=(5,0))
+        self.hal_label.grid(row=0, column=1,pady=(5,0))
         self.power_on_label.grid(row=0, column=0, padx=(250,0), pady=(5,0))
         self.video_frame.grid(row=1, column=0, padx=0, pady=(0), sticky="nsew")
         self.time_slider.grid(row=2, column=0, padx=0, sticky="nsew")
@@ -368,10 +447,13 @@ class PlaylistPlayer:
         self.root.after(300, self.track_mouse_movement)
 
 
-
-
-    
-
+    def breathe_hal(self, index=0, direction=1):
+            self.hal_label.configure(image=self.hal_frames[index])
+            next_index = index + direction
+            if next_index == len(self.hal_frames) or next_index < 0:
+                    direction *= -1
+                    next_index = index + direction
+            self.root.after(750, lambda: self.breathe_hal(next_index, direction))
 
 
 
