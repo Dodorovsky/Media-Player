@@ -87,3 +87,4 @@ class FloatingOverlay:
             self.overlay_window = None
             self.overlay_visible = False
             self.mouse_tracker_active = False
+ 

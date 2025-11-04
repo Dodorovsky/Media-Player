@@ -2,7 +2,7 @@ from modules.utils import format_time
 #from modules.vumeter_real import RealVUMeter
 #from modules.vu_meter_experiment import VUMeterExperimental
 from modules.vu_meter_experiment import VUColumn
-
+from mutagen import File
 from modules.overlay import FloatingOverlay
 from ui import setup_ui
 import tkinter as tk
@@ -36,9 +36,12 @@ class PlaylistPlayer:
         self.last_mouse_position = None
         self.mouse_tracker_active = False
         self.pantlla_completa = False
-        self.pause = False
-        self.stop = False
+        self.pausa = False
+        self.parar = False
         self.play = False
+        self.is_muted = False
+        self.last_volume = 50
+        self.is_compact = False
         
         self.overlay = FloatingOverlay(
     master=self.root,
@@ -63,10 +66,14 @@ class PlaylistPlayer:
             self.playlist = list(files)
             # 🧹 Clears the current listbox display
             self.listbox.delete(0, tk.END)
-
             for f in self.playlist:
-                self.listbox.insert(tk.END, os.path.basename(f))
                 self.current_file_is_audio = f.lower().endswith((".mp3", ".wav", ".flac"))
+                if self.current_file_is_audio:
+                    self.load_file_in_listbox(f)
+                else:
+                    self.listbox.insert(tk.END, os.path.basename(f))
+
+               
             self.pantlla_completa =False
             # 🔊 Auto-launch: selects and plays the first track
             self.current_index = 0
@@ -88,7 +95,17 @@ class PlaylistPlayer:
         if filepath.lower().endswith(('.mp4', '.avi', '.mkv', '.mov')):
             self.listbox.grid_remove()
             self.video_frame.grid(row=1, column=0, padx=0, pady=0, sticky="nsew")
-            
+            self.stop_button.config(image=self.stop_off )
+            self.pause_button.config(image=self.pause_off)
+            self.left_vu_label.config(fg="#F96800")
+            self.right_vu_label.config(fg="#F96800")
+            self.current_time_label.config(fg="#B2FFFF")
+            self.total_time_label.config(fg="#B2FFFF")
+            self.mp6_label_left.config(image=self.mp6)
+            self.mp6_label_right.config(image=self.mp6)
+            self.volume_label.config(fg="#CAFFFE")
+            self.play = True
+            self.parar = False
             self.root.update_idletasks()
             self.embed_video()     
         else:
@@ -98,13 +115,15 @@ class PlaylistPlayer:
             self.hal_label.grid(row=0, column=1,pady=(5,5))
             self.stop_button.config(image=self.stop_off )
             self.pause_button.config(image=self.pause_off)
-            self.left_vu_label.config(fg="#CAFFFE")
-            self.right_vu_label.config(fg="#CAFFFE")
-            self.current_time_label.config(fg="#CAFFFE")
-            self.total_time_label.config(fg="#CAFFFE")
+            self.left_vu_label.config(fg="#FF8D8D")
+            self.right_vu_label.config(fg="#FF8D8D")#C55546
+            self.current_time_label.config(fg="#B2FFFF")
+            self.total_time_label.config(fg="#B2FFFF")
             self.volume_label.config(fg="#CAFFFE")
+            self.mp6_label_left.config(image=self.mp6)
+            self.mp6_label_right.config(image=self.mp6)
             self.play = True
-            self.stop = False
+            self.parar = False
 
             
         if self.pantlla_completa:
@@ -121,13 +140,14 @@ class PlaylistPlayer:
 
         self.player.pause()
         
-        if self.stop:
+        if self.parar:
             self.pause_button.config(image=self.pause_off)
             self.left_vu_label.config(fg="#E9E4B2")
             self.right_vu_label.config(fg="#E9E4B2")
             self.volume_label.config(fg="#E9E4B2")
 
-        elif not self.pause and  self.play:
+
+        elif not self.pausa and  self.play:
             self.play_button.config(image=self.play_off)
             self.pause_button.config(image=self.pause_on)
             self.left_vu_label.config(fg="#E9E4B2")
@@ -135,22 +155,25 @@ class PlaylistPlayer:
             self.current_time_label.config(fg="#E9E4B2")
             self.total_time_label.config(fg="#E9E4B2")
             self.volume_label.config(fg="#E9E4B2")
+            self.mp6_label_left.config(image=self.mp6_off)
+            self.mp6_label_right.config(image=self.mp6_off)
+
             #self.stop_button.config(image=self.stop_btn_img )
-            self.pause = True
+            self.pausa = True
             self.play = False
                   
-        elif self.pause and not self.play:
+        elif self.pausa and not self.play:
             self.play_button.config(image=self.play_on)
             self.pause_button.config(image=self.pause_off)
-            self.left_vu_label.config(fg="#CAFFFE")
-            self.right_vu_label.config(fg="#CAFFFE")
+            self.left_vu_label.config(fg="#F96800")
+            self.right_vu_label.config(fg="#F96800")
             self.current_time_label.config(fg="#CAFFFE")
             self.total_time_label.config(fg="#CAFFFE")
             self.volume_label.config(fg="#CAFFFE")
-            self.pause = False
+            self.pausa = False
             self.play = True
             
-        elif self.pause and self.play:
+        elif self.pausa and self.play:
             self.pause_button.config(image=self.pause_on)
             self.play_button.config(image=self.play_off)
             self.left_vu_label.config(fg="#E9E4B2")
@@ -158,22 +181,28 @@ class PlaylistPlayer:
             self.current_time_label.config(fg="#E9E4B2")
             self.total_time_label.config(fg="#E9E4B2")
             self.volume_label.config(fg="#E9E4B2")
-            self.pause = False
+            self.mp6_label_left.config(image=self.mp6_off)
+            self.mp6_label_right.config(image=self.mp6_off)
+
+            self.pausa = False
             self.play = False
-        elif not self.pause and not self.play:
-            self.play_button.config(image=self.play_on)
+        elif not self.pausa and not self.play:
+            self.play_button.config(image=self.play_off)
             self.pause_button.config(image=self.pause_off)
-            self.left_vu_label.config(fg="#CAFFFE")
-            self.right_vu_label.config(fg="#CAFFFE")
+            self.left_vu_label.config(fg="#E9E4B2")
+            self.right_vu_label.config(fg="#E9E4B2")
             self.current_time_label.config(fg="#CAFFFE")
             self.total_time_label.config(fg="#CAFFFE")
             self.volume_label.config(fg="#CAFFFE")
+
             self.play = True
         else:
             pass
            
     def stop(self):
         self.player.stop() # ⏹️ Stop playback and reset UI
+        self.mp6_label_left.config(image=self.mp6_off)
+        self.mp6_label_right.config(image=self.mp6_off)
         self.updating_slider = True
         self.time_slider.set(0)
         self.current_time_label.config(text="00:00")
@@ -183,10 +212,10 @@ class PlaylistPlayer:
         self.pause_button.config(image=self.pause_off)
         self.left_vu_label.config(fg="#E9E4B2")
         self.right_vu_label.config(fg="#E9E4B2")
-        self.current_time_label.config(fg="#E9E4B2")
-        self.total_time_label.config(fg="#E9E4B2")
+        self.current_time_label.config(fg="#D8D4A8")
+        self.total_time_label.config(fg="#D8D4A8")
         self.volume_label.config(fg="#E9E4B2")
-        self.stop = True
+        self.parar = True
         self.play = False
                     
     def play_previous(self):
@@ -240,12 +269,18 @@ class PlaylistPlayer:
             
     def update_time(self):
         current_time = self.player.get_time()
+        
+        #Turn off the play light if there is nothing left to play
+        if current_time > 10 and not self.player.is_playing():
+            self.play_button.config(image=self.play_off)
+             
+            
         if self.player.is_playing():
             if current_time >= 0 and current_time != self.time_slider.get():
                 self.updating_slider = True
                 self.time_slider.set(current_time)
                 self.current_time_label.config(text=format_time(current_time))
-                self.updating_slider = False
+                self.updating_slider = False    
         else:
             # If it is not playing and the current time is near the end
             if self.duration > 0 and current_time >= self.duration - 1000:
@@ -264,12 +299,12 @@ class PlaylistPlayer:
             
     def toggle_loop(self):
         self.loop_enabled = not self.loop_enabled
-        state =  "#7FF530" if self.loop_enabled else "#C2DDAC"
-        self.loop_button.config(bg="f{state}")
+        state =  "#7FF530" if self.loop_enabled else "#BDCCD6"
+        self.loop_button.config(bg=state)
 
     def toggle_shuffle(self):
         self.shuffle_enabled = not self.shuffle_enabled
-        color = "#7FF530" if self.shuffle_enabled else "#C2DDAC"
+        color = "#7FF530" if self.shuffle_enabled else "#BDCCD6"
         self.shuffle_button.config(bg=color)
 
     def on_drop(self, event):
@@ -333,76 +368,107 @@ class PlaylistPlayer:
         if self.current_file_is_audio:
             messagebox.showinfo("Full screen mode", "Full screen mode is disabled for audio files")
             return
-        self.root.update_idletasks()
-        self.root.attributes("-fullscreen", True)
-        self.mouse_tracker_active = True
-        self.track_mouse_movement()
-        self.pantlla_completa = True
 
-        # Ocultar todos los elementos excepto el video
-        self.black_frame.grid_remove()
-        self.controls_frame.grid_remove()
-        self.central_frame.grid_remove()
-        self.right_frame.grid_remove()
-        self.left_frame.grid_remove()
-        self.vu_frame_left.grid_remove()
-        self.vu_frame_right.grid_remove()
-        
-        self.listbox.grid_remove()
-        self.time_slider.grid_remove()
-        self.current_time_label.grid_remove()
-        self.total_time_label.grid_remove()
-        
+        self.root.attributes("-fullscreen", True)
+        self.root.configure(bg="black")
+        self.main_frame.configure(bg="black")
+        self.top_frame.configure(bg="black")
+
+        self.mouse_tracker_active = True
+        self.pantlla_completa = True
+        self.track_mouse_movement()
+
+        # Mostrar el video
+        self.video_frame.grid(row=1, column=0, padx=0, pady=0, sticky="nsew")
+        self.top_frame.grid(row=0, column=0, columnspan=5, sticky="nsew")
+
+        # Ocultar módulos secundarios
+        for widget in [
+            self.black_frame, self.controls_frame, self.central_frame, self.right_frame,
+            self.left_frame, self.vu_frame_left, self.vu_frame_right, self.listbox,
+            self.time_slider, self.current_time_label, self.total_time_label, self.midle_frame
+        ]:
+            widget.grid_remove()
+
+        # Aplastar filas secundarias
         self.main_frame.grid_rowconfigure(1, weight=0, minsize=0)
         self.main_frame.grid_rowconfigure(2, weight=0, minsize=0)
+        self.top_frame.grid_rowconfigure(0, weight=0, minsize=0)
+        self.top_frame.grid_rowconfigure(2, weight=0, minsize=0)
+        self.top_frame.grid_rowconfigure(3, weight=0, minsize=0)
 
-        self.top_frame.grid_rowconfigure(0, minsize=0, weight=0) 
-        self.top_frame.grid_rowconfigure(2, minsize=0, weight=0)
-        self.top_frame.grid_rowconfigure(3, minsize=0, weight=0)  
-        self.video_frame.grid(row=1, column=0, padx=0, pady=0, sticky="nsew")
-        
-        #self.main_frame.grid_rowconfigure(0, weight=1)
-        #self.main_frame.grid_columnconfigure(0, weight=1)
-        
+        # Expandir fila y columna del video
+        self.main_frame.grid_rowconfigure(0, weight=1)
         self.top_frame.grid_rowconfigure(1, weight=1)
-        
         self.top_frame.grid_columnconfigure(0, weight=1)
 
- 
-        # Create floating overlay window
-        self.overlay.create_overlay()
-
-        # Detect global movement
-        self.track_mouse_movement()
-
-        self.show_overlay()
-
-    def exit_fullscreen_video(self):
-        self.root.attributes("-fullscreen", False)
-
-        # Restore elements
+        # Expandir columnas centrales
         self.main_frame.grid_columnconfigure(0, weight=1)
         self.main_frame.grid_columnconfigure(1, weight=1)
         self.main_frame.grid_columnconfigure(2, weight=1)
-        self.main_frame.grid_columnconfigure(3, weight=1)
+        self.main_frame.grid_columnconfigure(3, weight=0)
+        self.main_frame.grid_columnconfigure(4, weight=0)
 
-        self.top_frame.grid_rowconfigure(1, weight=1)
-        self.top_frame.grid_columnconfigure(0, weight=1)   
+        # Expandir raíz
+        self.root.grid_rowconfigure(0, weight=1)
+        self.root.grid_columnconfigure(0, weight=1)
+
+        # Overlay HAL-style
+        self.overlay.create_overlay()
+        self.show_overlay()
+
+
+    def exit_fullscreen_video(self):
+        self.root.attributes("-fullscreen", False)
+        self.mouse_tracker_active = False
+
+
+        self.root.geometry("570x430")  # Restaurar tamaño original
+
+        # Restaurar visibilidad de todos los frames
+        self.black_frame.grid()
+        self.controls_frame.grid()
+        self.central_frame.grid()
+        self.right_frame.grid()
+        self.left_frame.grid()
+        self.vu_frame_left.grid()
+        self.vu_frame_right.grid()
+        self.listbox.grid()
+        self.midle_frame.grid()
         
-        self.black_frame.grid(sticky="nsew")
-        self.hal_label.grid(row=0, column=1,pady=(5,0))
-        self.power_on_label.grid(row=0, column=0, padx=(250,0), pady=(5,0))
-        self.video_frame.grid(row=1, column=0, padx=0, pady=(0), sticky="nsew")
+
+        # Ocultar el video si no lo usás en modo normal
+        #self.video_frame.grid_forget()
+
+        # Restaurar pesos de columnas
+        self.main_frame.grid_columnconfigure(0, weight=1)
+        self.main_frame.grid_columnconfigure(1, weight=1)
+        self.main_frame.grid_columnconfigure(2, weight=1)
+        self.main_frame.grid_columnconfigure(3, weight=0)
+        self.main_frame.grid_columnconfigure(4, weight=0)
+
+        # Restaurar pesos de filas
+        self.main_frame.grid_rowconfigure(0, weight=0)
+        self.main_frame.grid_rowconfigure(2, weight=1)
+        self.top_frame.grid_rowconfigure(1, weight=1)
+
+        # Restaurar colores si los cambiaste en fullscreen
+        self.root.configure(bg="#82726D")
+        self.main_frame.configure(bg="#3A3535")
+        self.top_frame.configure(bg="#3A3535")
+        self.video_frame.configure(bg="black")
+        self.current_time_label.grid(row=3, column=0, padx=(0, 492))
+        self.total_time_label.grid(row=3, column=0, padx=(518, 0))
         self.time_slider.grid(row=2, column=0, padx=0, sticky="nsew")
-        self.current_time_label.grid(row=3, column=0, padx=(0, 540))
-        self.total_time_label.grid(row=3, column=0, padx=(540, 0))
-    
-        self.controls_frame.grid(row=0, column=1, padx=(30, 0), pady=(5,0))
-        self.vu_frame_left.grid(row=2, column=0, padx=0, sticky="w")
-        self.vu_frame_right.grid(row=2, column=4, sticky="e")
-        self.right_frame.grid(row=2, column=3, sticky="n")
-        self.left_frame.grid(row=2, column=1, sticky="n")
-        self.central_frame.grid(row=2, column=2, sticky="n")
+        self.top_frame.config(bg="black")
+
+
+
+
+
+
+
+
 
         if self.overlay_window:
             self.overlay.destroy_overlay()
@@ -446,19 +512,89 @@ class PlaylistPlayer:
 
         self.root.after(300, self.track_mouse_movement)
 
-
     def breathe_hal(self, index=0, direction=1):
             self.hal_label.configure(image=self.hal_frames[index])
             next_index = index + direction
             if next_index == len(self.hal_frames) or next_index < 0:
                     direction *= -1
                     next_index = index + direction
-            self.root.after(750, lambda: self.breathe_hal(next_index, direction))
+            self.root.after(80, lambda: self.breathe_hal(next_index, direction))
 
-
-
-
+    def toggle_mute(self):
         
+        if self.is_muted:
+            self.volume_slider.set(self.last_volume)
+            self.is_muted = False
+            if self.player.is_playing():
+                self.volume_label.config(fg="#CAFFFE")
+                self.mute_button.config(bg="#F4C9A1")
+                self.volume_label_frame.config(fg="green")
+                
+            else:
+                self.mute_button.config(bg="#F4C9A1")
+                self.volume_label.config(fg="#E9E4B2")
+                self.volume_label_frame.config(fg="green")
+                
+            
+        else:
+            self.last_volume = self.volume_slider.get()
+            self.volume_slider.set(0)
+            self.mute_button.config(bg="#C55546")
+            self.volume_label.config(fg="#C91310")
+            self.volume_label_frame.config(fg="#C91310")
+            
+            self.is_muted = True
+
+    def load_file_in_listbox(self,ruta):
+        audio = File(ruta)
+        if audio is None:
+            self.listbox.insert("end", ruta.split("/")[-1])  # Solo el nombre si no se puede leer
+            return
+
+        # Duración
+        duracion = ""
+        if hasattr(audio.info, 'length'):
+            minutos = int(audio.info.length // 60)
+            segundos = int(audio.info.length % 60)
+            duracion = f"[{minutos}:{segundos:02d}]"
+
+        # Título, artista
+        titulo = ""
+        artista = ""
+        if audio.tags:
+            if "TIT2" in audio.tags:
+                titulo = audio.tags["TIT2"].text[0]
+            if "TPE1" in audio.tags:
+                artista = audio.tags["TPE1"].text[0]
+
+        # Construir línea
+        if titulo or artista:
+            linea = f"{artista} – {titulo} {duracion}"
+        else:
+            linea = f"{ruta.split('/')[-1]} {duracion}"
+
+        self.listbox.insert("end", linea)
+
+
+    def compact(self):
+        if self.is_compact:
+            self.root.geometry("570x410")
+            self.compact_button.config(bg="#959688", text="CRT/AMP")
+            self.top_frame.grid(row=0, column=0, columnspan=5, sticky="nsew")  # Restaurar
+            self.is_compact = False
+        else:
+            self.root.geometry("570x158")# 560x470pass
+            self.compact_button.config(bg="#989C6F", text="CRT/AMP")
+            self.top_frame.grid_remove()
+            self.midle_frame.grid_remove()
+            self.times_frame.config(bg="#3A3535")
+            self.current_time_label.config(bg="#3A3535")
+            self.total_time_label.config(bg="#3A3535")
+    
+
+            
+
+            self.is_compact = True
 
         
 
