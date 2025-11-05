@@ -94,16 +94,20 @@ class PlaylistPlayer:
         # 📼 Detect if it is video
         if filepath.lower().endswith(('.mp4', '.avi', '.mkv', '.mov')):
             self.listbox.grid_remove()
+
             self.video_frame.grid(row=1, column=0, padx=0, pady=0, sticky="nsew")
+            self.black_frame.grid(row=0, pady=0, columnspan=5, sticky="n")
             self.stop_button.config(image=self.stop_off )
             self.pause_button.config(image=self.pause_off)
-            self.left_vu_label.config(fg="#F96800")
-            self.right_vu_label.config(fg="#F96800")
+            
+            self.hal_label.grid(row=0, column=3,pady=(0))
             self.current_time_label.config(fg="#B2FFFF")
             self.total_time_label.config(fg="#B2FFFF")
             self.mp6_label_left.config(image=self.mp6)
             self.mp6_label_right.config(image=self.mp6)
-            self.volume_label.config(fg="#CAFFFE")
+            self.volume_label.config(fg="#E9E4B2")
+            self.style.configure('Custom.Horizontal.TScale', troughcolor="orange")
+            self.style.configure('TScale', troughcolor="#B1620D")
             self.play = True
             self.parar = False
             self.root.update_idletasks()
@@ -111,17 +115,18 @@ class PlaylistPlayer:
         else:
             self.video_frame.grid_remove()
             self.listbox.grid(row=1, column=0, padx=0, pady=0) 
-            self.power_on_label.grid(row=0, column=0, padx=(250,0), pady=(5,0))
-            self.hal_label.grid(row=0, column=1,pady=(5,5))
+            #self.power_on_label.grid(row=0, column=0, padx=(250,0), pady=(5,0))
+            
             self.stop_button.config(image=self.stop_off )
             self.pause_button.config(image=self.pause_off)
-            self.left_vu_label.config(fg="#FF8D8D")
-            self.right_vu_label.config(fg="#FF8D8D")#C55546
-            self.current_time_label.config(fg="#B2FFFF")
-            self.total_time_label.config(fg="#B2FFFF")
-            self.volume_label.config(fg="#CAFFFE")
+
+            self.current_time_label.config(fg="#ADADAD")
+            self.total_time_label.config(fg="#ADADAD")
+            self.volume_label.config(fg="#E9E4B2")
             self.mp6_label_left.config(image=self.mp6)
             self.mp6_label_right.config(image=self.mp6)
+            self.style.configure('Custom.Horizontal.TScale', troughcolor="#C28409")
+            self.style.configure('TScale', troughcolor="#D7B36B")
             self.play = True
             self.parar = False
 
@@ -139,12 +144,13 @@ class PlaylistPlayer:
     def pause(self):
 
         self.player.pause()
-        
+
         if self.parar:
             self.pause_button.config(image=self.pause_off)
             self.left_vu_label.config(fg="#E9E4B2")
             self.right_vu_label.config(fg="#E9E4B2")
             self.volume_label.config(fg="#E9E4B2")
+
 
 
         elif not self.pausa and  self.play:
@@ -157,6 +163,8 @@ class PlaylistPlayer:
             self.volume_label.config(fg="#E9E4B2")
             self.mp6_label_left.config(image=self.mp6_off)
             self.mp6_label_right.config(image=self.mp6_off)
+            self.style.configure('Custom.Horizontal.TScale', troughcolor="black")
+            self.style.configure('TScale', troughcolor="#black")
 
             #self.stop_button.config(image=self.stop_btn_img )
             self.pausa = True
@@ -165,11 +173,13 @@ class PlaylistPlayer:
         elif self.pausa and not self.play:
             self.play_button.config(image=self.play_on)
             self.pause_button.config(image=self.pause_off)
-            self.left_vu_label.config(fg="#F96800")
-            self.right_vu_label.config(fg="#F96800")
+            self.mp6_label_left.config(image=self.mp6)
+            self.mp6_label_right.config(image=self.mp6)
             self.current_time_label.config(fg="#CAFFFE")
             self.total_time_label.config(fg="#CAFFFE")
             self.volume_label.config(fg="#CAFFFE")
+            self.style.configure('Custom.Horizontal.TScale', troughcolor="orange")
+            self.style.configure('TScale', troughcolor="#D7B36B")
             self.pausa = False
             self.play = True
             
@@ -183,9 +193,11 @@ class PlaylistPlayer:
             self.volume_label.config(fg="#E9E4B2")
             self.mp6_label_left.config(image=self.mp6_off)
             self.mp6_label_right.config(image=self.mp6_off)
+            self.style.configure('Custom.Horizontal.TScale', troughcolor="black")
+            self.style.configure('TScale', troughcolor="#black")
 
             self.pausa = False
-            self.play = False
+            self.play = False 
         elif not self.pausa and not self.play:
             self.play_button.config(image=self.play_off)
             self.pause_button.config(image=self.pause_off)
@@ -194,6 +206,10 @@ class PlaylistPlayer:
             self.current_time_label.config(fg="#CAFFFE")
             self.total_time_label.config(fg="#CAFFFE")
             self.volume_label.config(fg="#CAFFFE")
+            self.style.configure('Custom.Horizontal.TScale', troughcolor="orange")
+            self.style.configure('TScale', troughcolor="#D7B36B")
+            self.mp6_label_left.config(image=self.mp6)
+            self.mp6_label_right.config(image=self.mp6)
 
             self.play = True
         else:
@@ -201,6 +217,8 @@ class PlaylistPlayer:
            
     def stop(self):
         self.player.stop() # ⏹️ Stop playback and reset UI
+        self.style.configure('Custom.Horizontal.TScale', troughcolor="black")
+        self.style.configure('TScale', troughcolor="#black")
         self.mp6_label_left.config(image=self.mp6_off)
         self.mp6_label_right.config(image=self.mp6_off)
         self.updating_slider = True
@@ -212,8 +230,8 @@ class PlaylistPlayer:
         self.pause_button.config(image=self.pause_off)
         self.left_vu_label.config(fg="#E9E4B2")
         self.right_vu_label.config(fg="#E9E4B2")
-        self.current_time_label.config(fg="#D8D4A8")
-        self.total_time_label.config(fg="#D8D4A8")
+        self.current_time_label.config(fg="#ADADAD")
+        self.total_time_label.config(fg="#ADADAD")
         self.volume_label.config(fg="#E9E4B2")
         self.parar = True
         self.play = False
@@ -377,6 +395,7 @@ class PlaylistPlayer:
         self.mouse_tracker_active = True
         self.pantlla_completa = True
         self.track_mouse_movement()
+        
 
         # Mostrar el video
         self.video_frame.grid(row=1, column=0, padx=0, pady=0, sticky="nsew")
@@ -420,10 +439,8 @@ class PlaylistPlayer:
 
     def exit_fullscreen_video(self):
         self.root.attributes("-fullscreen", False)
-        self.mouse_tracker_active = False
-
-
-        self.root.geometry("570x430")  # Restaurar tamaño original
+        
+        self.root.geometry("500x345")  # Restaurar tamaño original
 
         # Restaurar visibilidad de todos los frames
         self.black_frame.grid()
@@ -436,7 +453,7 @@ class PlaylistPlayer:
         self.listbox.grid()
         self.midle_frame.grid()
         
-
+        
         # Ocultar el video si no lo usás en modo normal
         #self.video_frame.grid_forget()
 
@@ -455,32 +472,28 @@ class PlaylistPlayer:
         # Restaurar colores si los cambiaste en fullscreen
         self.root.configure(bg="#82726D")
         self.main_frame.configure(bg="#3A3535")
-        self.top_frame.configure(bg="#3A3535")
+        self.top_frame.configure(bg="#232121")
         self.video_frame.configure(bg="black")
-        self.current_time_label.grid(row=3, column=0, padx=(0, 492))
-        self.total_time_label.grid(row=3, column=0, padx=(518, 0))
+        self.current_time_label.grid(row=3, column=0, padx=2, sticky="w")
+        self.total_time_label.grid(row=3, column=5, padx=2)
         self.time_slider.grid(row=2, column=0, padx=0, sticky="nsew")
-        self.top_frame.config(bg="black")
+        
 
-
-
-
-
-
-
-
+     
+        
 
         if self.overlay_window:
             self.overlay.destroy_overlay()
             self.overlay_window = None
             self.overlay_visible = False
             self.root.unbind("<Motion>")
+            
         self.fullscreen = False
         self.mouse_tracker_active = False
      
-    def on_mouse_move(self, event=None):
-        if getattr(self, "fullscreen", False):
-            self.show_overlay()
+    #def on_mouse_move(self, event=None):
+        #if getattr(self, "fullscreen", False):
+            #self.show_overlay()
 
     def show_overlay(self):
         if self.overlay_window:
@@ -542,6 +555,7 @@ class PlaylistPlayer:
             self.mute_button.config(bg="#C55546")
             self.volume_label.config(fg="#C91310")
             self.volume_label_frame.config(fg="#C91310")
+            self.style.configure('TScale', troughcolor="#C91310")
             
             self.is_muted = True
 
@@ -578,26 +592,33 @@ class PlaylistPlayer:
 
     def compact(self):
         if self.is_compact:
-            self.root.geometry("570x410")
+            self.root.geometry("500x357")
             self.compact_button.config(bg="#959688", text="CRT/AMP")
             self.top_frame.grid(row=0, column=0, columnspan=5, sticky="nsew")  # Restaurar
+            self.midle_frame.grid()
+            self.times_frame.config(bg="black")
+            self.current_time_label.config(bg="black", fg="#ADADAD")
+            self.total_time_label.config(bg="black", fg="#ADADAD")
             self.is_compact = False
         else:
-            self.root.geometry("570x158")# 560x470pass
+            if not self.current_file_is_audio:
+                messagebox.showinfo("Amp mode", "Amp mode is disabled for video files")
+                return
+            self.root.geometry("500x125")# 560x470pass
             self.compact_button.config(bg="#989C6F", text="CRT/AMP")
             self.top_frame.grid_remove()
             self.midle_frame.grid_remove()
             self.times_frame.config(bg="#3A3535")
+
             self.current_time_label.config(bg="#3A3535")
             self.total_time_label.config(bg="#3A3535")
-    
-
+            self.current_time_label.grid(row=4, column=0, padx=2, sticky="w")
+            self.total_time_label.grid(row=4, column=5, padx=2)
             
 
             self.is_compact = True
 
         
-
 
 
 

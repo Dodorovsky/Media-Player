@@ -7,13 +7,13 @@ class RealVUMeter(tk.Frame):
     def __init__(self, master, device_id=1, **kwargs):
         super().__init__(master, **kwargs)
         self.device_id = device_id
-        self.canvas = tk.Canvas(self, width=60, height=120, bg="#232121")
+        self.canvas = tk.Canvas(self, width=60, height=170, bg="#232121")
         self.canvas.configure(highlightbackground="#232121")
         self.canvas.grid()
 
         # Visual parameters
         self.num_columns = 2
-        self.num_segments = 20
+        self.num_segments = 17
         self.segment_height = 5
         self.spacing = 2
         self.column_spacing = 20

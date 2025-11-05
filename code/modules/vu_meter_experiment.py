@@ -8,12 +8,12 @@ class VUColumn(tk.Frame):
         super().__init__(master, **kwargs)
         self.channel_index = channel_index  # 0 = left, 1 = right
         self.device_id = device_id
-        self.canvas = tk.Canvas(self, width=30, height=110, bg="#3A3535")
+        self.canvas = tk.Canvas(self, width=20, height=75, bg="#3A3535")
         self.canvas.configure(highlightbackground="#3A3535")
-        self.canvas.grid()
+        self.canvas.grid(pady=0, sticky="n")
 
-        self.num_segments = 17
-        self.segment_height = 5
+        self.num_segments = 24
+        self.segment_height = 2
         self.spacing = 2
 
         self.segments = []
@@ -22,7 +22,7 @@ class VUColumn(tk.Frame):
             y1 = 100 - (seg * (self.segment_height + self.spacing))
             x2 = x1 + 20
             y2 = y1 + self.segment_height
-            rect = self.canvas.create_rectangle(x1, y1, x2, y2, fill="#585454")
+            rect = self.canvas.create_rectangle(x1, y1, x2, y2, fill="white")
             self.segments.append(rect)
 
         self.running = True
@@ -30,9 +30,9 @@ class VUColumn(tk.Frame):
         
     def listen_audio(self):
         def get_color_for_segment(index):
-            if index < 7:
+            if index < 15:
                 return "green"
-            elif index < 13:
+            elif index < 20:
                 return "orange"
             else:
                 return "red"
