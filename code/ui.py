@@ -9,10 +9,12 @@ import os
 #from modules.vu_meter_experiment import VUMeterExperimental
 from modules.vu_meter_experiment import VUColumn
 
+
+
 def setup_ui(self):
         self.root.title("Reproductor con lista")
         self.root.configure(bg="#82726D")
-        self.root.geometry("500x357")# 560x470
+        self.root.geometry("500x360")# 560x470
         self.root.title("DK__9000 MEDI/\ PL/\YER")
         self.root.iconbitmap('media_player/graphics/backgrounds/dodorovsky.ico')
         
@@ -30,8 +32,6 @@ def setup_ui(self):
         self.main_frame.grid_columnconfigure(3, weight=0)
         self.main_frame.grid_columnconfigure(4, weight=0)
         self.main_frame.grid_rowconfigure(0, weight=0)
-        
-
         
         # Top Frame for Video and Listbox
         self.top_frame = tk.Frame(self.main_frame, bg="#232121")
@@ -89,25 +89,25 @@ def setup_ui(self):
         # Vumeter Frame
         self.vu_frame_left = tk.Frame(self.main_frame, bg="#3A3535")
         self.vu_frame_left.grid_columnconfigure(0, weight=1)
-        self.vu_frame_left.grid(row=4, column=0, padx=0, pady=(0), sticky="nsew")
+        self.vu_frame_left.grid(row=4, column=0, padx=0, pady=(0), sticky="n")
         
         self.vu_frame_right = tk.Frame(self.main_frame, bg="#3A3535")
         self.vu_frame_right.grid_columnconfigure(0, weight=1)
-        self.vu_frame_right.grid(row=4, column=4, padx=(0,2), pady=(0), sticky="nsew")
+        self.vu_frame_right.grid(row=4, column=4, padx=(0,2), pady=(0), sticky="n")
         
         # Left Frame
         self.left_frame = tk.Frame(self.main_frame, bg="#3A3535")
-        self.left_frame.grid(pady=10,row=4, column=1, sticky="nswe")
+        self.left_frame.grid(pady=(0,10),row=4, column=1, sticky="n")
         self.left_frame.grid_columnconfigure(1, weight=1)
         
         # Central Frame
-        self.central_frame = tk.Frame(self.main_frame, bg='#3A3535')
+        self.central_frame = tk.Frame(self.main_frame, bg="#3A3535")
         self.central_frame.grid_columnconfigure(0, weight=1)
-        self.central_frame.grid(row=4, column=2, sticky="nsew")
+        self.central_frame.grid(row=4, column=2, sticky="n")
         
         # Controls Frame
         self.controls_frame = tk.LabelFrame(self.central_frame, text='CONTROLS->- ', font=("Terminal", 8), bg="#3A3535", fg="green")#fg="#E1B19E",  labelanchor="n",
-        self.controls_frame.grid(row=0, column=0, padx=(20,0), pady=7) 
+        self.controls_frame.grid(row=0, column=0, padx=(20,0), pady=(7,0)) 
 
         self.sub_frame_1 = tk.Frame(self.controls_frame, bg="#3A3535")
         self.sub_frame_1.grid()
@@ -116,9 +116,9 @@ def setup_ui(self):
         
         
         # Right Frame
-        self.right_frame = tk.Frame(self.main_frame, bg='#3A3535')
+        self.right_frame = tk.Frame(self.main_frame, bg="#3A3535")
         self.right_frame.grid_columnconfigure(0, weight=1)
-        self.right_frame.grid(padx=(8,8),pady=25, row=4, column=3, sticky="nswe")   
+        self.right_frame.grid(padx=(8,8), pady=(25,0), row=4, column=3, sticky="n")   
         
 
 
@@ -147,10 +147,6 @@ def setup_ui(self):
         self.hal_on = ImageTk.PhotoImage(Image.open('media_player/graphics/buttons_control/power_light.png').resize((21, 21)))#20,20
 
 
-        #self.power_on_label = tk.Label(self.black_frame,  text="POWER", font=("terminal", 6), fg="#E9E4B2", bg='#1a1a1a')
-        #self.power_on_label.grid(row=0, column=0, padx=(250,0), pady=(3,0))
-# Subframe con tamaño exacto para la imagen
-# Label con imagen, sin padding ni bordes
         self.hal_label = tk.Label(self.black_frame, image=self.hal_on, width=21, height=21,  bg='#232121')
         self.hal_label.grid(row=0, column=3,pady=(0))
         
@@ -194,8 +190,6 @@ def setup_ui(self):
         self.compact_button = tk.Button(self.left_frame, text="CRT/AMP", font=("Terminal", 8), bg="#959688", command=self.compact)
         self.compact_button.grid(padx=(13,0), column=1)
         
-
-        
         # Random Button
         self.shuffle_button = tk.Button(self.central_frame, text="RANDOM", font=("Terminal", 8), bg="#BDCCD6", command=self.toggle_shuffle)
         self.shuffle_button.grid(row=1,padx=(0, 30), pady=(5,0))
@@ -204,27 +198,19 @@ def setup_ui(self):
         self.loop_button = tk.Button(self.central_frame, text=" LOOP ", font=("Terminal", 8), bg="#BDCCD6", command=self.toggle_loop)#C2DDAC, C4A98A
         self.loop_button.grid(row=1,padx=(80, 0), pady=(5,0))
         
-
-        
-        # Meter Label
-        #meter_label = tk.Label(self.right_frame, text="______\n _____\n____\n___\n__\n_\n.", bg='#3C3A3A', fg="#E7D3B0")
-        #meter_label.grid(row=0, column=3, padx=(5,40), pady=(10,0))
-        
-        self.fullscreen_button = tk.Button(self.left_frame, text="FULLSCREEN", font=("Terminal", 8), command=self.enter_fullscreen_video, bg="#EBE1AD")##F7EAC3
-        self.fullscreen_button.grid(padx=(13,0),pady=(7,30), column=1)
+        self.fullscreen_button = tk.Button(self.left_frame, text="FULLSCREEN", font=("Terminal", 8), command=self.enter_fullscreen_video, bg="#B2A777")##F7EAC3, #EBE1AD
+        self.fullscreen_button.grid(padx=(13,0),pady=7, column=1)
         self.root.bind("<Escape>", lambda e: self.exit_fullscreen_video())
         
         self.mp6 = ImageTk.PhotoImage(Image.open('media_player/graphics/buttons_control/mp6.png').resize((22,10)))
         self.mp6_off = ImageTk.PhotoImage(Image.open('media_player/graphics/buttons_control/mp6_off.png').resize((22,10)))
 
-        
         self.left_vu = VUColumn(self.vu_frame_left, channel_index=0)
         self.right_vu = VUColumn(self.vu_frame_right, channel_index=1)
         
         self.left_vu.grid(padx=(0,6), pady=(0))
         self.right_vu.grid(padx=(5,6), pady=(0))
-
-        
+ 
         self.left_vu_label = tk.Label(self.vu_frame_left, text="LEFT", font=("Terminal", 8), bg="#3A3535", fg="#E9E4B2")
         self.left_vu_label.grid(padx=(0,5))
         
@@ -237,12 +223,48 @@ def setup_ui(self):
         self.mp6_label_right = tk.Label(self.vu_frame_right, image=self.mp6_off, bg="#3A3535")
         self.mp6_label_right.grid(padx=(0))
         
+        self.eq_line = tk.Label(self.main_frame, bg="#3A3535", text="__________________________________________________________________________________________________________")
+        self.eq_line.grid(row=5, columnspan=5, pady=(0,10), sticky="n")
+
+        self.eq_light_image = ImageTk.PhotoImage(Image.open('media_player/graphics/buttons_control/eq_light.png').resize((11,11)))
+        self.eq_light_on_image = ImageTk.PhotoImage(Image.open('media_player/graphics/buttons_control/eq_light_on.png').resize((11,11)))
+
+
+        self.eq_frame = tk.Frame(self.main_frame, bg="#232121")
+        self.eq_frame.grid(row=6, columnspan=5)
+        
+        self.eq_light_frame = tk.Frame(self.main_frame, bg="#3A3535")
+        self.eq_light_frame.grid(row=7, columnspan=5, padx=(0, 23))
+        
+
+        
+        # Frecuencias típicas
+        frequencies = ["60Hz  ", "250Hz", "1kHz  ", "4kHz  ", "16kHz"]
+        self.eq_sliders = []
+        self.eq_light_labels = []
+
+        for i, freq in enumerate(frequencies):
+                slider = tk.Scale(self.eq_frame, from_=12, to=-12, orient='vertical', label=freq,
+                                length=100, width=12, bg="#3A3535", fg="white", troughcolor="#AF7028",
+                                highlightthickness=0, command=lambda val, idx=i: self.on_slider_change(val, idx)
+)
+                slider.set(0)
+                slider.grid(row=0, column=i, padx=0)
+                self.eq_sliders.append(slider)
+                
+                label = tk.Label(self.eq_light_frame, image=self.eq_light_image, bg="#3A3535")
+                label.grid(row=1, padx=33, column=i)
+                self.eq_light_labels.append(label)
+         
+        self.eq_button = tk.Button(self.right_frame, text="EQ", font=("Terminal", 8), command=self.toggle_eq)
+        self.eq_button.grid()
+ 
         self.breathe_hal()
 
         def update_vumeter():
                 
                 self.root.after(500, update_vumeter)
-
+        self.start_eq_light_loop()
 
         update_vumeter()
         

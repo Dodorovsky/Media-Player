@@ -19,11 +19,12 @@ class PlaylistPlayer:
         self.root = root
         self.vlc_instance = vlc.Instance()
         self.player = self.vlc_instance.media_player_new()
-
+        self.eq = vlc.AudioEqualizer()
         self.playlist = []
         self.current_index = None
         self.duration = 0
         self.updating_slider = False
+
         
         setup_ui(self)
         self.bind_events()
@@ -42,6 +43,8 @@ class PlaylistPlayer:
         self.is_muted = False
         self.last_volume = 50
         self.is_compact = False
+        self.eq_t = False
+        self.eq_color = "eq_light"
         
         self.overlay = FloatingOverlay(
     master=self.root,
@@ -70,6 +73,7 @@ class PlaylistPlayer:
                 self.current_file_is_audio = f.lower().endswith((".mp3", ".wav", ".flac"))
                 if self.current_file_is_audio:
                     self.load_file_in_listbox(f)
+                    
                 else:
                     self.listbox.insert(tk.END, os.path.basename(f))
 
@@ -91,6 +95,8 @@ class PlaylistPlayer:
         self.player.set_media(media)
         
 
+
+
         # 📼 Detect if it is video
         if filepath.lower().endswith(('.mp4', '.avi', '.mkv', '.mov')):
             self.listbox.grid_remove()
@@ -108,6 +114,7 @@ class PlaylistPlayer:
             self.volume_label.config(fg="#E9E4B2")
             self.style.configure('Custom.Horizontal.TScale', troughcolor="orange")
             self.style.configure('TScale', troughcolor="#B1620D")
+            self.eq_color = "eq_light_on_image"
             self.play = True
             self.parar = False
             self.root.update_idletasks()
@@ -127,6 +134,7 @@ class PlaylistPlayer:
             self.mp6_label_right.config(image=self.mp6)
             self.style.configure('Custom.Horizontal.TScale', troughcolor="#C28409")
             self.style.configure('TScale', troughcolor="#D7B36B")
+            
             self.play = True
             self.parar = False
 
@@ -135,7 +143,11 @@ class PlaylistPlayer:
             self.video_frame.grid(row=0, column=0, sticky="nsew")
             self.video_frame.grid(row=1, column=0, padx=0, pady=0, sticky="nsew")
                         
+        if hasattr(self, 'eq') and isinstance(self.eq, vlc.AudioEqualizer):
+            self.player.set_equalizer(self.eq)
+                        
         self.player.play()
+
 
         # ⏱️ Update duration and time after playing
         self.root.after(500, self.set_duration)
@@ -382,11 +394,30 @@ class PlaylistPlayer:
             self.control_frame.grid()
             self.slider.grid()
 
+    def hide_eq_ui(self):
+        self.eq_frame.grid_remove()
+        self.eq_light_frame.grid_remove()
+        self.eq_line
+        for slider in self.eq_sliders:
+            slider.grid_remove()
+
+        for label in self.eq_light_labels:
+            label.grid_remove()
+            
+    def show_eq_ui(self):
+        self.eq_frame.grid_remove()
+        self.eq_light_frame.grid_remove()
+        for i, slider in enumerate(self.eq_sliders):
+            slider.grid(row=0, column=i, padx=0)
+        for i, label in enumerate(self.eq_light_labels):
+            label.grid(row=1, column=i, padx=33)
+
+
     def enter_fullscreen_video(self):
         if self.current_file_is_audio:
             messagebox.showinfo("Full screen mode", "Full screen mode is disabled for audio files")
             return
-
+        self.hide_eq_ui()
         self.root.attributes("-fullscreen", True)
         self.root.configure(bg="black")
         self.main_frame.configure(bg="black")
@@ -405,7 +436,7 @@ class PlaylistPlayer:
         for widget in [
             self.black_frame, self.controls_frame, self.central_frame, self.right_frame,
             self.left_frame, self.vu_frame_left, self.vu_frame_right, self.listbox,
-            self.time_slider, self.current_time_label, self.total_time_label, self.midle_frame
+            self.time_slider, self.current_time_label, self.total_time_label, self.midle_frame, self.eq_line
         ]:
             widget.grid_remove()
 
@@ -415,6 +446,7 @@ class PlaylistPlayer:
         self.top_frame.grid_rowconfigure(0, weight=0, minsize=0)
         self.top_frame.grid_rowconfigure(2, weight=0, minsize=0)
         self.top_frame.grid_rowconfigure(3, weight=0, minsize=0)
+
 
         # Expandir fila y columna del video
         self.main_frame.grid_rowconfigure(0, weight=1)
@@ -438,12 +470,13 @@ class PlaylistPlayer:
 
 
     def exit_fullscreen_video(self):
-        self.root.attributes("-fullscreen", False)
-        
-        self.root.geometry("500x345")  # Restaurar tamaño original
-
-        # Restaurar visibilidad de todos los frames
+        self.root.attributes("-fullscreen", False) 
+        self.root.geometry("500x360")
+        # Restore visibility of all frames   
+        self.main_frame.grid()
         self.black_frame.grid()
+        self.top_frame.grid()
+        self.times_frame.grid(row=2, columnspan=5, sticky="nsew")
         self.controls_frame.grid()
         self.central_frame.grid()
         self.right_frame.grid()
@@ -452,42 +485,29 @@ class PlaylistPlayer:
         self.vu_frame_right.grid()
         self.listbox.grid()
         self.midle_frame.grid()
+        self.times_frame.grid()
         
         
-        # Ocultar el video si no lo usás en modo normal
-        #self.video_frame.grid_forget()
+        
 
-        # Restaurar pesos de columnas
-        self.main_frame.grid_columnconfigure(0, weight=1)
-        self.main_frame.grid_columnconfigure(1, weight=1)
-        self.main_frame.grid_columnconfigure(2, weight=1)
-        self.main_frame.grid_columnconfigure(3, weight=0)
-        self.main_frame.grid_columnconfigure(4, weight=0)
-
-        # Restaurar pesos de filas
-        self.main_frame.grid_rowconfigure(0, weight=0)
-        self.main_frame.grid_rowconfigure(2, weight=1)
-        self.top_frame.grid_rowconfigure(1, weight=1)
-
-        # Restaurar colores si los cambiaste en fullscreen
+        # Restore colors if you changed them in fullscreen
         self.root.configure(bg="#82726D")
         self.main_frame.configure(bg="#3A3535")
         self.top_frame.configure(bg="#232121")
-        self.video_frame.configure(bg="black")
+        self.video_frame.grid(row=1, column=0, columnspan=5, sticky="nsew")
         self.current_time_label.grid(row=3, column=0, padx=2, sticky="w")
         self.total_time_label.grid(row=3, column=5, padx=2)
         self.time_slider.grid(row=2, column=0, padx=0, sticky="nsew")
-        
+        self.eq_frame.grid(row=6, columnspan=5)
+        self.eq_light_frame.grid(row=7, columnspan=5, padx=(0, 23))
 
-     
         
-
         if self.overlay_window:
             self.overlay.destroy_overlay()
             self.overlay_window = None
             self.overlay_visible = False
             self.root.unbind("<Motion>")
-            
+        self.root.after(100, self.show_eq_ui)
         self.fullscreen = False
         self.mouse_tracker_active = False
      
@@ -589,7 +609,6 @@ class PlaylistPlayer:
 
         self.listbox.insert("end", linea)
 
-
     def compact(self):
         if self.is_compact:
             self.root.geometry("500x357")
@@ -597,6 +616,7 @@ class PlaylistPlayer:
             self.top_frame.grid(row=0, column=0, columnspan=5, sticky="nsew")  # Restaurar
             self.midle_frame.grid()
             self.times_frame.config(bg="black")
+            self.top_frame.grid()
             self.current_time_label.config(bg="black", fg="#ADADAD")
             self.total_time_label.config(bg="black", fg="#ADADAD")
             self.is_compact = False
@@ -609,16 +629,62 @@ class PlaylistPlayer:
             self.top_frame.grid_remove()
             self.midle_frame.grid_remove()
             self.times_frame.config(bg="#3A3535")
+            self.top_frame.grid_remove()
 
             self.current_time_label.config(bg="#3A3535")
             self.total_time_label.config(bg="#3A3535")
             self.current_time_label.grid(row=4, column=0, padx=2, sticky="w")
             self.total_time_label.grid(row=4, column=5, padx=2)
-            
-
             self.is_compact = True
 
-        
+    def toggle_eq(self):
+        if self.eq_t and not self.is_compact:
+                    self.root.geometry("500x360")#500x360
+                    self.eq_frame.grid_remove()
+                    self.eq_line.grid_remove()
+                    self.eq_light_frame.grid_remove()
+                    self.eq_t = False
+        elif not self.eq_t and not self.is_compact:
+            
+                    self.root.geometry("500x510")#500x510
+                    self.eq_frame.grid()
+                    self.eq_line.grid()
+                    self.eq_light_frame.grid()
+                    self.eq_t = True
+        elif self.eq_t and self.is_compact:
+                    self.root.geometry("500x125")#500x360
+                    self.eq_frame.grid_remove()
+                    self.eq_line.grid_remove()
+                    self.eq_light_frame.grid_remove()
+                    self.eq_t = False
+        elif not self.eq_t and self.is_compact:
+                    self.root.geometry("500x300")#500x360
+                    self.eq_frame.grid()
+                    self.eq_line.grid()
+                    self.eq_light_frame.grid()
+                    self.eq_t = True
 
+    def update_eq_lights(self):
+            if hasattr(self, 'player') and self.player:
+                    if self.player.is_playing():
+                            for label in self.eq_light_labels:
+                                    label.config(image=self.eq_light_on_image)
+                    else:
+                            for label in self.eq_light_labels:
+                                    label.config(image=self.eq_light_image)
+                                
+    def start_eq_light_loop(self):
+            self.update_eq_lights()
+            self.root.after(1000, self.start_eq_light_loop)  # actualiza cada 1 segundo
 
+    def on_slider_change(self, val, idx):
+        val = float(val)
+        current_val = self.eq.get_amp_at_index(idx)
+        if abs(current_val - val) >= 1:
+            self.eq.set_amp_at_index(val, idx)
+            self.root.after(200, self.apply_eq_to_player)
+
+    def apply_eq_to_player(self):
+        if self.player:
+            self.player.set_equalizer(self.eq)
 
