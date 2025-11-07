@@ -38,7 +38,7 @@ class PlaylistPlayer:
         self.mouse_tracker_active = False
         self.pantlla_completa = False
         self.pausa = False
-        self.parar = False
+        self.stopp = False
         self.play = False
         self.is_muted = False
         self.last_volume = 50
@@ -64,6 +64,8 @@ class PlaylistPlayer:
         # 📂 Opens file dialog to select multiple media files
         files = filedialog.askopenfilenames()
         self.stop_button.config(image=self.stop_off)
+        self.placeholder.place_forget()
+        self.logo_listbox.place_forget()
 
         if files:
             self.playlist = list(files)
@@ -107,13 +109,12 @@ class PlaylistPlayer:
             self.pause_button.config(image=self.pause_off)
             
             self.hal_label.grid(row=0, column=3,pady=(0))
-            self.current_time_label.config(fg="#B2FFFF")
-            self.total_time_label.config(fg="#B2FFFF")
+            self.current_time_label.config(fg="#ADADAD")
+            self.total_time_label.config(fg="#ADADAD")
             self.mp6_label_left.config(image=self.mp6)
             self.mp6_label_right.config(image=self.mp6)
             self.volume_label.config(fg="#E9E4B2")
-            self.style.configure('Custom.Horizontal.TScale', troughcolor="orange")
-            self.style.configure('TScale', troughcolor="#B1620D")
+            self.style.configure('Custom.Horizontal.TScale', troughcolor="#B1620D")
             self.eq_color = "eq_light_on_image"
             self.play = True
             self.parar = False
@@ -126,14 +127,16 @@ class PlaylistPlayer:
             
             self.stop_button.config(image=self.stop_off )
             self.pause_button.config(image=self.pause_off)
-
+            self.play_button.config(image=self.play_on)
             self.current_time_label.config(fg="#ADADAD")
             self.total_time_label.config(fg="#ADADAD")
             self.volume_label.config(fg="#E9E4B2")
             self.mp6_label_left.config(image=self.mp6)
             self.mp6_label_right.config(image=self.mp6)
             self.style.configure('Custom.Horizontal.TScale', troughcolor="#C28409")
-            self.style.configure('TScale', troughcolor="#D7B36B")
+
+     
+            
             
             self.play = True
             self.parar = False
@@ -155,82 +158,47 @@ class PlaylistPlayer:
 
     def pause(self):
 
-        self.player.pause()
-
-        if self.parar:
-            self.pause_button.config(image=self.pause_off)
-            self.left_vu_label.config(fg="#E9E4B2")
-            self.right_vu_label.config(fg="#E9E4B2")
-            self.volume_label.config(fg="#E9E4B2")
-
-
-
-        elif not self.pausa and  self.play:
-            self.play_button.config(image=self.play_off)
+        self.player.pause()  
+        
+        if not self.pausa and self.player.is_playing():
             self.pause_button.config(image=self.pause_on)
-            self.left_vu_label.config(fg="#E9E4B2")
-            self.right_vu_label.config(fg="#E9E4B2")
-            self.current_time_label.config(fg="#E9E4B2")
-            self.total_time_label.config(fg="#E9E4B2")
-            self.volume_label.config(fg="#E9E4B2")
+            self.play_button.config(image=self.play_off)
             self.mp6_label_left.config(image=self.mp6_off)
             self.mp6_label_right.config(image=self.mp6_off)
             self.style.configure('Custom.Horizontal.TScale', troughcolor="black")
-            self.style.configure('TScale', troughcolor="#black")
-
-            #self.stop_button.config(image=self.stop_btn_img )
             self.pausa = True
-            self.play = False
-                  
-        elif self.pausa and not self.play:
-            self.play_button.config(image=self.play_on)
+            print("1")
+        elif not self.pausa and not self.player.is_playing():
             self.pause_button.config(image=self.pause_off)
+            self.play_button.config(image=self.play_off)
             self.mp6_label_left.config(image=self.mp6)
             self.mp6_label_right.config(image=self.mp6)
-            self.current_time_label.config(fg="#CAFFFE")
-            self.total_time_label.config(fg="#CAFFFE")
-            self.volume_label.config(fg="#CAFFFE")
-            self.style.configure('Custom.Horizontal.TScale', troughcolor="orange")
-            self.style.configure('TScale', troughcolor="#D7B36B")
+            self.style.configure('Custom.Horizontal.TScale', troughcolor="black")
+            self.mp6_label_left.config(image=self.mp6_off)
+            self.mp6_label_right.config(image=self.mp6_off)
+            self.pausa = False  
+            print("2")
+        elif self.pausa and not self.player.is_playing():
+            self.pause_button.config(image=self.pause_off)
+            self.play_button.config(image=self.play_on)
+            self.mp6_label_left.config(image=self.mp6)
+            self.mp6_label_right.config(image=self.mp6)  
+            self.style.configure('Custom.Horizontal.TScale', troughcolor="#C28409")
             self.pausa = False
-            self.play = True
-            
-        elif self.pausa and self.play:
+            print("3")
+        else:
             self.pause_button.config(image=self.pause_on)
             self.play_button.config(image=self.play_off)
-            self.left_vu_label.config(fg="#E9E4B2")
-            self.right_vu_label.config(fg="#E9E4B2")
-            self.current_time_label.config(fg="#E9E4B2")
-            self.total_time_label.config(fg="#E9E4B2")
-            self.volume_label.config(fg="#E9E4B2")
             self.mp6_label_left.config(image=self.mp6_off)
             self.mp6_label_right.config(image=self.mp6_off)
             self.style.configure('Custom.Horizontal.TScale', troughcolor="black")
-            self.style.configure('TScale', troughcolor="#black")
-
-            self.pausa = False
-            self.play = False 
-        elif not self.pausa and not self.play:
-            self.play_button.config(image=self.play_off)
-            self.pause_button.config(image=self.pause_off)
-            self.left_vu_label.config(fg="#E9E4B2")
-            self.right_vu_label.config(fg="#E9E4B2")
-            self.current_time_label.config(fg="#CAFFFE")
-            self.total_time_label.config(fg="#CAFFFE")
-            self.volume_label.config(fg="#CAFFFE")
-            self.style.configure('Custom.Horizontal.TScale', troughcolor="orange")
-            self.style.configure('TScale', troughcolor="#D7B36B")
-            self.mp6_label_left.config(image=self.mp6)
-            self.mp6_label_right.config(image=self.mp6)
-
-            self.play = True
-        else:
-            pass
-           
+            self.pausa = True
+            print("4")
+            
+      
     def stop(self):
         self.player.stop() # ⏹️ Stop playback and reset UI
         self.style.configure('Custom.Horizontal.TScale', troughcolor="black")
-        self.style.configure('TScale', troughcolor="#black")
         self.mp6_label_left.config(image=self.mp6_off)
         self.mp6_label_right.config(image=self.mp6_off)
         self.updating_slider = True
@@ -240,13 +208,13 @@ class PlaylistPlayer:
         self.play_button.config(image=self.play_off)
         self.stop_button.config(image=self.stop_on)
         self.pause_button.config(image=self.pause_off)
-        self.left_vu_label.config(fg="#E9E4B2")
-        self.right_vu_label.config(fg="#E9E4B2")
         self.current_time_label.config(fg="#ADADAD")
         self.total_time_label.config(fg="#ADADAD")
         self.volume_label.config(fg="#E9E4B2")
-        self.parar = True
-        self.play = False
+        self.stopp = True
+        self.pausa = False
+
+ 
                     
     def play_previous(self):
         if self.current_index is not None and self.current_index > 0:
@@ -306,12 +274,22 @@ class PlaylistPlayer:
              
             
         if self.player.is_playing():
+            self.play_button.config(image=self.play_on)
+            self.mp6_label_left.config(image=self.mp6)
+            self.mp6_label_right.config(image=self.mp6)
+            self.style.configure('Custom.Horizontal.TScale', troughcolor="#B1620D")
+            
             if current_time >= 0 and current_time != self.time_slider.get():
                 self.updating_slider = True
                 self.time_slider.set(current_time)
                 self.current_time_label.config(text=format_time(current_time))
                 self.updating_slider = False    
         else:
+            self.play_button.config(image=self.play_off)
+            self.mp6_label_left.config(image=self.mp6_off)
+            self.mp6_label_right.config(image=self.mp6_off)
+            self.style.configure('Custom.Horizontal.TScale', troughcolor="black")
+    
             # If it is not playing and the current time is near the end
             if self.duration > 0 and current_time >= self.duration - 1000:
                 if self.loop_enabled:
@@ -339,7 +317,10 @@ class PlaylistPlayer:
 
     def on_drop(self, event):
         # 📂 Extract list of dropped files from the drag event
+        self.listbox.delete(0, tk.END)
         files = self.root.tk.splitlist(event.data)
+        self.placeholder.place_forget()
+        self.logo_listbox.place_forget()
         
         SUPPORTED_FORMATS = (
     '.mp3', '.wav', '.flac',  # 🎶 Audio
@@ -348,8 +329,10 @@ class PlaylistPlayer:
 
         for f in files:
             if f.lower().endswith(SUPPORTED_FORMATS):
+                self.load_file_in_listbox(f)
                 self.playlist.append(f)
-                self.listbox.insert(tk.END, os.path.basename(f))
+                #self.listbox.insert(tk.END, os.path.basename(f))
+                
             else:             
                 self.video_frame.grid_remove()
                 self.listbox.grid(row=1, column=0) 
@@ -562,7 +545,7 @@ class PlaylistPlayer:
                 self.volume_label.config(fg="#CAFFFE")
                 self.mute_button.config(bg="#F4C9A1")
                 self.volume_label_frame.config(fg="green")
-                
+                self.style.configure('TScale', troughcolor="#AC8433")
             else:
                 self.mute_button.config(bg="#F4C9A1")
                 self.volume_label.config(fg="#E9E4B2")
@@ -610,8 +593,8 @@ class PlaylistPlayer:
         self.listbox.insert("end", linea)
 
     def compact(self):
-        if self.is_compact:
-            self.root.geometry("500x357")
+        if self.is_compact and not self.eq_t:
+            self.root.geometry("520x357")
             self.compact_button.config(bg="#959688", text="CRT/AMP")
             self.top_frame.grid(row=0, column=0, columnspan=5, sticky="nsew")  # Restaurar
             self.midle_frame.grid()
@@ -620,11 +603,34 @@ class PlaylistPlayer:
             self.current_time_label.config(bg="black", fg="#ADADAD")
             self.total_time_label.config(bg="black", fg="#ADADAD")
             self.is_compact = False
+            print("compact 1")
+        elif self.is_compact and self.eq_t:
+            self.root.geometry("520x510")
+            self.compact_button.config(bg="#959688", text="CRT/AMP")
+            self.top_frame.grid(row=0, column=0, columnspan=5, sticky="nsew")  # Restaurar
+            self.midle_frame.grid()
+            self.times_frame.config(bg="black")
+            self.top_frame.grid()
+            self.current_time_label.config(bg="black", fg="#ADADAD")
+            self.total_time_label.config(bg="black", fg="#ADADAD")
+            self.is_compact = False
+            print("compact 2")
+        elif self.is_compact and self.eq_t:
+            self.root.geometry("520x510")
+            self.compact_button.config(bg="#959688", text="CRT/AMP")
+            self.top_frame.grid(row=0, column=0, columnspan=5, sticky="nsew")  # Restaurar
+            self.midle_frame.grid()
+            self.times_frame.config(bg="black")
+            self.top_frame.grid()
+            self.current_time_label.config(bg="black", fg="#ADADAD")
+            self.total_time_label.config(bg="black", fg="#ADADAD")
+            self.is_compact = False
+            print("compact 3")
+        
+            
         else:
-            if not self.current_file_is_audio:
-                messagebox.showinfo("Amp mode", "Amp mode is disabled for video files")
-                return
-            self.root.geometry("500x125")# 560x470pass
+
+            self.root.geometry("520x125")# 560x470pass
             self.compact_button.config(bg="#989C6F", text="CRT/AMP")
             self.top_frame.grid_remove()
             self.midle_frame.grid_remove()
@@ -639,39 +645,47 @@ class PlaylistPlayer:
 
     def toggle_eq(self):
         if self.eq_t and not self.is_compact:
-                    self.root.geometry("500x360")#500x360
+                    self.root.geometry("520x360")#500x360
                     self.eq_frame.grid_remove()
                     self.eq_line.grid_remove()
                     self.eq_light_frame.grid_remove()
                     self.eq_t = False
+                    print("1")
         elif not self.eq_t and not self.is_compact:
             
-                    self.root.geometry("500x510")#500x510
+                    self.root.geometry("520x510")#500x510
                     self.eq_frame.grid()
                     self.eq_line.grid()
                     self.eq_light_frame.grid()
                     self.eq_t = True
+                    print("2")
         elif self.eq_t and self.is_compact:
-                    self.root.geometry("500x125")#500x360
+                    self.root.geometry("520x125")#500x360
                     self.eq_frame.grid_remove()
                     self.eq_line.grid_remove()
                     self.eq_light_frame.grid_remove()
                     self.eq_t = False
+                    print("3")
         elif not self.eq_t and self.is_compact:
-                    self.root.geometry("500x300")#500x360
+                    self.root.geometry("520x270")#500x360
                     self.eq_frame.grid()
                     self.eq_line.grid()
                     self.eq_light_frame.grid()
                     self.eq_t = True
+                    print("4")
 
     def update_eq_lights(self):
             if hasattr(self, 'player') and self.player:
                     if self.player.is_playing():
                             for label in self.eq_light_labels:
                                     label.config(image=self.eq_light_on_image)
+                            for slider in self.eq_sliders:
+                                    slider.config(troughcolor="#A1FC83")
                     else:
                             for label in self.eq_light_labels:
                                     label.config(image=self.eq_light_image)
+                            for slider in self.eq_sliders:
+                                    slider.config(troughcolor="#0D0D0D")
                                 
     def start_eq_light_loop(self):
             self.update_eq_lights()

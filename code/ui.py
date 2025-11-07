@@ -14,7 +14,7 @@ from modules.vu_meter_experiment import VUColumn
 def setup_ui(self):
         self.root.title("Reproductor con lista")
         self.root.configure(bg="#82726D")
-        self.root.geometry("500x360")# 560x470
+        self.root.geometry("520x359")# 560x470
         self.root.title("DK__9000 MEDI/\ PL/\YER")
         self.root.iconbitmap('media_player/graphics/backgrounds/dodorovsky.ico')
         
@@ -57,10 +57,18 @@ def setup_ui(self):
         self.top_frame.grid_rowconfigure(3, weight=1)# vídeo    
         self.top_frame.grid_columnconfigure(0, weight=1)
         
-        self.listbox = tk.Listbox(self.top_frame, bg="black", fg="#197F0F", width=110, height=12, selectbackground="#6A8785", selectforeground="lime",bd=0, highlightthickness=0, relief="flat")
+        self.listbox = tk.Listbox(self.top_frame, bg="black", fg="#27A01C", width=110, height=12, selectbackground="#6A8785", selectforeground="lime",bd=0, highlightthickness=0, relief="flat")
         self.listbox.grid(row=1, column=0, padx=0, pady=0, sticky="nsew")      
         self.listbox.drop_target_register(DND_FILES)
         self.listbox.dnd_bind('<<Drop>>', self.on_drop)
+        
+        self.placeholder = tk.Label(self.listbox, text="DRAG FILES HERE",  fg="#62985C", font=("Lucida Console", 9), bg="black")
+        self.placeholder.place(relx=0.5, rely=0.6, anchor="center")
+        
+        self.logo_image = ImageTk.PhotoImage(Image.open('media_player/graphics/backgrounds/dodorovsky.png').resize((50, 28)))
+        
+        self.logo_listbox = tk.Label(self.listbox, image=self.logo_image, bg="black")
+        self.logo_listbox.place(relx=0.5, rely=0.4, anchor="center")
         
         self.video_frame = tk.Frame(self.top_frame, width=450, height=190, bg="black")# width=450, height=340
         self.video_frame.grid(row=1, column=0, sticky="nsew")
@@ -76,9 +84,9 @@ def setup_ui(self):
                         troughcolor='black',  # canal del slider
                         background='#232121', borderwidth=0, relief='flat') # fondo del widget (no el thumb)
         self.style.configure('TScale',
-                        troughcolor="black",  # canal del slider
-                        background='#3A3535', borderwidth=0, relief='flat') 
-        self.time_slider = ttk.Scale(self.midle_frame, from_=0, to=100, orient="horizontal", value=0, length=700, style="Custom.Horizontal.TScale")# 664
+                        troughcolor="#AC8433",  # canal del slider
+                        background="#3A3535", borderwidth=0, relief='flat') 
+        self.time_slider = ttk.Scale(self.midle_frame, from_=0, to=100, orient="horizontal", value=0, length=520, style="Custom.Horizontal.TScale")# 664
         self.time_slider.grid(row=2, column=0, padx=0, sticky="nsew")
         
         self.current_time_label = tk.Label(self.times_frame, text="--:--", font=("Terminal", 8), fg="#ADADAD", bg='black')##E9E4B2, #FFFCE8
@@ -89,11 +97,11 @@ def setup_ui(self):
         # Vumeter Frame
         self.vu_frame_left = tk.Frame(self.main_frame, bg="#3A3535")
         self.vu_frame_left.grid_columnconfigure(0, weight=1)
-        self.vu_frame_left.grid(row=4, column=0, padx=0, pady=(0), sticky="n")
+        self.vu_frame_left.grid(row=4, column=0, padx=0, pady=(0), sticky="S")
         
         self.vu_frame_right = tk.Frame(self.main_frame, bg="#3A3535")
         self.vu_frame_right.grid_columnconfigure(0, weight=1)
-        self.vu_frame_right.grid(row=4, column=4, padx=(0,2), pady=(0), sticky="n")
+        self.vu_frame_right.grid(row=4, column=4, padx=(0,5), pady=(0), sticky="S")
         
         # Left Frame
         self.left_frame = tk.Frame(self.main_frame, bg="#3A3535")
@@ -118,7 +126,7 @@ def setup_ui(self):
         # Right Frame
         self.right_frame = tk.Frame(self.main_frame, bg="#3A3535")
         self.right_frame.grid_columnconfigure(0, weight=1)
-        self.right_frame.grid(padx=(8,8), pady=(25,0), row=4, column=3, sticky="n")   
+        self.right_frame.grid(padx=(6,8), pady=(20,0), row=4, column=3, sticky="n")   
         
 
 
@@ -126,7 +134,6 @@ def setup_ui(self):
         self.load_label_frame = tk.Label(self.left_frame, text='LOAD_MEDIA', font=("Terminal", 8), bg="#3A3535", fg="green")#fg="#E1B19E"
         self.load_label_frame.grid(padx=(13,0), pady=(5,0), column=1)
         
-        #self.mp6_img = ImageTk.PhotoImage(Image.open('media_player/graphics/buttons_control/mp6.png').resize((40, 23)))
    
         # Load Button
         self.load_button = tk.Button(self.left_frame, bd=1, command=self.load_files, bg="#E9B46F")#bg="#F0C74C"
@@ -172,56 +179,58 @@ def setup_ui(self):
         
         
         # Volume Labels
-        self.volume_label = tk.Label(self.right_frame, text="50", bg='#3A3535', font=("Terminal", 8),fg="#E9E4B2")#D5FBFB
+        self.volume_label = tk.Label(self.right_frame, text="90", bg='#3A3535', font=("Terminal", 8),fg="#E9E4B2")#D5FBFB
         self.volume_label.grid()
 
         # Volume SLider
         self.volume_slider =  ttk.Scale(self.right_frame, from_=0, to=100, orient="horizontal", command=self.set_volume, length=110, style="TScale")
         self.volume_slider.grid(padx=(5,0))
-        self.volume_slider.set(50)
+        self.volume_slider.set(90)
 
         # Volume label
         self.volume_label_frame = tk.Label(self.right_frame, text='[.....VOLUME......]', font=("Terminal", 8), bg="#3A3535", fg="green")#fg="#E1B19E"
         self.volume_label_frame.grid()
         
-        self.mute_button = tk.Button(self.right_frame, text="MUTE", font=("Terminal", 8), command=self.toggle_mute, bg="#F4C9A1")
+        self.mute_button = tk.Button(self.right_frame, text="MUTE", font=("Terminal", 6), command=self.toggle_mute, bg="#F4C9A1")
         self.mute_button.grid(pady=5)
         
         self.compact_button = tk.Button(self.left_frame, text="CRT/AMP", font=("Terminal", 8), bg="#959688", command=self.compact)
-        self.compact_button.grid(padx=(13,0), column=1)
+        self.compact_button.grid(padx=(13,0), pady=5, column=1)
         
         # Random Button
-        self.shuffle_button = tk.Button(self.central_frame, text="RANDOM", font=("Terminal", 8), bg="#BDCCD6", command=self.toggle_shuffle)
-        self.shuffle_button.grid(row=1,padx=(0, 30), pady=(5,0))
+        self.shuffle_button = tk.Button(self.central_frame, text="RANDOM", font=("Terminal", 8), bg="#BDD6C8", command=self.toggle_shuffle)#BDCCD6
+        self.shuffle_button.grid(row=1,padx=(0, 30), pady=(15,0))
 
         # Loop Button
-        self.loop_button = tk.Button(self.central_frame, text=" LOOP ", font=("Terminal", 8), bg="#BDCCD6", command=self.toggle_loop)#C2DDAC, C4A98A
-        self.loop_button.grid(row=1,padx=(80, 0), pady=(5,0))
+        self.loop_button = tk.Button(self.central_frame, text=" LOOP ", font=("Terminal", 8), bg="#BDD6C8", command=self.toggle_loop)#C2DDAC, C4A98A
+        self.loop_button.grid(row=1,padx=(80, 0), pady=(15,0))
         
         self.fullscreen_button = tk.Button(self.left_frame, text="FULLSCREEN", font=("Terminal", 8), command=self.enter_fullscreen_video, bg="#B2A777")##F7EAC3, #EBE1AD
-        self.fullscreen_button.grid(padx=(13,0),pady=7, column=1)
+        self.fullscreen_button.grid(padx=(13,0),pady=(7,0), column=1)
         self.root.bind("<Escape>", lambda e: self.exit_fullscreen_video())
         
-        self.mp6 = ImageTk.PhotoImage(Image.open('media_player/graphics/buttons_control/mp6.png').resize((22,10)))
-        self.mp6_off = ImageTk.PhotoImage(Image.open('media_player/graphics/buttons_control/mp6_off.png').resize((22,10)))
+        self.mp6 = ImageTk.PhotoImage(Image.open('media_player/graphics/buttons_control/mp6.png').resize((22,9)))
+        self.mp6_off = ImageTk.PhotoImage(Image.open('media_player/graphics/buttons_control/mp6_off.png').resize((22,9)))
 
         self.left_vu = VUColumn(self.vu_frame_left, channel_index=0)
         self.right_vu = VUColumn(self.vu_frame_right, channel_index=1)
         
         self.left_vu.grid(padx=(0,6), pady=(0))
         self.right_vu.grid(padx=(5,6), pady=(0))
- 
-        self.left_vu_label = tk.Label(self.vu_frame_left, text="LEFT", font=("Terminal", 8), bg="#3A3535", fg="#E9E4B2")
-        self.left_vu_label.grid(padx=(0,5))
         
         self.mp6_label_left = tk.Label(self.vu_frame_left, image=self.mp6_off, bg="#3A3535")
         self.mp6_label_left.grid(padx=(0,5))
-
-        self.right_vu_label = tk.Label(self.vu_frame_right, text="RIGHT", font=("Terminal", 8), bg="#3A3535", fg="#E9E4B2")
-        self.right_vu_label.grid(padx=(0), pady=(0))
         
         self.mp6_label_right = tk.Label(self.vu_frame_right, image=self.mp6_off, bg="#3A3535")
-        self.mp6_label_right.grid(padx=(0))
+        self.mp6_label_right.grid(padx=(3,0))
+
+        #self.right_vu_label = tk.Label(self.vu_frame_right, text="", font=("Terminal", 8), bg="#3A3535", fg="#E9E4B2")
+        #self.right_vu_label.grid(padx=(0), pady=(0))
+        
+        #self.left_vu_label = tk.Label(self.vu_frame_left, text="___", font=("Terminal", 8), bg="#3A3535", fg="#E9E4B2")
+        #self.left_vu_label.grid(padx=(0,5))
+        
+
         
         self.eq_line = tk.Label(self.main_frame, bg="#3A3535", text="__________________________________________________________________________________________________________")
         self.eq_line.grid(row=5, columnspan=5, pady=(0,10), sticky="n")
@@ -230,33 +239,34 @@ def setup_ui(self):
         self.eq_light_on_image = ImageTk.PhotoImage(Image.open('media_player/graphics/buttons_control/eq_light_on.png').resize((11,11)))
 
 
-        self.eq_frame = tk.Frame(self.main_frame, bg="#232121")
+        self.eq_frame = tk.Frame(self.main_frame, bg="#CEA6A6")
         self.eq_frame.grid(row=6, columnspan=5)
         
         self.eq_light_frame = tk.Frame(self.main_frame, bg="#3A3535")
-        self.eq_light_frame.grid(row=7, columnspan=5, padx=(0, 23))
+        self.eq_light_frame.grid(row=7, columnspan=5, padx=(0,21))
         
 
         
         # Frecuencias típicas
-        frequencies = ["60Hz  ", "250Hz", "1kHz  ", "4kHz  ", "16kHz"]
+        frequencies = ["60Hz", "250H", "1kHz", "4kHz", "16kHz"]
         self.eq_sliders = []
         self.eq_light_labels = []
 
         for i, freq in enumerate(frequencies):
-                slider = tk.Scale(self.eq_frame, from_=12, to=-12, orient='vertical', label=freq,
-                                length=100, width=12, bg="#3A3535", fg="white", troughcolor="#AF7028",
+                slider = tk.Scale(self.eq_frame, from_=12, to=-12, orient='vertical', label=freq, font=("Courier", 8),
+                                length=100, width=12, bg="#3A3535", fg="#E9E4B2", troughcolor="#43362E",
                                 highlightthickness=0, command=lambda val, idx=i: self.on_slider_change(val, idx)
-)
+)               
                 slider.set(0)
                 slider.grid(row=0, column=i, padx=0)
                 self.eq_sliders.append(slider)
+                self.eq_frame.grid_columnconfigure(i, minsize=60)
                 
                 label = tk.Label(self.eq_light_frame, image=self.eq_light_image, bg="#3A3535")
-                label.grid(row=1, padx=33, column=i)
+                label.grid(row=1, column=i, padx=32)
                 self.eq_light_labels.append(label)
          
-        self.eq_button = tk.Button(self.right_frame, text="EQ", font=("Terminal", 8), command=self.toggle_eq)
+        self.eq_button = tk.Button(self.right_frame, text="EQ", bg="#B2A777", font=("Terminal", 6), command=self.toggle_eq)
         self.eq_button.grid()
  
         self.breathe_hal()
