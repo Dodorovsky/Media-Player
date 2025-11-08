@@ -14,7 +14,8 @@ from modules.vu_meter_experiment import VUColumn
 def setup_ui(self):
         self.root.title("Reproductor con lista")
         self.root.configure(bg="#82726D")
-        self.root.geometry("520x359")# 560x470
+        self.root.geometry("592x375")# 520x359  592x375
+        self.root.resizable(False, False)
         self.root.title("DK__9000 MEDI/\ PL/\YER")
         self.root.iconbitmap('media_player/graphics/backgrounds/dodorovsky.ico')
         
@@ -57,12 +58,12 @@ def setup_ui(self):
         self.top_frame.grid_rowconfigure(3, weight=1)# vídeo    
         self.top_frame.grid_columnconfigure(0, weight=1)
         
-        self.listbox = tk.Listbox(self.top_frame, bg="black", fg="#27A01C", width=110, height=12, selectbackground="#6A8785", selectforeground="lime",bd=0, highlightthickness=0, relief="flat")
+        self.listbox = tk.Listbox(self.top_frame, bg="black", fg="#27A01C", width=110, height=13, selectbackground="#6A8785", selectforeground="lime",bd=0, highlightthickness=0, relief="flat")
         self.listbox.grid(row=1, column=0, padx=0, pady=0, sticky="nsew")      
         self.listbox.drop_target_register(DND_FILES)
         self.listbox.dnd_bind('<<Drop>>', self.on_drop)
         
-        self.placeholder = tk.Label(self.listbox, text="DRAG FILES HERE",  fg="#62985C", font=("Lucida Console", 9), bg="black")
+        self.placeholder = tk.Label(self.listbox, text="DRAG YOUR FILES HERE",  fg="#62985C", font=("Lucida Console", 9), bg="black")
         self.placeholder.place(relx=0.5, rely=0.6, anchor="center")
         
         self.logo_image = ImageTk.PhotoImage(Image.open('media_player/graphics/backgrounds/dodorovsky.png').resize((50, 28)))
@@ -84,9 +85,9 @@ def setup_ui(self):
                         troughcolor='black',  # canal del slider
                         background='#232121', borderwidth=0, relief='flat') # fondo del widget (no el thumb)
         self.style.configure('TScale',
-                        troughcolor="#AC8433",  # canal del slider
+                        troughcolor="#88682A",  # canal del slider
                         background="#3A3535", borderwidth=0, relief='flat') 
-        self.time_slider = ttk.Scale(self.midle_frame, from_=0, to=100, orient="horizontal", value=0, length=520, style="Custom.Horizontal.TScale")# 664
+        self.time_slider = ttk.Scale(self.midle_frame, from_=0, to=100, orient="horizontal", value=0, length=592, style="Custom.Horizontal.TScale")# 664
         self.time_slider.grid(row=2, column=0, padx=0, sticky="nsew")
         
         self.current_time_label = tk.Label(self.times_frame, text="--:--", font=("Terminal", 8), fg="#ADADAD", bg='black')##E9E4B2, #FFFCE8
@@ -101,7 +102,7 @@ def setup_ui(self):
         
         self.vu_frame_right = tk.Frame(self.main_frame, bg="#3A3535")
         self.vu_frame_right.grid_columnconfigure(0, weight=1)
-        self.vu_frame_right.grid(row=4, column=4, padx=(0,5), pady=(0), sticky="S")
+        self.vu_frame_right.grid(row=4, column=4, padx=(0,10), pady=(0), sticky="S")
         
         # Left Frame
         self.left_frame = tk.Frame(self.main_frame, bg="#3A3535")
@@ -126,7 +127,7 @@ def setup_ui(self):
         # Right Frame
         self.right_frame = tk.Frame(self.main_frame, bg="#3A3535")
         self.right_frame.grid_columnconfigure(0, weight=1)
-        self.right_frame.grid(padx=(6,8), pady=(20,0), row=4, column=3, sticky="n")   
+        self.right_frame.grid(padx=(15,20), pady=(20,0), row=4, column=3, sticky="n")   
         
 
 
@@ -232,7 +233,7 @@ def setup_ui(self):
         
 
         
-        self.eq_line = tk.Label(self.main_frame, bg="#3A3535", text="__________________________________________________________________________________________________________")
+        self.eq_line = tk.Label(self.main_frame, bg="#3A3535", text="___________________________________________________________________________________________________________________________")
         self.eq_line.grid(row=5, columnspan=5, pady=(0,10), sticky="n")
 
         self.eq_light_image = ImageTk.PhotoImage(Image.open('media_player/graphics/buttons_control/eq_light.png').resize((11,11)))
@@ -268,6 +269,9 @@ def setup_ui(self):
          
         self.eq_button = tk.Button(self.right_frame, text="EQ", bg="#B2A777", font=("Terminal", 6), command=self.toggle_eq)
         self.eq_button.grid()
+        
+        self.seek = tk.Button(self.left_frame, text="seek", bg="#B2A777", font=("Terminal", 6), command=self.test_seek)
+        self.seek.grid()
  
         self.breathe_hal()
 
