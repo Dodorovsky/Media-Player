@@ -1,7 +1,4 @@
 from modules.utils import format_time
-#from modules.vumeter_real import RealVUMeter
-#from modules.vu_meter_experiment import VUMeterExperimental
-from modules.vu_meter_experiment import VUColumn
 from mutagen import File
 from modules.overlay import FloatingOverlay
 from ui import setup_ui
@@ -53,6 +50,8 @@ class PlaylistPlayer:
         self.last_volume = 50
         self.is_compact = False
         self.eq_t = False
+        self.subtitles_path = None
+
         
         self.eq_color = "eq_light"
         
@@ -107,6 +106,8 @@ class PlaylistPlayer:
         self.play_button.config(image=self.play_on)
         # Create the Media and assign it to the Player
         media = self.vlc_instance.media_new(filepath)
+        if self.subtitles_path:
+            media.add_option(f"sub-file={self.subtitles_path}")
         self.player.set_media(media)
 
 
@@ -175,8 +176,6 @@ class PlaylistPlayer:
         self.root.after(500, self.set_duration)
         self.update_time()
         
-
-
     def pause(self):
 
         self.player.pause()  
@@ -364,19 +363,17 @@ class PlaylistPlayer:
         self.placeholder.place_forget()
         self.logo_listbox.place_forget()
 
-        SUPPORTED_FORMATS = (
-            '.mp3', '.wav', '.flac',  # 🎶 Audio
-            '.mp4', '.avi', '.mkv', '.mov', '.webm'  # 🎥 Video
-        )
-
-        for f in files:
-            if f.lower().endswith(SUPPORTED_FORMATS):
-                self.load_file_in_listbox(f)
-                self.playlist.append(f)
-            else:
-                self.video_frame.grid_remove()
-                self.listbox.grid(row=1, column=0)
-                self.play_from_selection()
+        if files:
+            self.playlist = list(files)
+            # 🧹 Clears the current listbox display
+            self.listbox.delete(0, tk.END)
+            for f in self.playlist:
+                self.current_file_is_audio = f.lower().endswith((".mp3", ".wav", ".flac"))
+                if self.current_file_is_audio:
+                    self.load_file_in_listbox(f)
+                    
+                else:
+                    self.listbox.insert(tk.END, os.path.basename(f))
 
         # 🔊 Always play the last added file
         if self.playlist:
@@ -385,7 +382,6 @@ class PlaylistPlayer:
             self.listbox.selection_set(self.current_index)
             self.listbox.activate(self.current_index)
             self.play_from_selection()
-
 
     def embed_video(self):
         # 📺 Embed video stream into the UI frame based on OS
@@ -434,8 +430,8 @@ class PlaylistPlayer:
         for i, label in enumerate(self.eq_light_labels):
             label.grid(row=1, column=i, padx=33)
 
-
     def enter_fullscreen_video(self):
+        print("enter_fullscreen called")
         if self.current_file_is_audio:
             messagebox.showinfo("Full screen mode", "Full screen mode is disabled for audio files")
             return
@@ -446,9 +442,9 @@ class PlaylistPlayer:
         self.main_frame.configure(bg="black")
         self.top_frame.configure(bg="black")
 
-        self.mouse_tracker_active = True
+        
         self.pantlla_completa = True
-        self.track_mouse_movement()
+       
         
 
         # Mostrar el video
@@ -491,9 +487,9 @@ class PlaylistPlayer:
         self.overlay.create_overlay()
         self.overlay.start_slider_update(self.get_current_time, self.get_total_length)
 
-        self.show_overlay()
-
-
+        #self.show_overlay()
+        self.overlay.start_mouse_tracking()
+        
     def exit_fullscreen_video(self):
         self.root.attributes("-fullscreen", False) 
         self.root.geometry("592x375")
@@ -532,16 +528,8 @@ class PlaylistPlayer:
         
         if self.overlay_window:
             self.overlay.destroy_overlay()
-            self.overlay_window = None
-            self.overlay_visible = False
-            self.root.unbind("<Motion>")
         self.root.after(100, self.show_eq_ui)
-        self.fullscreen = False
-        self.mouse_tracker_active = False
-     
-    #def on_mouse_move(self, event=None):
-        #if getattr(self, "fullscreen", False):
-            #self.show_overlay()
+        self.overlay.stop_mouse_tracking()
 
     def show_overlay(self):
         if self.overlay_window:
@@ -558,20 +546,19 @@ class PlaylistPlayer:
             self.overlay_window.withdraw()
             #self.overlay_visible = False
             
-    def track_mouse_movement(self):
+    def track_mouse(self):
         if not self.mouse_tracker_active:
-            return
+            return  # No reprogramar el bucle
 
-        # Get relative mouse position within root
-        x = self.root.winfo_pointerx() - self.root.winfo_rootx()
-        y = self.root.winfo_pointery() - self.root.winfo_rooty()
+        x = self.master.winfo_pointerx()
+        y = self.master.winfo_pointery()
         current_position = (x, y)
 
         if self.last_mouse_position != current_position:
             self.last_mouse_position = current_position
             self.show_overlay()
 
-        self.root.after(300, self.track_mouse_movement)
+        self.master.after(300, self.track_mouse)
 
     def breathe_hal(self, index=0, direction=1):
             self.hal_label.configure(image=self.hal_frames[index])
@@ -756,14 +743,27 @@ class PlaylistPlayer:
         else:
             self.player.play()
 
+
+
+    def get_current_time(self):
+        return int(self.player.get_time() / 1000)  # en segundos
+
+    def get_total_length(self):
+        return int(self.player.get_length() / 1000)  # en segundos
+
+    def play(self):
+        self.player.play()
+        
+        
     def show_hotkeys(self, event=None):
         hotkey_window = tk.Toplevel(self.root)
-        hotkey_window.title("🎹 Hotkeys")
+        hotkey_window.title("Hotkeys")
         hotkey_window.geometry("300x200")
-        hotkey_window.configure(bg="black")
+        hotkey_window.configure(bg="#161515")
+        #hotkey_window.iconbitmap('media_player/graphics/backgrounds/dodorovsky.ico')
         hotkey_window.resizable(False, False)
 
-        tk.Label(hotkey_window, text="🎛️ Player Hotkeys", fg="lime", bg="black", font=("Courier", 14, "bold")).pack(pady=10)
+        tk.Label(hotkey_window, text="PLAYER HOTKEYS", fg="#36AF1D", bg="#161515", font=("Terminal", 12)).pack(pady=10)
 
         hotkeys = [
             "␣  Space: Play / Pause",
@@ -775,19 +775,18 @@ class PlaylistPlayer:
         ]
 
         for key in hotkeys:
-            tk.Label(hotkey_window, text=key, fg="white", bg="black", font=("Courier", 12)).pack(anchor="w", padx=20)
+            tk.Label(hotkey_window, text=key, fg="#ADADAD", bg="#161515", font=("Lucida Console", 11)).pack(anchor="w", padx=20)
+            
+    def load_subtitles(self):
+        ruta = filedialog.askopenfilename(filetypes=[("SubRip Subtitle", "*.srt *.ass *.ssa *.vtt")])
+        if ruta:
+            self.subtitles_path = ruta
 
-
-
-
-    def get_current_time(self):
-        return int(self.player.get_time() / 1000)  # en segundos
-
-    def get_total_length(self):
-        return int(self.player.get_length() / 1000)  # en segundos
-
-    def test_seek(self):
-        print("Calling seek_to_time manually")
-        self.seek_to_time(10)
-    def play(self):
+    def play_radio3(self):
+        stream_url = "https://kexp.streamguys1.com/kexp160.aac"
+        media = self.vlc_instance.media_new(stream_url)
+        self.player.set_media(media)
         self.player.play()
+
+            
+            

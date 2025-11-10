@@ -20,6 +20,9 @@ class FloatingOverlay:
         self.is_playing = False  
         self.time_slider = None
         self.slider_update_active = False
+        self.ignore_slider_callback = False
+        self.slider_being_dragged = False
+
 
 
     def create_overlay(self):
@@ -27,6 +30,7 @@ class FloatingOverlay:
             return
 
         self.overlay_window = tk.Toplevel(self.master)
+        self.overlay_window.withdraw()
         self.overlay_window.overrideredirect(True)
         self.overlay_window.attributes("-topmost", True)
         self.overlay_window.attributes("-alpha", 0.9)
@@ -85,11 +89,13 @@ class FloatingOverlay:
             command=self.on_slider_move
         )
         self.time_slider.pack(side="left", padx=10, fill="x", expand=True)
+        self.time_slider.bind("<ButtonPress-1>", self.on_slider_press)
+        self.time_slider.bind("<ButtonRelease-1>", self.on_slider_release)
+
 
         self.position_overlay()
-        self.mouse_tracker_active = True
-        self.track_mouse()
-        
+        self.mouse_tracker_active = False
+       
     def toggle_play_pause(self):
         if self.is_playing:
             self.pause_callback()
@@ -99,8 +105,6 @@ class FloatingOverlay:
             self.play_callback()
             self.play_pause_btn.config(text="⏸")
             self.is_playing = True
-
-
 
     def position_overlay(self):
         screen_width = self.master.winfo_screenwidth()
@@ -146,22 +150,17 @@ class FloatingOverlay:
             self.mouse_tracker_active = False
             
     def on_slider_move(self, value):
-        print("Slider moved to:", value)
-        print("Callback object:", self.seek_callback)
+        if self.ignore_slider_callback or not self.slider_being_dragged:
+            return
 
         try:
-            percent = float(value)  # Asegura que sea numérico
+            percent = float(value)
             total_length = self.get_length_callback()
             new_time = int((percent / 100) * total_length)
-            print("Seeking to:", new_time)
             self.seek_callback(new_time)
-
-            self.slider_update_active = False
-            self.overlay_window.after(1500, self.resume_slider_update)
         except Exception as e:
             print("Error in slider move:", e)
-
-        
+ 
     def start_slider_update(self, get_time_callback, get_length_callback):
         self.get_time_callback = get_time_callback
         self.get_length_callback = get_length_callback
@@ -177,15 +176,17 @@ class FloatingOverlay:
 
         if total_length > 0:
             percent = int((current_time / total_length) * 100)
+
+            self.ignore_slider_callback = True  # ⛔ Bloqueamos el callback
             self.time_slider.set(percent)
+            self.ignore_slider_callback = False  # ✅ Lo reactivamos
 
             current_str = self.format_time(current_time)
             total_str = self.format_time(total_length)
             self.time_label.config(text=f"{current_str} / {total_str}")
 
         self.overlay_window.after(1000, self.update_slider_position)
-
-        
+     
     def resume_slider_update(self):
         self.slider_update_active = True
         self.update_slider_position()  # ✅ Forzamos una actualización inmediata
@@ -195,6 +196,19 @@ class FloatingOverlay:
         secs = int(seconds % 60)
         return f"{minutes:02}:{secs:02}"
 
+    def start_mouse_tracking(self):
+        if not self.mouse_tracker_active:
+            self.mouse_tracker_active = True
+            self.track_mouse()
 
+    def stop_mouse_tracking(self):
+        self.mouse_tracker_active = False
 
-        
+    def on_slider_press(self, event):
+        self.slider_being_dragged = True
+        self.slider_update_active = False  # Pausamos la actualización automática
+
+    def on_slider_release(self, event):
+        self.slider_being_dragged = False
+        self.overlay_window.after(1500, self.resume_slider_update)
+

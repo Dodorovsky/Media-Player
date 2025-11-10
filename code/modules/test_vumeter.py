@@ -1,14 +1,10 @@
-import tkinter as tk
-from vumeter_real import RealVUMeter
+from pydub import AudioSegment
+from pydub.utils import which
 
-root = tk.Tk()
-root.geometry("300x150")
-vumeter = RealVUMeter(root)
+print("FFmpeg detectado en:", which("ffmpeg"))
 
-def on_close():
-    vumeter.stop()
-    root.destroy()
+audio = AudioSegment.from_file("C:/Users/dodor/OneDrive/Desktop/Planet.mp3")  # Cambiá la ruta si es necesario
 
-root.protocol("WM_DELETE_WINDOW", on_close)
-root.mainloop()
- 
+print("Duración (ms):", len(audio))
+print("Volumen RMS:", audio.rms)
+

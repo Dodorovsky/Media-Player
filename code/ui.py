@@ -5,16 +5,11 @@ from PIL import Image, ImageTk
 from tkinterdnd2 import DND_FILES, TkinterDnD
 import vlc 
 import os
-#from modules.vumeter_real import RealVUMeter
-#from modules.vu_meter_experiment import VUMeterExperimental
-from modules.vu_meter_experiment import VUColumn
-
-
 
 def setup_ui(self):
         self.root.title("Reproductor con lista")
         self.root.configure(bg="#82726D")
-        self.root.geometry("592x375")# 520x359  592x375
+        self.root.geometry("592x385")# 520x359  592x375
         self.root.resizable(False, False)
         self.root.title("DK__9000 MEDI/\ PL/\YER")
         self.root.iconbitmap('media_player/graphics/backgrounds/dodorovsky.ico')
@@ -98,11 +93,11 @@ def setup_ui(self):
         # Vumeter Frame
         self.vu_frame_left = tk.Frame(self.main_frame, bg="#3A3535")
         self.vu_frame_left.grid_columnconfigure(0, weight=1)
-        self.vu_frame_left.grid(row=4, column=0, padx=0, pady=(0), sticky="S")
+        self.vu_frame_left.grid(row=4, column=0, padx=0, pady=(0))
         
         self.vu_frame_right = tk.Frame(self.main_frame, bg="#3A3535")
         self.vu_frame_right.grid_columnconfigure(0, weight=1)
-        self.vu_frame_right.grid(row=4, column=4, padx=(0,10), pady=(0), sticky="S")
+        self.vu_frame_right.grid(row=4, column=4, padx=(0,10), pady=(0))
         
         # Left Frame
         self.left_frame = tk.Frame(self.main_frame, bg="#3A3535")
@@ -181,19 +176,19 @@ def setup_ui(self):
         
         # Volume Labels
         self.volume_label = tk.Label(self.right_frame, text="90", bg='#3A3535', font=("Terminal", 8),fg="#E9E4B2")#D5FBFB
-        self.volume_label.grid()
+        self.volume_label.grid(row=0, column=0, columnspan=2)
 
         # Volume SLider
         self.volume_slider =  ttk.Scale(self.right_frame, from_=0, to=100, orient="horizontal", command=self.set_volume, length=110, style="TScale")
-        self.volume_slider.grid(padx=(5,0))
+        self.volume_slider.grid(row=1, column=0, columnspan=2, padx=(5,0))
         self.volume_slider.set(90)
 
         # Volume label
         self.volume_label_frame = tk.Label(self.right_frame, text='[.....VOLUME......]', font=("Terminal", 8), bg="#3A3535", fg="green")#fg="#E1B19E"
-        self.volume_label_frame.grid()
+        self.volume_label_frame.grid(row=2, column=0, columnspan=2)
         
         self.mute_button = tk.Button(self.right_frame, text="MUTE", font=("Terminal", 6), command=self.toggle_mute, bg="#F4C9A1")
-        self.mute_button.grid(pady=5)
+        self.mute_button.grid(row=3, column=0, columnspan=2,pady=5)
         
         self.compact_button = tk.Button(self.left_frame, text="CRT/AMP", font=("Terminal", 8), bg="#959688", command=self.compact)
         self.compact_button.grid(padx=(13,0), pady=5, column=1)
@@ -210,28 +205,20 @@ def setup_ui(self):
         self.fullscreen_button.grid(padx=(13,0),pady=(7,0), column=1)
         self.root.bind("<Escape>", lambda e: self.exit_fullscreen_video())
         
+        self.subtitles_button = tk.Button(self.left_frame, text="SUBTITLES", font=("Terminal", 8), command=self.load_subtitles, bg="#E1D18A")##F7EAC3, #EBE1AD
+        self.subtitles_button.grid(padx=(10,0),pady=10, column=1)
+        
         self.mp6 = ImageTk.PhotoImage(Image.open('media_player/graphics/buttons_control/mp6.png').resize((22,9)))
         self.mp6_off = ImageTk.PhotoImage(Image.open('media_player/graphics/buttons_control/mp6_off.png').resize((22,9)))
-
-        self.left_vu = VUColumn(self.vu_frame_left, channel_index=0)
-        self.right_vu = VUColumn(self.vu_frame_right, channel_index=1)
-        
-        self.left_vu.grid(padx=(0,6), pady=(0))
-        self.right_vu.grid(padx=(5,6), pady=(0))
         
         self.mp6_label_left = tk.Label(self.vu_frame_left, image=self.mp6_off, bg="#3A3535")
         self.mp6_label_left.grid(padx=(0,5))
         
+        self.radio_3_button = tk.Button(self.vu_frame_right, text="RADIO",  font=("Terminal", 8), bg="#598084", command=self.play_radio3)
+        self.radio_3_button.grid(pady=10)
+        
         self.mp6_label_right = tk.Label(self.vu_frame_right, image=self.mp6_off, bg="#3A3535")
         self.mp6_label_right.grid(padx=(3,0))
-
-        #self.right_vu_label = tk.Label(self.vu_frame_right, text="", font=("Terminal", 8), bg="#3A3535", fg="#E9E4B2")
-        #self.right_vu_label.grid(padx=(0), pady=(0))
-        
-        #self.left_vu_label = tk.Label(self.vu_frame_left, text="___", font=("Terminal", 8), bg="#3A3535", fg="#E9E4B2")
-        #self.left_vu_label.grid(padx=(0,5))
-        
-
         
         self.eq_line = tk.Label(self.main_frame, bg="#3A3535", text="___________________________________________________________________________________________________________________________")
         self.eq_line.grid(row=5, columnspan=5, pady=(0,10), sticky="n")
@@ -268,19 +255,21 @@ def setup_ui(self):
                 self.eq_light_labels.append(label)
          
         self.eq_button = tk.Button(self.right_frame, text="EQ", bg="#B2A777", font=("Terminal", 6), command=self.toggle_eq)
-        self.eq_button.grid()
+        self.eq_button.grid(row=4, column=0)
         
-        self.seek = tk.Button(self.left_frame, text="seek", bg="#B2A777", font=("Terminal", 6), command=self.test_seek)
-        self.seek.grid()
+
+        
+        self.hotkeys = tk.Button(self.right_frame, text="HOTKEYS", bg="#B2777F", font=("Terminal", 6), command=self.show_hotkeys)
+        self.hotkeys.grid(row=4, column=1, padx=(0,25),sticky="w")
+ 
+
  
         self.breathe_hal()
 
-        def update_vumeter():
-                
-                self.root.after(500, update_vumeter)
+
         self.start_eq_light_loop()
 
-        update_vumeter()
+      
         
 
 
