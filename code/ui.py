@@ -21,12 +21,13 @@ def setup_ui(self):
         #self.main_frame.grid_rowconfigure(2, weight=1)  # se expande con vídeo
         self.main_frame.grid_rowconfigure(1, weight=0)
 
-        
+        for i in range(5):
+                self.main_frame.grid_columnconfigure(i, weight=1)
+ 
         self.root.grid_rowconfigure(0, weight=1)
         self.root.grid_columnconfigure(0, weight=1)
         
-        for i in range(5):
-                self.main_frame.grid_columnconfigure(i, weight=1)
+
 
 
         self.black_frame = tk.Frame(self.main_frame, bg="#181717")##232121
@@ -37,7 +38,8 @@ def setup_ui(self):
         self.black_frame.grid_columnconfigure(0, weight=1)
         self.black_frame.grid_columnconfigure(1, weight=0)  # hal_label
         self.black_frame.grid_columnconfigure(2, weight=1)
-        
+
+  
         self.list_frame.grid_columnconfigure(0, weight=1)
         self.list_frame.grid_columnconfigure(1, weight=0)
         self.list_frame.grid_columnconfigure(2, weight=1)

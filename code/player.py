@@ -926,9 +926,18 @@ class PlaylistPlayer:
         self.listbox.insert(tk.END, os.path.basename(f))
         self.black_frame.update_idletasks()
         print(self.black_frame.grid_info())
+        self.force_layout_refresh()
+
 
 
     def load_media_file(self, f):
         #self.player.stop()
         media = self.vlc_instance.media_new(f)
         self.player.set_media(media)
+        
+    def force_layout_refresh(self):
+        self.root.after(50, self.exit_fullscreen_video)
+
+        
+        
+        
