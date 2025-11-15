@@ -9,7 +9,7 @@ import os
 def setup_ui(self):
         self.root.title("Reproductor con lista")
         self.root.configure(bg="#82726D")
-        self.root.geometry("600x410")# 520x359  592x375
+        self.root.geometry("640x405")# 520x359  592x375
         self.root.resizable(False, False)
         self.root.title("DK_9000")
         self.root.iconbitmap('media_player/graphics/backgrounds/dodorovsky.ico')
@@ -17,6 +17,9 @@ def setup_ui(self):
         # Main Frame
         self.main_frame = tk.Frame(self.root, bg='#3A3535')
         self.main_frame.grid(row=0, column=0, sticky="nsew")
+        self.main_frame.grid_rowconfigure(0, weight=0)
+        #self.main_frame.grid_rowconfigure(2, weight=1)  # se expande con vídeo
+        self.main_frame.grid_rowconfigure(1, weight=0)
 
         
         self.root.grid_rowconfigure(0, weight=1)
@@ -27,32 +30,42 @@ def setup_ui(self):
 
 
         self.black_frame = tk.Frame(self.main_frame, bg="#181717")##232121
-        self.black_frame.grid(column=0, columnspan=5, sticky="nsew")
-        self.black_frame.grid_columnconfigure(0, weight=1)
-        self.black_frame.grid_rowconfigure(0, weight=0)
-        
+        self.black_frame.grid(row=0, column=0, columnspan=5, sticky="nsew")
         self.list_frame = tk.Frame(self.main_frame, bg="#101010")
         self.list_frame.grid(row=1, column=0, columnspan=5, sticky="nsew")
+        
+        self.black_frame.grid_columnconfigure(0, weight=1)
+        self.black_frame.grid_columnconfigure(1, weight=0)  # hal_label
+        self.black_frame.grid_columnconfigure(2, weight=1)
+        
         self.list_frame.grid_columnconfigure(0, weight=1)
-        self.list_frame.grid_columnconfigure(1, weight=1)
-        self.list_frame.grid_rowconfigure(1, weight=1)
+        self.list_frame.grid_columnconfigure(1, weight=0)
+        self.list_frame.grid_columnconfigure(2, weight=1)
+
+        self.hal_on = ImageTk.PhotoImage(Image.open('media_player/graphics/buttons_control/power_light.png').resize((21, 21)))#20,20
+
+
+        self.hal_label = tk.Label(self.black_frame, image=self.hal_on, width=21, height=21,  bg='#181717')
+        self.hal_label.grid(row=0, column=1, pady=(3,0), sticky="nsew")
+        
+
+        
+        self.hal_frames = [ImageTk.PhotoImage(Image.open(f"media_player/graphics/hal_ojo/hal_dim_{i}.png").resize((20,20))) for i in range(0,83)]
         
         # Top Frame for Video and Listbox
         self.top_frame = tk.Frame(self.main_frame, bg="#181717")
-        self.top_frame.grid(row=2, column=0, columnspan=5, sticky="ew")
-        self.top_frame.grid_rowconfigure(0, weight=1)
-        self.top_frame.grid_rowconfigure(1, weight=1)
-        self.top_frame.grid_rowconfigure(2, weight=1)
-        self.top_frame.grid_rowconfigure(3, weight=1)# vídeo    
+        self.top_frame.grid(row=2, column=0, columnspan=5, sticky="nsew")
+        self.top_frame.grid_rowconfigure(0, weight=0)
+        self.top_frame.grid_rowconfigure(1, weight=1)  # listbox o vídeo
+        self.top_frame.grid_rowconfigure(2, weight=0)
+        self.top_frame.grid_rowconfigure(3, weight=0)
         self.top_frame.grid_columnconfigure(0, weight=1)
         
-
-        
         self.lista_label = tk.Label(self.list_frame, text="DK_9000", bg= "#101010",fg="#179B78", font=("Lucida Console", 9, "bold"))
-        self.lista_label.grid(pady=2,row=0, column=0, sticky="e")
+        self.lista_label.grid(row=0, column=1, sticky="")
 
         self.lista_name = tk.Label(self.list_frame, text="", bg= "#101010",fg="#81B2A5", font=("Lucida Console", 9, "bold"))
-        self.lista_name.grid(pady=2, row=0, column=1, sticky="w")
+        self.lista_name.grid(row=0, column=2, sticky="w")
 
 
         self.times_frame = tk.Frame(self.main_frame, bg="black", width=500)
@@ -62,27 +75,23 @@ def setup_ui(self):
         
         self.midle_frame = tk.Frame(self.main_frame, bg="#3A3535")
         self.midle_frame.grid(row=4, columnspan=5, sticky="nsew")
-        
-
-        
 
 
         self.listbox = tk.Listbox(self.top_frame, bg="black", fg="#27A01C", width=110, height=13, selectbackground="#4B5C5B", selectforeground="lime",bd=0, highlightthickness=0, relief="flat")
-        self.listbox.grid(row=2, column=0, padx=0, pady=0, sticky="nsew")      
+        self.listbox.grid(row=1, column=0, padx=0, pady=0, sticky="nsew")      
         self.listbox.drop_target_register(DND_FILES)
         self.listbox.dnd_bind('<<Drop>>', self.on_drop)
-        
-
-        
-        self.placeholder = tk.Label(self.listbox, text="DRAG YOUR FILES HERE",  fg="#62985C", font=("Lucida Console", 9), bg="black")
+         
+        self.placeholder = tk.Label(self.listbox, text="DRAG YOUR FILES HERE",  fg="#62985C", font=("Monospace", 8), bg="black")
         self.placeholder.place(relx=0.5, rely=0.6, anchor="center")
         
         self.logo_image = ImageTk.PhotoImage(Image.open('media_player/graphics/backgrounds/dodorovsky.png').resize((50, 28)))
-        
+        self.radio_image = ImageTk.PhotoImage(Image.open('media_player/graphics/backgrounds/radio.png').resize((80, 47)))
+
         self.logo_listbox = tk.Label(self.listbox, image=self.logo_image, bg="black")
         self.logo_listbox.place(relx=0.5, rely=0.4, anchor="center")
         
-        self.video_frame = tk.Frame(self.top_frame, width=450, height=190, bg="black")# width=450, height=340
+        self.video_frame = tk.Frame(self.top_frame, width=450, height=210, bg="black")# width=450, height=340
         self.video_frame.grid(row=1, column=0, sticky="nsew")
         self.video_frame.drop_target_register(DND_FILES)
         self.video_frame.dnd_bind('<<Drop>>', self.on_drop)
@@ -109,7 +118,7 @@ def setup_ui(self):
         # Vumeter Frame
         self.vu_frame_left = tk.Frame(self.main_frame, bg="#3A3535")
         self.vu_frame_left.grid_columnconfigure(0, weight=1)
-        self.vu_frame_left.grid(row=5, column=0, padx=10, pady=(0))
+        self.vu_frame_left.grid(row=5, column=0, padx=15, pady=(0))
         
         self.vu_frame_right = tk.Frame(self.main_frame, bg="#3A3535")
         self.vu_frame_right.grid_columnconfigure(0, weight=1)
@@ -117,7 +126,7 @@ def setup_ui(self):
         
         # Left Frame
         self.left_frame = tk.Frame(self.main_frame, bg="#3A3535")
-        self.left_frame.grid(pady=(0,10),row=5, column=1, sticky="n")
+        self.left_frame.grid(padx=(15,0),pady=(0,10),row=5, column=1)
         self.left_frame.grid_columnconfigure(1, weight=1)
         
         # Central Frame
@@ -138,18 +147,18 @@ def setup_ui(self):
         # Right Frame
         self.right_frame = tk.Frame(self.main_frame, bg="#3A3535")
         self.right_frame.grid_columnconfigure(0, weight=1)
-        self.right_frame.grid(padx=(0,10), pady=(20,0), row=5, column=3, sticky="e")   
+        self.right_frame.grid(padx=(0), pady=(10,0), row=5, column=3, sticky="e")   
         
 
 
         # Load button label-Frame
         self.load_label_frame = tk.Label(self.left_frame, text='LOAD_MEDIA', font=("Terminal", 8), bg="#3A3535", fg="green")#fg="#E1B19E"
-        self.load_label_frame.grid(padx=(13,0), pady=(15,0), column=1)
+        self.load_label_frame.grid(padx=0, pady=(15,0))
         
    
         # Load Button
         self.load_button = tk.Button(self.left_frame, bd=1, command=self.load_files, bg="#E9B46F")#bg="#F0C74C"
-        self.load_button.grid(padx=(13,0), pady=5, column=1)
+        self.load_button.grid( pady=5)
         
         # Define Control Images
         self.play_off = ImageTk.PhotoImage(Image.open('media_player/graphics/buttons_control/play_off_b.png').resize((55, 15)))
@@ -163,15 +172,7 @@ def setup_ui(self):
 
         self.previous_img = ImageTk.PhotoImage(Image.open('media_player/graphics/buttons_control/prev.png').resize((38,7)))
         self.next_img = ImageTk.PhotoImage(Image.open('media_player/graphics/buttons_control/next.png').resize((38,7)))
-        self.hal_on = ImageTk.PhotoImage(Image.open('media_player/graphics/buttons_control/power_light.png').resize((21, 21)))#20,20
 
-
-        self.hal_label = tk.Label(self.black_frame, image=self.hal_on, width=21, height=21,  bg='#181717')
-        self.hal_label.grid(row=0, columnspan=5, pady=(3,0))
-        
-
-        
-        self.hal_frames = [ImageTk.PhotoImage(Image.open(f"media_player/graphics/hal_ojo/hal_dim_{i}.png").resize((20,20))) for i in range(0,83)]
         
         # Control Buttons
         #self.pause_button = tk.Button(self.sub_frame_1, image=self.pause_off, command=self.pause)
@@ -181,18 +182,18 @@ def setup_ui(self):
         self.stop_button.grid(row=0, column=2, padx=9, pady=5) 
         
         self.play_pause_button = tk.Button(self.sub_frame_1, image=self.play_off, command=self.play_pause)
-        self.play_pause_button.grid(row=0, column=1, padx=(5,0), pady=5)
+        self.play_pause_button.grid(row=0, column=1, padx=(10,0), pady=5)
 
         self.prev_button = tk.Button(self.sub_frame_2, image=self.previous_img, command=self.play_previous)
-        self.prev_button.grid(row=1, column=1, padx=(10,1), pady=5)
+        self.prev_button.grid(row=1, column=1, padx=(0,2), pady=8)
 
         self.next_button = tk.Button(self.sub_frame_2, image=self.next_img, command=self.play_next)
-        self.next_button.grid(row=1, column=2, padx=2, pady=5)
+        self.next_button.grid(row=1, column=2, padx=2, pady=8)
         
         
         # Volume Labels
         self.volume_label = tk.Label(self.right_frame, text="90", bg='#3A3535', font=("Terminal", 8),fg="#E9E4B2")#D5FBFB
-        self.volume_label.grid(row=0, column=0, columnspan=2)
+        self.volume_label.grid(row=0, column=0, columnspan=2, sticky="n")
 
         # Volume SLider
         self.volume_slider =  ttk.Scale(self.right_frame, from_=0, to=100, orient="horizontal", command=self.set_volume, length=110, style="TScale")
@@ -205,9 +206,7 @@ def setup_ui(self):
         
         self.mute_button = tk.Button(self.right_frame, text="MUTE", font=("Terminal", 6), command=self.toggle_mute, bg="#F4C9A1")
         self.mute_button.grid(row=3, column=0, columnspan=2,padx=(2,0),pady=5)
-        
-        self.compact_button = tk.Button(self.right_frame, text="CRT/AMP", font=("Terminal", 8), bg="#959688", command=self.compact)
-        self.compact_button.grid(row=4, column=1, padx=(0, 20), pady=5, sticky="we")
+
         
         # Random Button
         self.shuffle_button = tk.Button(self.central_frame, text="RANDOM", font=("Terminal", 8), bg="#BDD6C8", command=self.toggle_shuffle)#BDCCD6
@@ -217,12 +216,18 @@ def setup_ui(self):
         self.loop_button = tk.Button(self.central_frame, text=" LOOP ", font=("Terminal", 8), bg="#BDD6C8", command=self.toggle_loop)#C2DDAC, C4A98A
         self.loop_button.grid(row=1,padx=(90, 0), pady=(15,0))
 
-   
-        self.subtitles_button = tk.Button(self.vu_frame_left, text="SUBTITLES", font=("Terminal", 8), command=self.load_subtitles, bg="#E1D18A")##F7EAC3, #EBE1AD
-        self.subtitles_button.grid(padx=(0),pady=(35,5))
+        self.eq_button = tk.Button(self.vu_frame_left, text="EQ", bg="#B2A777", font=("Terminal", 6), command=self.toggle_eq)
+        self.eq_button.grid(padx=(0), pady=(20,0))
+
+        self.compact_button = tk.Button(self.vu_frame_left, text="CRT/AMP", font=("Terminal", 7), bg="#959688", command=self.compact)
+        self.compact_button.grid(padx=(0), pady=5)
+
+        self.hotkeys = tk.Button(self.vu_frame_left, text="HOTKEYS", bg="#B2777F", font=("Terminal", 6), command=self.show_hotkeys)
+        self.hotkeys.grid(pady=0)
+
         
-        self.fullscreen_button = tk.Button(self.vu_frame_left, text="FULLSCREEN", font=("Terminal", 8), command=self.enter_fullscreen_video, bg="#B2A777")##F7EAC3, #EBE1AD
-        self.fullscreen_button.grid(pady=(5,20))
+        self.fullscreen_button = tk.Button(self.vu_frame_left, text="FULLSCREEN", font=("Terminal", 8), command=self.enter_fullscreen_video, bg="#B2777F")##F7EAC3, #EBE1AD
+        self.fullscreen_button.grid(pady=(5,5))
         self.root.bind("<Escape>", lambda e: self.exit_fullscreen_video())
         
 
@@ -234,31 +239,29 @@ def setup_ui(self):
         self.mp6_label_left = tk.Label(self.vu_frame_left, image=self.mp6_off, bg="#3A3535")
         self.mp6_label_left.grid(padx=(0,5), pady=(0), sticky="s")
         
+
+
+        
         self.radios = {
-        "KEXP": "https://kexp.streamguys1.com/kexp160.aac",
         "NTS": "https://stream-relay-geo.ntslive.net/stream",
-        "CLASSIC_FM": "https://media-ssl.musicradio.com/ClassicFM",
-        "Soma FM": "http://ice1.somafm.com/secretagent-128-mp3"}
+        "KEXP": "https://kexp.streamguys1.com/kexp160.aac",
+        "SOMA FM": "http://ice1.somafm.com/secretagent-128-mp3",
+        "CLASSIC FM": "https://media-ssl.musicradio.com/ClassicFM"}
+        
+        
+        self.radio_buttons = {}
+
+        for i, (name, url) in enumerate(self.radios.items()):
+                btn = tk.Button(self.vu_frame_right, text=name,  font=("Terminal", 8), command=lambda n=name: self.play_radio(n), bg="#ADA580")
+                btn.grid( row=i+1, padx=5, pady=(0, 5))
+                self.radio_buttons[name] = btn
 
         
         self.radios_labels = tk.Label(self.vu_frame_right, text="RADIO", bg="#3A3535",fg="green", font=("Terminal", 8))
-        self.radios_labels.grid(padx=(5,0), pady=(10,0))
-      
-        self.radio_NTS_button = tk.Button(self.vu_frame_right, text="NTS",  font=("Terminal", 8), bg="#C6B464", command=lambda: self.play_radio("NTS", self.radios["NTS"]))
-        self.radio_NTS_button.grid(padx=(5,0), pady=(5))
-        
-        self.radio_kexp_button = tk.Button(self.vu_frame_right, text="KEXP",  font=("Terminal", 8), bg="#C6B464", command=lambda: self.play_radio("KEXP", self.radios["KEXP"]))
-        self.radio_kexp_button.grid(padx=(5,0), pady=0)
-
-        self.radio_SomaFM_button = tk.Button(self.vu_frame_right, text="SOMA FM",  font=("Terminal", 8), bg="#C6B464", command=lambda: self.play_radio("SOMA FM", self.radios["Soma FM"]))
-        self.radio_SomaFM_button.grid(padx=(5,0), pady=(5,0))
-        
-        self.radio_CLASSIC_button = tk.Button(self.vu_frame_right, text="CLASSIC FM",  font=("Terminal", 8), bg="#C6B464", command=lambda: self.play_radio("CLASSIC_FM", self.radios["CLASSIC_FM"]))
-        self.radio_CLASSIC_button.grid(padx=(0), pady=(5,0))
- 
+        self.radios_labels.grid(padx=(0), pady=(8,5), row=0)
         
         self.mp6_label_right = tk.Label(self.vu_frame_right, image=self.mp6_off, bg="#3A3535")
-        self.mp6_label_right.grid(padx=(0), pady=(5, 0), sticky="s")
+        self.mp6_label_right.grid(padx=(0), pady=(0,5), sticky="s")
         
         self.eq_line = tk.Label(self.main_frame, bg="#3A3535", text="___________________________________________________________________________________________________________________________________")
         self.eq_line.grid(row=6, columnspan=5, pady=(0,10), sticky="n")
@@ -294,14 +297,13 @@ def setup_ui(self):
                 label.grid(row=1, column=i, padx=32)
                 self.eq_light_labels.append(label)
          
-        self.eq_button = tk.Button(self.right_frame, text="EQ", bg="#B2A777", font=("Terminal", 6), command=self.toggle_eq)
-        self.eq_button.grid(padx=(20,0), row=4, column=0)
+
         
         
         
         # Crear el botón de menú
-        self.playlist_button = tk.Menubutton(self.left_frame, text="PLAYLIST", relief="raised", bg="#C19153", fg="black", font=("Terminal", 8))
-        self.playlist_button.grid(padx= (10,0), pady=10, column=1)
+        self.playlist_button = tk.Menubutton(self.left_frame, text="PLAYLIST", relief="raised", bg="#C19153", fg="black", font=("Terminal", 6, "bold"))
+        self.playlist_button.grid(padx=0, pady=(5,10), column=0)
 
         # Crear el menú asociado
         self.playlist_menu = tk.Menu(self.playlist_button, tearoff=0)
@@ -311,11 +313,6 @@ def setup_ui(self):
         self.playlist_menu.add_command(label="Load Playlist", command=self.load_playlist)
         self.playlist_menu.add_command(label="Add to Playlist", command=self.add_to_playlist)
         self.playlist_menu.add_command(label="Create Playlist", command=self.create_playlist)
-
-        self.hotkeys = tk.Button(self.left_frame, text="HOTKEYS", bg="#B2777F", font=("Terminal", 6), command=self.show_hotkeys)
-        self.hotkeys.grid(column=1, padx=(5,0))
-
-
         
 
 
