@@ -23,8 +23,6 @@ class FloatingOverlay:
         self.ignore_slider_callback = False
         self.slider_being_dragged = False
 
-
-
     def create_overlay(self):
         if self.overlay_window:
             return
@@ -36,59 +34,58 @@ class FloatingOverlay:
         self.overlay_window.attributes("-alpha", 0.9)
         self.overlay_window.configure(bg="#222222")
         
-
-
         self.play_pause_btn = tk.Button(
             self.overlay_window,
-            text="⏸",
+            text="⏸", font=("Terminal", 12),
             command=self.toggle_play_pause,
             bg="#222222",
             fg="white",
             bd=0
         )
-        self.play_pause_btn.pack(side="left", padx=10)
+        self.play_pause_btn.place(relx=0.44, rely=0.3, anchor="center")
 
-        stop_btn = tk.Button(self.overlay_window, text="⏹", command=self.stop_callback, bg="#222222", fg="white", bd=0)
+        stop_btn = tk.Button(self.overlay_window, text="⏹", font=("Terminal", 12), command=self.stop_callback, bg="#222222", fg="white", bd=0)
 
         #play_btn.pack(side="left", padx=10)
         #pause_btn.pack(side="left", padx=10)
-        stop_btn.pack(side="left", padx=10)
+        stop_btn.place(relx=0.46, rely=0.3, anchor="center")
         
         self.time_label = tk.Label(
             self.overlay_window,
             text="00:00 / 00:00",
             bg="#222222",
-            fg="white",
-            font=("Arial", 10)
+            fg="green",
+            font=("Terminal", 10)
         )
-        self.time_label.pack(side="left", padx=10)
+        self.time_label.place(relx=0.50, rely=0.3, anchor="center")
         
         exit_btn = tk.Button(
     self.overlay_window,
     text="⬅ Exit Fullscreen",
     command=self.exit_fullscreen_callback,
-    bg="#222222",
+    bg="#5F5C5C",
     fg="white",
     bd=0
 )
-        exit_btn.pack(side="left", padx=10)
+        exit_btn.place(relx=0.56, rely=0.3, anchor="center")
         
         self.time_slider = tk.Scale(
             self.overlay_window,
             from_=0,
             to=100,
             orient="horizontal",
-            length=450,
+            length=600,
             showvalue=False,
-            bg="#5A3A3A",
-            fg="yellow",
-            troughcolor="#444444",
+            bg="#F1E724",
+            fg="green",
+            troughcolor="#807B7B",
             highlightthickness=0,
             bd=0,
             sliderrelief="flat",
             command=self.on_slider_move
         )
-        self.time_slider.pack(side="left", padx=10, fill="x", expand=True)
+        #self.time_slider.pack(side="bottom", padx=10, fill="x")
+        self.time_slider.place(relx=0, rely=1, anchor="sw", relwidth=1.0, y=-20)
         self.time_slider.bind("<ButtonPress-1>", self.on_slider_press)
         self.time_slider.bind("<ButtonRelease-1>", self.on_slider_release)
 
@@ -107,9 +104,11 @@ class FloatingOverlay:
             self.is_playing = True
 
     def position_overlay(self):
+        overlay_height = 100
         screen_width = self.master.winfo_screenwidth()
         screen_height = self.master.winfo_screenheight()
-        self.overlay_window.geometry(f"600x40+{int((screen_width-300)/2)}+{screen_height-50}")
+
+        self.overlay_window.geometry(f"{screen_width}x{overlay_height}+0+{screen_height - overlay_height}")
 
     def show_overlay(self):
         if self.overlay_window:
@@ -126,7 +125,7 @@ class FloatingOverlay:
     def reset_hide_timer(self):
         if self.overlay_hide_timer:
             self.master.after_cancel(self.overlay_hide_timer)
-        self.overlay_hide_timer = self.master.after(3000, self.hide_overlay)
+        self.overlay_hide_timer = self.master.after(1500, self.hide_overlay)
 
     def track_mouse(self):
         if not self.mouse_tracker_active:
@@ -153,14 +152,20 @@ class FloatingOverlay:
         if self.ignore_slider_callback or not self.slider_being_dragged:
             return
 
+        self.time_label.configure(fg="#C2A53B")    
         try:
             percent = float(value)
             total_length = self.get_length_callback()
             new_time = int((percent / 100) * total_length)
-            self.seek_callback(new_time)
+
+            # ✅ Mostrar el tiempo en el label sin hacer seek todavía
+            current_str = self.format_time(new_time)
+            total_str = self.format_time(total_length)
+            self.time_label.config(text=f"{current_str} / {total_str}")
+            
         except Exception as e:
             print("Error in slider move:", e)
- 
+
     def start_slider_update(self, get_time_callback, get_length_callback):
         self.get_time_callback = get_time_callback
         self.get_length_callback = get_length_callback
@@ -210,5 +215,14 @@ class FloatingOverlay:
 
     def on_slider_release(self, event):
         self.slider_being_dragged = False
+
+        # ✅ Hacer el seek real aquí
+        percent = self.time_slider.get()
+        total_length = self.get_length_callback()
+        new_time = int((percent / 100) * total_length)
+        self.seek_callback(new_time)
+        self.time_label.config(fg="green")
+
         self.overlay_window.after(1500, self.resume_slider_update)
+
 
