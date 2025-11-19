@@ -8,7 +8,7 @@ This is my first project developed with AI assistance: Copilot acted as a tutor,
 DK_9000 started as a simple media player project — the foundation for any DJ software since it handles audio. Later, I decided to introduce video support, which was a real challenge, but as a cinema lover it became one of the most rewarding parts of the project.
 
 ## Learning Journey
-I have been studying Python for about 2.5 years, with ups and downs.  
+I have been studying Python for about 3 years, with ups and downs.  
 Courses such as [Píldoras Informáticas by Juan Díaz](https://www.pildorasinformaticas.es/) and [Cristian Koch’s Pygame course on Udemy](https://www.udemy.com/course/learn-python-by-making-games/) gave me the foundation to build DK_9000 without losing control of the project.
 
 ## Copilot as Instructor
