@@ -45,9 +45,6 @@ class FloatingOverlay:
         self.play_pause_btn.place(relx=0.44, rely=0.3, anchor="center")
 
         stop_btn = tk.Button(self.overlay_window, text="⏹", font=("Terminal", 12), command=self.stop_callback, bg="#222222", fg="white", bd=0)
-
-        #play_btn.pack(side="left", padx=10)
-        #pause_btn.pack(side="left", padx=10)
         stop_btn.place(relx=0.46, rely=0.3, anchor="center")
         
         self.time_label = tk.Label(
@@ -84,7 +81,7 @@ class FloatingOverlay:
             sliderrelief="flat",
             command=self.on_slider_move
         )
-        #self.time_slider.pack(side="bottom", padx=10, fill="x")
+
         self.time_slider.place(relx=0, rely=1, anchor="sw", relwidth=1.0, y=-20)
         self.time_slider.bind("<ButtonPress-1>", self.on_slider_press)
         self.time_slider.bind("<ButtonRelease-1>", self.on_slider_release)
@@ -107,7 +104,6 @@ class FloatingOverlay:
         overlay_height = 100
         screen_width = self.master.winfo_screenwidth()
         screen_height = self.master.winfo_screenheight()
-
         self.overlay_window.geometry(f"{screen_width}x{overlay_height}+0+{screen_height - overlay_height}")
 
     def show_overlay(self):
@@ -158,7 +154,6 @@ class FloatingOverlay:
             total_length = self.get_length_callback()
             new_time = int((percent / 100) * total_length)
 
-            # ✅ Mostrar el tiempo en el label sin hacer seek todavía
             current_str = self.format_time(new_time)
             total_str = self.format_time(total_length)
             self.time_label.config(text=f"{current_str} / {total_str}")
@@ -182,9 +177,9 @@ class FloatingOverlay:
         if total_length > 0:
             percent = int((current_time / total_length) * 100)
 
-            self.ignore_slider_callback = True  # ⛔ Bloqueamos el callback
+            self.ignore_slider_callback = True 
             self.time_slider.set(percent)
-            self.ignore_slider_callback = False  # ✅ Lo reactivamos
+            self.ignore_slider_callback = False
 
             current_str = self.format_time(current_time)
             total_str = self.format_time(total_length)
@@ -194,7 +189,7 @@ class FloatingOverlay:
      
     def resume_slider_update(self):
         self.slider_update_active = True
-        self.update_slider_position()  # ✅ Forzamos una actualización inmediata
+        self.update_slider_position() 
 
     def format_time(self, seconds):
         minutes = int(seconds // 60)
@@ -211,12 +206,10 @@ class FloatingOverlay:
 
     def on_slider_press(self, event):
         self.slider_being_dragged = True
-        self.slider_update_active = False  # Pausamos la actualización automática
+        self.slider_update_active = False 
 
     def on_slider_release(self, event):
         self.slider_being_dragged = False
-
-        # ✅ Hacer el seek real aquí
         percent = self.time_slider.get()
         total_length = self.get_length_callback()
         new_time = int((percent / 100) * total_length)

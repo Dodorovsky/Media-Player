@@ -1,5 +1,5 @@
 import tkinter as tk
-from player2 import PlaylistPlayer
+from player import PlaylistPlayer
 from tkinterdnd2 import DND_FILES, TkinterDnD
 
 
