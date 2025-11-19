@@ -55,6 +55,8 @@ Usage
 
 · Use compact mode and hotkeys for fast control
 
+____________________________________________________________________________________________________________________________________________________________________
+
 Project Structure
 
 · ui.py → main interface
@@ -67,7 +69,11 @@ Project Structure
 
 Philosophy / Design Notes
 
+____________________________________________________________________________________________________________________________________________________________________
+
 DK_9000 is not only a media player. It is an experiment in blending music, cinema, and software into a single retro-inspired artifact. The project was born from the idea that a simple player could serve as the foundation for DJ software, handling audio as its core. From there, video support was introduced — a challenge that reshaped the project but also opened a new dimension. Cinema has always been part of my inspiration, and bringing video into DK_9000 gave it a second life.
+
+____________________________________________________________________________________________________________________________________________________________________
 
 The design choices are guided by a balance between functionality and atmosphere:
 
@@ -78,6 +84,8 @@ The design choices are guided by a balance between functionality and atmosphere:
 · Integration of curated radio stations, chosen not for technical necessity but for the joy of listening and discovery.
 
 · Hotkeys and a help panel, emphasizing immediacy and control, reminiscent of classic hardware.
+
+____________________________________________________________________________________________________________________________________________________________________
 
 Future ideas remain part of the philosophy. VU meters, once tested but removed due to technical issues, are envisioned as a possible return — glowing alongside the equalizer, adding a visual rhythm to the sound. DK_9000 is meant to evolve, shaped by both technical progress and aesthetic exploration.
 
