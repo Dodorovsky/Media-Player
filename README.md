@@ -89,3 +89,7 @@ The design choices are guided by a balance between functionality and atmosphere:
 Future ideas remain part of the philosophy. VU meters, once tested but removed due to technical issues, are envisioned as a possible return — glowing alongside the equalizer, adding a visual rhythm to the sound. DK_9000 is meant to evolve, shaped by both technical progress and aesthetic exploration.
 
 In essence, DK_9000 is a personal journey: a project that began as a tutorial, grew through experimentation, and now stands as a creative tool. It is not intended to compete with professional media players such as VLC, but to exist as a unique intersection of code, sound, and vision.
+
+
+License
+MIT License. Contributions and suggestions are welcome.
