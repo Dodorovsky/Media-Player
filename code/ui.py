@@ -1,3 +1,5 @@
+
+
 from tkinter import PhotoImage
 import tkinter as tk
 import tkinter.ttk as ttk
@@ -5,6 +7,8 @@ from PIL import Image, ImageTk
 from tkinterdnd2 import DND_FILES, TkinterDnD
 import vlc 
 import os
+
+from modules import playlist_manager
 
 def setup_ui(self):
         self.root.title("Reproductor con lista")
@@ -263,9 +267,9 @@ def setup_ui(self):
         self.playlist_menu = tk.Menu(self.playlist_button, tearoff=0)
         self.playlist_button.config(menu=self.playlist_menu)
 
-        self.playlist_menu.add_command(label="Load Playlist", command=self.load_playlist)
-        self.playlist_menu.add_command(label="Add to Playlist", command=self.add_to_playlist)
-        self.playlist_menu.add_command(label="Create Playlist", command=self.create_playlist)
+        self.playlist_menu.add_command(label="Load Playlist", command=self.load_current_playlist)
+        self.playlist_menu.add_command(label="Add to Playlist", command=self.add_to_existing_playlist)
+        self.playlist_menu.add_command(label="Create Playlist", command=self.create_new_playlist)
         
         self.breathe_hal()
 

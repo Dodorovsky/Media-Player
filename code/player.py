@@ -15,6 +15,8 @@ import random
 from pathlib import Path
 import platform 
 
+from modules import playlist_manager
+
 class PlaylistPlayer:
     def __init__(self, root):
         # Initialize main window and VLC player instance
@@ -796,84 +798,84 @@ class PlaylistPlayer:
         self.player.play()
         self.force_layout_refresh()
 
-    def create_playlist(self):
-        # Create a new empty playlist file
-        archivo = filedialog.asksaveasfilename(
-            title="Crear nueva lista de reproducción",
-            initialfile="nueva_lista.txt",
-            defaultextension=".txt",
-            filetypes=[("Archivos de texto", "*.txt")]
-        )
-        if archivo:
-            try:
-                with open(archivo, "w", encoding="utf-8") as f:
-                    pass  
-                messagebox.showinfo("Lista creada", f"Se creó la lista:\n{archivo}")
-            except Exception as e:
-                messagebox.showerror("Error", f"No se pudo crear la lista:\n{e}")
-
-    def add_to_playlist(self):
-        # Append current playlist items to an existing playlist file
-        archivo = filedialog.askopenfilename(
-            title="Seleccionar lista para agregar",
-            filetypes=[("Archivos de texto", "*.txt")]
-        )
-        if archivo:
-            try:
-                with open(archivo, "a", encoding="utf-8") as f:
-                    for ruta in self.playlist:
-                        f.write(ruta + "\n")
-                messagebox.showinfo("Lista actualizada", f"Se agregaron archivos a:\n{archivo}")
-            except Exception as e:
-                messagebox.showerror("Error", f"No se pudo agregar a la lista:\n{e}")
-
-    def load_playlist(self):
-        # Load playlist from a text file and populate the listbox
+    def load_current_playlist(self):
         archivo = filedialog.askopenfilename(
             title="Load playlist",
             filetypes=[("Text files", "*.txt")]
         )
+
+        # Reset UI
         self.placeholder.place_forget()
         self.logo_listbox.place_forget()
         self.listbox.delete(0, tk.END)
 
         if archivo:
             try:
-                with open(archivo, "r", encoding="utf-8") as f:
-                    rutas = [linea.strip() for linea in f if linea.strip()]
-                
+                rutas = playlist_manager.load_playlist(archivo)
+
                 if not rutas:
                     messagebox.showwarning("Lista vacía", "La lista seleccionada no contiene archivos.")
                     return
 
                 self.playlist = rutas
-                
-                self.listbox.delete(0, tk.END)
-                
+
                 # Add files to listbox with metadata if audio
                 for f in self.playlist:
                     self.current_file_is_audio = f.lower().endswith((".mp3", ".wav", ".flac"))
                     if self.current_file_is_audio:
                         self.video_frame.grid_remove()
-                        # Ensure playlist listbox is visible again
                         self.listbox.grid(row=1, column=0, sticky="nsew")
-                        self.listbox.lift()                       
-                        self.load_file_in_listbox(f)  
+                        self.listbox.lift()
+                        self.load_file_in_listbox(f)
                         self.playlist_button.config(bg="#006400")
                     else:
                         self.listbox.insert(tk.END, os.path.basename(f))
-                
+
                 # Reset radio button colors
                 for btn in self.radio_buttons.values():
                     btn.config(bg="#191818")
-                    
+
                 # Select first item and start playback
                 self.current_index = 0
                 self.listbox.selection_set(0)
                 self.listbox.activate(0)
                 self.play_from_selection()
+
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo cargar la lista:\n{e}")
+                
+    def create_new_playlist(self):
+        archivo = filedialog.asksaveasfilename(
+            title="Create new playlist",
+            initialfile="new_list.txt",
+            defaultextension=".txt",
+            filetypes=[("Text files", "*.txt")]
+        )
+        if archivo:
+            try:
+                playlist_manager.create_playlist(archivo)
+                messagebox.showinfo("List created", f"The list was created:\n{archivo}")
+            except Exception as e:
+                messagebox.showerror("Error", f"The list could not be created:\n{e}")
+                
+    def add_to_playlist(self):
+        pass
+    
+    def add_to_existing_playlist(self):
+        archivo = filedialog.askopenfilename(
+            title="Seleccionar lista para agregar",
+            filetypes=[("Archivos de texto", "*.txt")]
+        )
+        if archivo:
+            try:
+                new, repeated = playlist_manager.add_to_playlist(archivo, self.playlist)
+
+                if new:
+                    messagebox.showinfo("Updated list", f"They were added {len(new)} files to:\n{archivo}")
+                if repeated:
+                    messagebox.showwarning("Duplicados", f"{len(repeated)} files were already in the list and were not added.")
+            except Exception as e:
+                messagebox.showerror("Error", f"Could not be added to the list:\n{e}")
             
     def show_audio_ui(self, f):
         # Configure UI for audio playback
