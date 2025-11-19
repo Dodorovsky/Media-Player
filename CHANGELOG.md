@@ -1,5 +1,19 @@
 # 📓 CHANGELOG
 
+## [2025-11-18] UI Feedback Sync — Small fixes, big harmony
+
+– Play button no longer changes state if nothing is loaded.  
+– Mute button resets to its original color when the volume slider is moved above 0.  
+– Radio buttons now sync visually: all change color when radio is active, and the currently playing station is highlighted.  
+– Playlist button now reflects playback state correctly.  
+– Improved state detection: radio, playlist, and audio playback now trigger accurate color feedback.  
+– Various subtle refinements from the past couple of days to stabilize and polish the interface.
+
+🌀 DK_9000 responds with elegance. Everything is in its place.
+
+---
+
+
 This file documents significant changes made to the project.
 
 ## [v1.6.0] – 2025-11-15
