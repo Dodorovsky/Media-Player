@@ -42,39 +42,42 @@ python main.py
 ```
 
 Usage
-Load or create playlists in .txt format
 
-Add tracks without duplicates
+· Load or create playlists in .txt format
 
-Expand the equalizer to adjust frequencies
+· Add tracks without duplicates
 
-Switch to fullscreen for video playback
+· Expand the equalizer to adjust frequencies
 
-Explore the radio stations for continuous streams
+· Switch to fullscreen for video playback
 
-Use compact mode and hotkeys for fast control
+· Explore the radio stations for continuous streams
+
+· Use compact mode and hotkeys for fast control
 
 Project Structure
-ui.py → main interface
 
-playlist_manager.py → playlist logic
+· ui.py → main interface
 
-overlay.py → floating overlay
+· playlist_manager.py → playlist logic
 
-utils.py → helper functions
+· overlay.py → floating overlay
+
+· utils.py → helper functions
 
 Philosophy / Design Notes
+
 DK_9000 is not only a media player. It is an experiment in blending music, cinema, and software into a single retro-inspired artifact. The project was born from the idea that a simple player could serve as the foundation for DJ software, handling audio as its core. From there, video support was introduced — a challenge that reshaped the project but also opened a new dimension. Cinema has always been part of my inspiration, and bringing video into DK_9000 gave it a second life.
 
 The design choices are guided by a balance between functionality and atmosphere:
 
-Compact and expandable interface, allowing the user to hide or reveal elements such as the playlist, video frame, or equalizer.
+· Compact and expandable interface, allowing the user to hide or reveal elements such as the playlist, video frame, or equalizer.
 
-Visual cues that respond to playback, with time indicators shifting color to signal activity.
+· Visual cues that respond to playback, with time indicators shifting color to signal activity.
 
-Integration of curated radio stations, chosen not for technical necessity but for the joy of listening and discovery.
+· Integration of curated radio stations, chosen not for technical necessity but for the joy of listening and discovery.
 
-Hotkeys and a help panel, emphasizing immediacy and control, reminiscent of classic hardware.
+· Hotkeys and a help panel, emphasizing immediacy and control, reminiscent of classic hardware.
 
 Future ideas remain part of the philosophy. VU meters, once tested but removed due to technical issues, are envisioned as a possible return — glowing alongside the equalizer, adding a visual rhythm to the sound. DK_9000 is meant to evolve, shaped by both technical progress and aesthetic exploration.
 
