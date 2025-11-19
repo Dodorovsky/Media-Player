@@ -663,9 +663,9 @@ class PlaylistPlayer:
         if self.is_compact and not self.eq_t:
             self.force_layout_refresh()
             self.root.geometry("600x383")
-            self.compact_button.config(bg="#191818", text="CRT/AMP")
+            self.compact_button.config(bg="#191818", text="-/+")
             self.radios_labels.grid(padx=(0), pady=(8,5), row=0)
-            self.eq_button.grid(padx=(0), pady=(20,0))
+            self.eq_button.grid(padx=(0), pady=(5,0))
             self.current_time_label.config(bg="black")
             self.total_time_label.config(bg="black")
             self.times_frame.config(bg="black")
@@ -673,7 +673,7 @@ class PlaylistPlayer:
             print("compact 1")
         elif self.is_compact and self.eq_t:
             self.root.geometry("600x540")
-            self.compact_button.config(bg="#191818", text="CRT/AMP")
+            self.compact_button.config(bg="#191818", text="-/+")
             self.black_frame.grid(column=0, columnspan=5, sticky="nsew")
             self.radios_labels.grid(padx=(0), pady=(8,5), row=0)
             self.eq_button.grid(padx=(0), pady=(20,0))
@@ -693,8 +693,8 @@ class PlaylistPlayer:
             print("compact 2")
         elif self.is_compact and self.eq_t:
             self.root.geometry("600x540")
-            self.compact_button.config(bg="#191818", text="CRT/AMP")
-            self.eq_button.config(bg="#0B0B0B", text="CRT/AMP")
+            self.compact_button.config(bg="#191818", text="-/+")
+            self.eq_button.config(bg="#0B0B0B", text="-/+")
             self.black_frame.grid(column=0, columnspan=5, sticky="nsew")
             #self.list_frame.grid(row=1, column=0, columnspan=5, sticky="nsew")
             self.top_frame.grid(row=2, column=0, columnspan=5, sticky="nsew") # Restaurar
@@ -710,7 +710,7 @@ class PlaylistPlayer:
         else:
 
             self.root.geometry("600x140")# 560x470pass
-            self.compact_button.config(bg="#006400", text="CRT/AMP")
+            self.compact_button.config(bg="#006400", text="-/+")
             self.top_frame.grid_remove()
             self.midle_frame.grid_remove()
             self.times_frame.config(bg="#2C2929")

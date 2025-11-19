@@ -7,7 +7,9 @@ from tkinter import filedialog, messagebox
 import tkinter.ttk as ttk
 import vlc
 import os
-import mimetypes
+import shutil
+import uuid
+import tempfile
 from pathlib import Path
 import random
 from pathlib import Path
@@ -16,7 +18,6 @@ import platform
 class PlaylistPlayer:
     def __init__(self, root):
         self.root = root
-        
         self.vlc_instance = vlc.Instance()
         self.player = self.vlc_instance.media_player_new()
         self.eq = vlc.AudioEqualizer()
@@ -34,10 +35,10 @@ class PlaylistPlayer:
         self.duration = 0
         self.updating_slider = False
 
+        
         setup_ui(self)
         self.bind_events()
         self.update_time()
-        
         self.loop_enabled = False
         self.shuffle_enabled = False      
         self.overlay_window = None
@@ -55,9 +56,11 @@ class PlaylistPlayer:
         self.eq_t = False
         self.subtitles_path = None
         self.slider_dragging = False
-        self.eq_color = "eq_light"
+
+        #self.is_playing = False
+
         
-        self.VALID_EXTENSIONS = (".mp3", ".wav", ".flac", ".ogg", ".mp4", ".avi", ".mkv")
+        self.eq_color = "eq_light"
         
         self.overlay = FloatingOverlay(
     master=self.root,
@@ -76,9 +79,9 @@ class PlaylistPlayer:
         self.time_slider.bind("<ButtonPress-1>", self.on_slider_press)
         self.time_slider.bind("<ButtonRelease-1>", self.on_slider_release)
 
-    def load_files(self):
 
-        self.player.play()
+    def load_files(self):
+        # 📂 Opens file dialog to select multiple media files
         files = filedialog.askopenfilenames()
         self.stop_button.config(image=self.stop_off)
         self.placeholder.place_forget()
@@ -91,44 +94,37 @@ class PlaylistPlayer:
             btn.config(bg="#191818")
         if files:
             self.playlist = list(files)
-         
+            # 🧹 Clears the current listbox display
             self.listbox.delete(0, tk.END)
             for f in self.playlist:
-                try:
-                    mime, _ = mimetypes.guess_type(f)
+                self.current_file_is_audio = f.lower().endswith((".mp3", ".wav", ".flac"))
+                if self.current_file_is_audio:
+                    self.video_frame.grid_remove()
+                    self.top_frame.grid(row=2, column=0, columnspan=5, sticky="nsew")
+                    self.listbox.grid(row=1, column=0, padx=0, pady=0, sticky="nsew") 
+                    self.top_frame.configure(bg='#181717')
+                    self.load_file_in_listbox(f)                 
+                else:
+                    self.listbox.insert(tk.END, os.path.basename(f))
 
-                    if mime and mime.startswith("audio"):
-                        self.current_file_is_audio = True
-                        self.video_frame.grid_remove()
-                        self.top_frame.grid(row=2, column=0, columnspan=5, sticky="nsew")
-                        self.listbox.grid(row=1, column=0, padx=0, pady=0, sticky="nsew") 
-                        self.top_frame.configure(bg='#181717')
-                        self.load_file_in_listbox(f)
-
-                    elif mime and mime.startswith("video"):
-                        self.current_file_is_audio = False
-                        self.video_frame.grid(row=1, column=0, columnspan=5, sticky="nsew")
-                        self.listbox.insert(tk.END, os.path.basename(f))
-
-                    elif mime and mime.startswith("image"):
-                        # Podés decidir si abrirlas en ventana aparte o solo listarlas
-                        self.listbox.insert(tk.END, os.path.basename(f))
-
-                    else:
-                        # Archivos no soportados: se listan pero no se cargan
-                        print(f"Unsupported file: {f}")
-                        self.listbox.insert(tk.END, f"[Unsupported] {os.path.basename(f)}")
-
-                except Exception as e:
-                    print(f"Error loading file {f}: {e}")
-                    self.listbox.insert(tk.END, f"[Error] {os.path.basename(f)}")
+              
+            self.pantlla_completa =False
+            # 🔊 Auto-launch: selects and plays the first track
+            self.current_index = 0
+            self.listbox.selection_set(0)
+            self.listbox.activate(0)
+            self.play_from_selection()
+        self.playlist_button.config(bg="#BC853D")
         
     def play_from_selection(self):
-        
+        # Überprüfen, ob ein aktueller Index ausgewählt ist
         if self.current_index is None:
             print("Kein Element in der Playlist ausgewählt.")
             return
+
+        # Dateipfad aus der Playlist basierend auf dem aktuellen Index erhalten
         filepath = self.playlist[self.current_index]
+
         media = self.vlc_instance.media_new(filepath)
         auto_sub = Path(filepath).with_suffix(".srt")
         if self.subtitles_path:
@@ -136,14 +132,17 @@ class PlaylistPlayer:
             media.add_option(f'sub-file="{ruta_sub}"') 
         self.player.set_media(media)
 
+        # Starte die Wiedergabe
         self.player.play()
         
+        # 📼 Detect if it is video
         if filepath.lower().endswith(('.mp4', '.avi', '.mkv', '.mov')):
             self.listbox.grid_remove()
             self.video_frame.grid(row=1, column=0, sticky="nsew")
             self.black_frame.grid(row=0, pady=0, columnspan=5, sticky="n")
             self.stop_button.config(image=self.stop_off )
             self.play_pause_button.config(image=self.pause_big)
+            
             
             self.current_time_label.config(fg="#ADADAD")
             self.total_time_label.config(fg="#ADADAD")
@@ -160,16 +159,25 @@ class PlaylistPlayer:
         else:
             self.video_frame.grid_remove()
             self.listbox.grid(row=1, column=0, sticky="nsew")
+            #self.list_frame.grid(row=1, column=0, sticky="nsew")
+            #self.power_on_label.grid(row=0, column=0, padx=(250,0), pady=(5,0))
+            
             self.stop_button.config(image=self.stop_off )
             self.play_pause_button.config(image=self.pause_big)
+            self.current_time_label.config(fg="#D19595")
+            self.total_time_label.config(fg="#D19595")
+            self.volume_label.config(fg="#E9E4B2")
             self.mp6_label_left.config(image=self.mp6)
             self.mp6_label_right.config(image=self.mp6)
             self.style.configure('Custom.Horizontal.TScale', troughcolor="#C28409")
-                    
+            
+
+            
             self.is_playing = True
             self.playy = True
             self.parar = False
 
+            
         if self.pantlla_completa:
             self.video_frame.grid(row=0, column=0, sticky="nsew")
             self.video_frame.grid(row=1, column=0, padx=0, pady=0, sticky="nsew")
@@ -184,6 +192,9 @@ class PlaylistPlayer:
         self.overlay.is_playing = True
         self.overlay.play_pause_btn.config(text="⏸")  
 
+
+
+        # ⏱️ Update duration and time after playing
         self.root.after(500, self.set_duration)
         self.update_time()
         
@@ -204,7 +215,7 @@ class PlaylistPlayer:
                 self.player.play()
            
     def stop(self):
-        self.player.stop() 
+        self.player.stop() # ⏹️ Stop playback and reset UI
         self.style.configure('Custom.Horizontal.TScale', troughcolor="black")
         self.mp6_label_left.config(image=self.mp6_off)
         self.mp6_label_right.config(image=self.mp6_off)
@@ -214,6 +225,7 @@ class PlaylistPlayer:
         self.updating_slider = False
         self.play_pause_button.config(image=self.play_off)
         self.stop_button.config(image=self.stop_on)
+        
         self.current_time_label.config(fg="#ADADAD")
         self.total_time_label.config(fg="#ADADAD")
         self.volume_label.config(fg="#E9E4B2")
@@ -234,7 +246,7 @@ class PlaylistPlayer:
 
         if self.shuffle_enabled:
             next_index = random.randint(0, len(self.playlist) - 1)
-            # Avoid repeating the same song
+            # 🎶 Avoid repeating the same song
             while next_index == self.current_index and len(self.playlist) > 1:
                 next_index = random.randint(0, len(self.playlist) - 1)
             self.current_index = next_index
@@ -250,8 +262,6 @@ class PlaylistPlayer:
         self.play_from_selection()
       
     def set_volume(self, val):
-        if not hasattr(self, "is_muted"):
-            self.is_muted = False
         vol = int(float(val))
         self.player.audio_set_volume(vol)
         self.volume_label.config(text=f"{vol}")
@@ -260,13 +270,14 @@ class PlaylistPlayer:
             self.mute_button.config(bg="#3E3838")
             self.volume_label_frame.config(fg="green")
             self.style.configure('TScale', troughcolor="#AC8433")
+            self.current_time_label.config(fg="#E58D8D")
+            self.total_time_label.config(fg="#E58D8D")
             self.is_muted = False
         elif vol < 1 and not self.is_muted:
             self.mute_button.config(bg="#D21A1A")
-            self.volume_label.config(fg="#D21A1A")
             self.style.configure('TScale', troughcolor="#D21A1A")
             self.is_muted = True
-                  
+        
     def volume_up(self,  event=None):
         volume = self.player.audio_get_volume()
         volume += 1
@@ -301,21 +312,25 @@ class PlaylistPlayer:
         
         #Turn off the play light if there is nothing left to play
         if current_time > 10 and not self.player.is_playing():
+            #self.play_button.config(image=self.play_off)
             pass
-                      
+             
+            
         if self.player.is_playing():
+            #self.play_button.config(image=self.play_on)
             self.mp6_label_left.config(image=self.mp6)
             self.mp6_label_right.config(image=self.mp6)
             self.style.configure('Custom.Horizontal.TScale', troughcolor="#8A4A06")#8A4A06
             self.current_time_label.config(fg="#90C87A")
             self.total_time_label.config(fg="#90C87A")
-            
             if current_time >= 0 and not self.slider_dragging and abs(current_time - self.time_slider.get()) > 500:
+
                 self.updating_slider = True
                 self.time_slider.set(current_time)
                 self.current_time_label.config(text=format_time(current_time))
                 self.updating_slider = False    
         else:
+            #self.play_button.config(image=self.play_off)
             self.mp6_label_left.config(image=self.mp6_off)
             self.mp6_label_right.config(image=self.mp6_off)
             self.style.configure('Custom.Horizontal.TScale', troughcolor="black")
@@ -333,14 +348,14 @@ class PlaylistPlayer:
          
     def seek_to_time(self, seconds):
         print("Seeking to:", seconds)
-        self.player.set_time(seconds * 1000)
+        self.player.set_time(seconds * 1000)  # VLC usa milisegundos
         
     def on_slider_press(self, event):
         self.slider_dragging = True
 
     def on_slider_release(self, event):
         self.slider_dragging = False
-        self.seek_on_release(event)  
+        self.seek_on_release(event)  # ya tenés esta función
 
     def on_slider_move(self, val):
         if self.slider_dragging:
@@ -364,13 +379,14 @@ class PlaylistPlayer:
         self.shuffle_button.config(bg=color)
 
     def on_drop(self, event):
-        # Resetear lista y estados
         self.listbox.delete(0, tk.END)
         self.playlist.clear()
         self.current_index = None
         files = self.root.tk.splitlist(event.data)
         self.placeholder.place_forget()
         self.logo_listbox.place_forget()
+        #self.lista_label.config(text="DK_9000")
+        #self.lista_name.config(text="")
 
         for btn in self.radio_buttons.values():
             btn.config(bg="#191818")
@@ -378,68 +394,47 @@ class PlaylistPlayer:
         if files:
             f = files[0]
             self.playlist = [f]
+            self.current_file_is_audio = f.lower().endswith((".mp3", ".wav", ".flac"))
 
-            try:
-                mime, _ = mimetypes.guess_type(f)
+            self.load_media_file(f)
 
-                if mime and mime.startswith("audio"):
-                    self.current_file_is_audio = True
-                    self.load_media_file(f)
-                    self.show_audio_ui(f)
-
-                elif mime and mime.startswith("video"):
-                    self.current_file_is_audio = False
-                    self.load_media_file(f)
-                    self.show_video_ui(f)
-
-                elif mime and mime.startswith("image"):
-                    # Opcional: mostrar imágenes en ventana aparte
-                    self.current_file_is_audio = False
-                    self.listbox.insert(tk.END, os.path.basename(f))
-                    print(f"Image file dropped: {f}")
-
-                else:
-                    # Archivos no soportados
-                    print(f"Unsupported file dropped: {f}")
-                    self.listbox.insert(tk.END, f"[Unsupported] {os.path.basename(f)}")
-                    return  # salir sin reproducir
-
-                # Selección en la lista
-                self.current_index = 0
-                self.listbox.selection_clear(0, tk.END)
-                self.listbox.selection_set(self.current_index)
-                self.listbox.activate(self.current_index)
-                self.play_from_selection()
-
-            except Exception as e:
-                print(f"Error handling dropped file {f}: {e}")
-                self.listbox.insert(tk.END, f"[Error] {os.path.basename(f)}")
-
-        self.playlist_button.config(bg="#BC853D")
-            
-        def embed_video(self):
-            # Embed video stream into the UI frame based on OS
-            video_id = self.video_frame.winfo_id()
-            system = platform.system()
-
-            if system == "Windows":
-                self.player.set_hwnd(video_id)
-            elif system == "Linux":
-                self.player.set_xwindow(video_id)
-            elif system == "Darwin":  # macOS
-                self.player.set_nsobject(video_id)
+            if self.current_file_is_audio:
+                self.show_audio_ui(f)
             else:
-                print("Unsupported system to embed video.")
+                self.show_video_ui(f)
+
+            self.current_index = 0
+            self.listbox.selection_clear(0, tk.END)
+            self.listbox.selection_set(self.current_index)
+            self.listbox.activate(self.current_index)
+            self.play_from_selection()
+        self.playlist_button.config(bg="#BC853D")
+        
+    def embed_video(self):
+        # 📺 Embed video stream into the UI frame based on OS
+        video_id = self.video_frame.winfo_id()
+        system = platform.system()
+
+        if system == "Windows":
+            self.player.set_hwnd(video_id)
+        elif system == "Linux":
+            self.player.set_xwindow(video_id)
+        elif system == "Darwin":  # macOS
+            self.player.set_nsobject(video_id)
+        else:
+            print("Unsupported system to embed video.")
 
     def toggle_fullscreen(self):
         self.fullscreen = not getattr(self, "fullscreen", False)
         self.root.attributes("-fullscreen", self.fullscreen)
 
         if self.fullscreen:
+            # Hide elements
             self.listbox.grid_remove()
             self.control_frame.grid_remove()
             self.slider.grid_remove()
         else:
+            # Restore elements
             self.listbox.grid()
             self.control_frame.grid()
             self.slider.grid()
@@ -473,11 +468,17 @@ class PlaylistPlayer:
         self.root.configure(bg="black")
         self.main_frame.configure(bg="black")
         self.top_frame.configure(bg="black")
+
+        
         self.pantlla_completa = True
        
+        
+
+        # Mostrar el video
         self.video_frame.grid(row=1, column=0, padx=0, pady=0, sticky="nsew")
         self.top_frame.grid(row=0, column=0, columnspan=5, sticky="nsew")
 
+        # Ocultar módulos secundarios
         for widget in [
             self.black_frame, self.controls_frame, self.central_frame, self.right_frame,
             self.left_frame, self.vu_frame_left, self.vu_frame_right, self.listbox,
@@ -485,34 +486,43 @@ class PlaylistPlayer:
         ]:
             widget.grid_remove()
 
+        # Aplastar filas secundarias
         self.main_frame.grid_rowconfigure(1, weight=0, minsize=0)
         self.main_frame.grid_rowconfigure(2, weight=0, minsize=0)
         self.top_frame.grid_rowconfigure(0, weight=0, minsize=0)
         self.top_frame.grid_rowconfigure(2, weight=0, minsize=0)
         self.top_frame.grid_rowconfigure(3, weight=0, minsize=0)
         
+
+        # Expandir fila y columna del video
         self.main_frame.grid_rowconfigure(0, weight=1)
         self.top_frame.grid_rowconfigure(1, weight=1)
         self.top_frame.grid_columnconfigure(0, weight=1)
 
+        # Expandir columnas centrales
         self.main_frame.grid_columnconfigure(0, weight=1)
         self.main_frame.grid_columnconfigure(1, weight=1)
         self.main_frame.grid_columnconfigure(2, weight=1)
         self.main_frame.grid_columnconfigure(3, weight=0)
         self.main_frame.grid_columnconfigure(4, weight=0)
 
+        # Expandir raíz
         self.root.grid_rowconfigure(0, weight=1)
         self.root.grid_columnconfigure(0, weight=1)
 
+        # Overlay HAL-style
         self.overlay.create_overlay()
         self.overlay.start_slider_update(self.get_current_time, self.get_total_length)
 
+        #self.show_overlay()
         self.overlay.start_mouse_tracking()
         
     def exit_fullscreen_video(self):
         self.root.attributes("-fullscreen", False) 
         self.root.geometry("600x383")
        
+        
+        # Restore visibility of all frames   
         self.main_frame.grid(row=0, column=0, sticky="nsew")
         self.black_frame.grid(row=0, column=0, columnspan=5, sticky="nsew")
         self.top_frame.grid(row=2, column=0, columnspan=5, sticky="nsew")
@@ -525,32 +535,38 @@ class PlaylistPlayer:
         self.vu_frame_right.grid(row=5, column=4, padx=(10), pady=(0))
         self.midle_frame.grid(row=4, columnspan=5, sticky="nsew")
         self.times_frame.grid(row=3, columnspan=5, sticky="nsew")
-
+        #self.list_frame.grid(row=1, column=0, columnspan=5, sticky="nsew")
+        
+        
+        #self.video_frame.grid(row=1, column=0, sticky="nsew")
         self.listbox.grid(row=1, column=0, padx=0, pady=0, sticky="nsew")  
 
+        
         self.main_frame.grid_columnconfigure(0, weight=0)
-        self.main_frame.grid_columnconfigure(1, weight=1)
-        self.main_frame.grid_columnconfigure(1, weight=1) 
+        self.main_frame.grid_columnconfigure(1, weight=1)# listbox
+        self.main_frame.grid_columnconfigure(1, weight=1)  # espacio
         self.main_frame.grid_columnconfigure(2, weight=2)
         
         self.top_frame.grid_rowconfigure(0, weight=1)
         self.top_frame.grid_rowconfigure(2, weight=1)
         self.top_frame.grid_rowconfigure(3, weight=1)
 
+        # Restore colors if you changed them in fullscreen
         self.root.configure(bg="#2C2929")
         self.main_frame.configure(bg="#2C2929")
         self.top_frame.grid_rowconfigure(0, weight=0)
-        self.top_frame.grid_rowconfigure(1, weight=1) 
+        self.top_frame.grid_rowconfigure(1, weight=1)  # listbox o vídeo
         self.top_frame.grid_rowconfigure(2, weight=0)
         self.top_frame.grid_rowconfigure(3, weight=0)
 
         self.top_frame.grid_columnconfigure(0, weight=1)
         
         self.black_frame.grid_columnconfigure(0, weight=1)
-        self.black_frame.grid_columnconfigure(1, weight=1) 
+        self.black_frame.grid_columnconfigure(1, weight=1) # columna del label
         self.black_frame.grid_columnconfigure(2, weight=1)
         self.black_frame.grid_rowconfigure(0, minsize=25)
         
+
         self.black_frame.config(bg="#1D1C1B")
         self.current_time_label.grid(row=3, column=0, padx=2, sticky="w")
         self.total_time_label.grid(row=3, column=5, padx=2)
@@ -570,10 +586,11 @@ class PlaylistPlayer:
     def hide_overlay(self):
         if self.overlay_window:
             self.overlay_window.withdraw()
+            #self.overlay_visible = False
             
     def track_mouse(self):
         if not self.mouse_tracker_active:
-            return  
+            return  # No reprogramar el bucle
 
         x = self.master.winfo_pointerx()
         y = self.master.winfo_pointery()
@@ -594,8 +611,6 @@ class PlaylistPlayer:
             self.root.after(80, lambda: self.breathe_hal(next_index, direction))
 
     def toggle_mute(self, event=None):
-        if not hasattr(self, "is_muted"):
-            self.is_muted = False
         volume = self.player.audio_get_volume()
         if self.is_muted:
             self.volume_slider.set(self.last_volume)
@@ -617,15 +632,17 @@ class PlaylistPlayer:
     def load_file_in_listbox(self,ruta):
         audio = File(ruta)
         if audio is None:
-            self.listbox.insert("end", ruta.split("/")[-1])
+            self.listbox.insert("end", ruta.split("/")[-1])  # Solo el nombre si no se puede leer
             return
 
+        # Duración
         duracion = ""
         if hasattr(audio.info, 'length'):
             minutos = int(audio.info.length // 60)
             segundos = int(audio.info.length % 60)
             duracion = f"[{minutos}:{segundos:02d}]"
-            
+
+        # Título, artista
         titulo = ""
         artista = ""
         if audio.tags:
@@ -634,7 +651,7 @@ class PlaylistPlayer:
             if "TPE1" in audio.tags:
                 artista = audio.tags["TPE1"].text[0]
 
-     
+        # Construir línea
         if titulo or artista:
             linea = f"{artista} – {titulo} {duracion}"
         else:
@@ -646,23 +663,23 @@ class PlaylistPlayer:
         if self.is_compact and not self.eq_t:
             self.force_layout_refresh()
             self.root.geometry("600x383")
-            self.compact_button.config(bg="#191818", text="-/+")
+            self.compact_button.config(bg="#191818", text="CRT/AMP")
             self.radios_labels.grid(padx=(0), pady=(8,5), row=0)
-            self.eq_button.grid(padx=(0), pady=(5,0))
+            self.eq_button.grid(padx=(0), pady=(20,0))
             self.current_time_label.config(bg="black")
             self.total_time_label.config(bg="black")
             self.times_frame.config(bg="black")
             self.is_compact = False
             print("compact 1")
-            
         elif self.is_compact and self.eq_t:
             self.root.geometry("600x540")
-            self.compact_button.config(bg="#191818", text="-/+")
+            self.compact_button.config(bg="#191818", text="CRT/AMP")
             self.black_frame.grid(column=0, columnspan=5, sticky="nsew")
             self.radios_labels.grid(padx=(0), pady=(8,5), row=0)
             self.eq_button.grid(padx=(0), pady=(20,0))
             self.playlist_label.grid(padx=0, pady=(13,0))
-            self.top_frame.grid(row=2, column=0, columnspan=5, sticky="nsew")
+            #self.list_frame.grid(row=1, column=0, columnspan=5, sticky="nsew")
+            self.top_frame.grid(row=2, column=0, columnspan=5, sticky="nsew")  # Restaurar
             self.midle_frame.grid()
             self.eq_button.config(bg="#006400")
             self.times_frame.config(bg="black")
@@ -674,30 +691,33 @@ class PlaylistPlayer:
             self.times_frame.grid(row=3, columnspan=5, sticky="nsew")
             self.is_compact = False
             print("compact 2")
-            
         elif self.is_compact and self.eq_t:
             self.root.geometry("600x540")
-            self.compact_button.config(bg="#191818", text="-/+")
-            self.eq_button.config(bg="#0B0B0B", text="-/+")
+            self.compact_button.config(bg="#191818", text="CRT/AMP")
+            self.eq_button.config(bg="#0B0B0B", text="CRT/AMP")
             self.black_frame.grid(column=0, columnspan=5, sticky="nsew")
-            self.top_frame.grid(row=2, column=0, columnspan=5, sticky="nsew")
+            #self.list_frame.grid(row=1, column=0, columnspan=5, sticky="nsew")
+            self.top_frame.grid(row=2, column=0, columnspan=5, sticky="nsew") # Restaurar
             self.midle_frame.grid()
             self.times_frame.config(bg="black")
             self.top_frame.grid()
             self.current_time_label.config(bg="black", fg="#ADADAD")
             self.total_time_label.config(bg="black", fg="#ADADAD")
             self.is_compact = False
-            print("compact 3")        
+            print("compact 3")
+        
             
         else:
 
-            self.root.geometry("600x140")
-            self.compact_button.config(bg="#006400", text="-/+")
+            self.root.geometry("600x140")# 560x470pass
+            self.compact_button.config(bg="#006400", text="CRT/AMP")
             self.top_frame.grid_remove()
             self.midle_frame.grid_remove()
             self.times_frame.config(bg="#2C2929")
             self.top_frame.grid_remove()
             self.black_frame.grid_remove()
+            #self.list_frame.grid_remove()
+            print("Compact 4")
             self.eq_button.config(bg="#191818", text="EQ")
             self.current_time_label.config(bg="#2C2929")
             self.total_time_label.config(bg="#2C2929")
@@ -709,39 +729,35 @@ class PlaylistPlayer:
             self.current_time_label.grid(row=0, column=0, padx=2,pady=0, sticky="w")
             self.total_time_label.grid(row=0, column=5, padx=2, pady=0)
             self.is_compact = True
-            print("Compact 4")
-            
+
     def toggle_eq(self):
         if self.eq_t and not self.is_compact:
-                    self.root.geometry("600x383")
+                    self.root.geometry("600x383")#500x360
                     self.eq_button.config(bg="#191818", text="EQ")
                     self.eq_frame.grid_remove()
                     self.eq_line.grid_remove()
                     self.eq_light_frame.grid_remove()
                     self.eq_t = False
                     print("1")
-                    
         elif not self.eq_t and not self.is_compact:
             
-                    self.root.geometry("600x540")
+                    self.root.geometry("600x540")#500x510
                     self.eq_button.config(bg="#006400")
                     self.eq_frame.grid()
                     self.eq_line.grid()
                     self.eq_light_frame.grid()
                     self.eq_t = True
                     print("2")
-                    
         elif self.eq_t and self.is_compact:
-                    self.root.geometry("600x140")
+                    self.root.geometry("600x140")#500x360
                     self.eq_button.config(bg="#191818", text="EQ")
                     self.eq_frame.grid_remove()
                     self.eq_line.grid_remove()
                     self.eq_light_frame.grid_remove()
                     self.eq_t = False
                     print("3")
-                    
         elif not self.eq_t and self.is_compact:
-                    self.root.geometry("600x295")
+                    self.root.geometry("600x295")#500x360
                     self.eq_button.config(bg="#006400", text="EQ")
                     self.eq_frame.grid()
                     self.eq_line.grid()
@@ -755,7 +771,7 @@ class PlaylistPlayer:
                             for label in self.eq_light_labels:
                                     label.config(image=self.eq_light_on_image)
                             for slider in self.eq_sliders:
-                                    slider.config(troughcolor="#36E014")
+                                    slider.config(troughcolor="#36E014")#A1FC83
                     else:
                             for label in self.eq_light_labels:
                                     label.config(image=self.eq_light_image)
@@ -764,7 +780,7 @@ class PlaylistPlayer:
                                 
     def start_eq_light_loop(self):
             self.update_eq_lights()
-            self.root.after(1000, self.start_eq_light_loop) 
+            self.root.after(1000, self.start_eq_light_loop)  # actualiza cada 1 segundo
 
     def on_slider_change(self, val, idx):
         val = float(val)
@@ -784,10 +800,10 @@ class PlaylistPlayer:
             self.player.play()
 
     def get_current_time(self):
-        return int(self.player.get_time() / 1000) 
+        return int(self.player.get_time() / 1000)  # en segundos
 
     def get_total_length(self):
-        return int(self.player.get_length() / 1000) 
+        return int(self.player.get_length() / 1000)  # en segundos
 
     def play(self):
         self.player.play()
@@ -800,6 +816,7 @@ class PlaylistPlayer:
         hotkey_window.title("Hotkeys")
         hotkey_window.geometry("300x200")
         hotkey_window.configure(bg="#191818")
+        #hotkey_window.iconbitmap('media_player/graphics/backgrounds/dodorovsky.ico')
         hotkey_window.resizable(False, False)
 
         tk.Label(hotkey_window, text="PLAYER HOTKEYS", fg="#36AF1D", bg="#161515", font=("Terminal", 12)).pack(pady=10)
@@ -823,16 +840,21 @@ class PlaylistPlayer:
         self.logo_listbox.place_forget()
         self.listbox.delete(0, tk.END)
         self.playlist_button.config(bg="#BC853D")
+        #self.lista_label.config(text=f"RADIO:", fg="#4EBE4E")
+        #self.lista_name.config(text=f"{name}",fg="#C3BF43")
 
+        # Obtener la URL desde el nombre
         url = self.radios[name]
 
+        # Resetear colores de todos los botones
         for btn in self.radio_buttons.values():
             btn.config(bg="#006400")
 
+        # Resaltar el botón activo
         self.radio_buttons[name].config(bg="#359635")
         self.placeholder.config(image=self.radio_image)
         self.placeholder.place(relx=0.5, rely=0.7, anchor="center")
-
+        # Reproducir el stream
         media = self.vlc_instance.media_new(url)
         self.player.set_media(media)
         self.player.play()
@@ -848,19 +870,20 @@ class PlaylistPlayer:
         if archivo:
             try:
                 with open(archivo, "w", encoding="utf-8") as f:
-                    pass  
+                    pass  # crea el archivo vacío
                 messagebox.showinfo("Lista creada", f"Se creó la lista:\n{archivo}")
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo crear la lista:\n{e}")
 
     def add_to_playlist(self):
+        # Selecciona la lista a la que querés agregar
         archivo = filedialog.askopenfilename(
             title="Seleccionar lista para agregar",
             filetypes=[("Archivos de texto", "*.txt")]
         )
         if archivo:
             try:
-                
+                # Agrega los archivos actuales de la playlist
                 with open(archivo, "a", encoding="utf-8") as f:
                     for ruta in self.playlist:
                         f.write(ruta + "\n")
@@ -911,6 +934,8 @@ class PlaylistPlayer:
         self.top_frame.grid(row=2, column=0, columnspan=5, sticky="nsew")
         self.listbox.grid(row=1, column=0, padx=0, pady=0, sticky="nsew")
         self.top_frame.configure(bg='#191818')
+        #self.lista_label.config(text="DK_9000", bg='#181717')
+        #self.lista_name.config(text="")
         self.load_file_in_listbox(f)
         self.listbox.lift()
         self.listbox.update_idletasks()
@@ -923,20 +948,21 @@ class PlaylistPlayer:
         self.top_frame.grid(row=2, column=0, columnspan=5, sticky="nsew")
         self.video_frame.grid(row=0, column=0, sticky="nsew") 
         
+        #self.list_frame.grid(row=1, column=0, columnspan=5, sticky="nsew")
         self.listbox.insert(tk.END, os.path.basename(f))
         print(self.black_frame.grid_info())
         self.force_layout_refresh()
        
+    
     def load_media_file(self, f):
+        #self.player.stop()
         media = self.vlc_instance.media_new(f)
         self.player.set_media(media)
         
     def force_layout_refresh(self):
         self.root.after(50, self.exit_fullscreen_video)
 
-    def is_supported_file(self, path):
-        mime, _ = mimetypes.guess_type(path)
-        return mime and (mime.startswith("audio") or mime.startswith("video"))
+
 
 
         
