@@ -512,7 +512,7 @@ class PlaylistPlayer:
         self.vu_frame_right.grid(row=5, column=4, padx=(10), pady=(0))
         self.midle_frame.grid(row=4, columnspan=5, sticky="nsew")
         self.times_frame.grid(row=3, columnspan=5, sticky="nsew")
-        self.listbox.grid(row=1, column=0, padx=0, pady=0, sticky="nsew")  
+        self.listbox.grid(row=1, column=0, padx=0, pady=0, sticky="nsew")
         
         # Reset colors and background
         self.root.configure(bg="#2C2929")
@@ -847,13 +847,18 @@ class PlaylistPlayer:
                     return
 
                 self.playlist = rutas
+                
                 self.listbox.delete(0, tk.END)
-
+                
                 # Add files to listbox with metadata if audio
                 for f in self.playlist:
                     self.current_file_is_audio = f.lower().endswith((".mp3", ".wav", ".flac"))
                     if self.current_file_is_audio:
-                        self.load_file_in_listbox(f)
+                        self.video_frame.grid_remove()
+                        # Ensure playlist listbox is visible again
+                        self.listbox.grid(row=1, column=0, sticky="nsew")
+                        self.listbox.lift()                       
+                        self.load_file_in_listbox(f)  
                         self.playlist_button.config(bg="#006400")
                     else:
                         self.listbox.insert(tk.END, os.path.basename(f))

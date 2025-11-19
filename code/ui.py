@@ -39,6 +39,7 @@ def setup_ui(self):
         self.hal_label = tk.Label(self.black_frame, image=self.hal_on, bg='#1D1C1B')
         self.hal_label.grid(row=0, column=1, pady=(3,0), sticky="ns")
         
+        # Preload HAL eye frames for breathing animation (sequence of 83 images)
         self.hal_frames = [ImageTk.PhotoImage(Image.open(f"media_player/graphics/hal_ojo/hal_dim_{i}.png").resize((21,21))) for i in range(0,83)]
         
         self.top_frame = tk.Frame(self.main_frame, bg="#2C2929")
@@ -205,6 +206,7 @@ def setup_ui(self):
         self.mp6_label_left = tk.Label(self.vu_frame_left, image=self.mp6_off, bg="#2C2929")
         self.mp6_label_left.grid(padx=(0,5), pady=(0), sticky="s")
 
+        # Dictionary of radio stations (name -> stream URL)
         self.radios = {
         "NTS": "https://stream-relay-geo.ntslive.net/stream",
         "KEXP": "https://kexp.streamguys1.com/kexp160.aac",
@@ -212,7 +214,8 @@ def setup_ui(self):
         "CLASSIC FM": "https://media-ssl.musicradio.com/ClassicFM"}
         
         self.radio_buttons = {}
-
+        
+        # Dictionary of radio stations (name -> stream URL)
         for i, (name, url) in enumerate(self.radios.items()):
                 btn = tk.Button(self.vu_frame_right, text=name,  font=("Terminal", 7), command=lambda n=name: self.play_radio(n), bg="#191818", fg="#E0D2D2")
                 btn.grid( row=i+1, padx=5, pady=(0, 5))
@@ -237,10 +240,12 @@ def setup_ui(self):
         self.eq_light_frame = tk.Frame(self.main_frame, bg="#2C2929")
         self.eq_light_frame.grid(row=8, columnspan=5, padx=(0,21))
         
+        # Equalizer sliders for 5 frequency bands
         frequencies = ["60Hz", "250H", "1kHz", "4kHz", "16kHz"]
         self.eq_sliders = []
         self.eq_light_labels = []
 
+        # Create vertical sliders and corresponding light indicators
         for i, freq in enumerate(frequencies):
                 slider = tk.Scale(self.eq_frame, from_=12, to=-12, orient='vertical', label=freq, font=("Courier", 8),
                                 length=100, width=12, bg="#2C2929", fg="#E9E4B2", troughcolor="#43362E",

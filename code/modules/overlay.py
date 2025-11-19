@@ -2,6 +2,8 @@ import tkinter as tk
 
 class FloatingOverlay:
     def __init__(self, master, play_callback, pause_callback, stop_callback, exit_fullscreen_callback, seek_callback, get_time_callback, get_length_callback ):
+        # Initialize floating overlay with callbacks for playback, fullscreen, and seeking
+        # Store state variables for overlay visibility, mouse tracking, and slider interaction
         self.master = master
         self.play_callback = play_callback
         self.pause_callback = pause_callback
@@ -26,7 +28,8 @@ class FloatingOverlay:
     def create_overlay(self):
         if self.overlay_window:
             return
-
+        # Create overlay window with playback controls, time label, exit button, and time slider
+        # Configure window as transparent, topmost, and frameless
         self.overlay_window = tk.Toplevel(self.master)
         self.overlay_window.withdraw()
         self.overlay_window.overrideredirect(True)
@@ -91,6 +94,7 @@ class FloatingOverlay:
         self.mouse_tracker_active = False
        
     def toggle_play_pause(self):
+        # Toggle between play and pause states, updating button icon accordingly
         if self.is_playing:
             self.pause_callback()
             self.play_pause_btn.config(text="▶")
@@ -101,12 +105,14 @@ class FloatingOverlay:
             self.is_playing = True
 
     def position_overlay(self):
+        # Position overlay at the bottom of the screen with fixed height
         overlay_height = 100
         screen_width = self.master.winfo_screenwidth()
         screen_height = self.master.winfo_screenheight()
         self.overlay_window.geometry(f"{screen_width}x{overlay_height}+0+{screen_height - overlay_height}")
 
     def show_overlay(self):
+        # Show overlay window and reset auto-hide timer
         if self.overlay_window:
             self.overlay_window.deiconify()
             self.overlay_window.lift()
@@ -119,6 +125,7 @@ class FloatingOverlay:
             self.overlay_visible = False
 
     def reset_hide_timer(self):
+        # Reset auto-hide timer (overlay hides after 1.5 seconds of inactivity)
         if self.overlay_hide_timer:
             self.master.after_cancel(self.overlay_hide_timer)
         self.overlay_hide_timer = self.master.after(1500, self.hide_overlay)
@@ -126,7 +133,8 @@ class FloatingOverlay:
     def track_mouse(self):
         if not self.mouse_tracker_active:
             return
-
+        
+        # Track mouse movement; show overlay when position changes
         x = self.master.winfo_pointerx()
         y = self.master.winfo_pointery()
         current_position = (x, y)
@@ -138,6 +146,7 @@ class FloatingOverlay:
         self.master.after(300, self.track_mouse)
 
     def destroy_overlay(self):
+        # Destroy overlay window and reset state variables
         if self.overlay_window:
             self.overlay_window.destroy()
             self.overlay_window = None
@@ -145,6 +154,7 @@ class FloatingOverlay:
             self.mouse_tracker_active = False
             
     def on_slider_move(self, value):
+        # Update time label while dragging slider (preview new position)
         if self.ignore_slider_callback or not self.slider_being_dragged:
             return
 
@@ -153,7 +163,6 @@ class FloatingOverlay:
             percent = float(value)
             total_length = self.get_length_callback()
             new_time = int((percent / 100) * total_length)
-
             current_str = self.format_time(new_time)
             total_str = self.format_time(total_length)
             self.time_label.config(text=f"{current_str} / {total_str}")
@@ -162,6 +171,7 @@ class FloatingOverlay:
             print("Error in slider move:", e)
 
     def start_slider_update(self, get_time_callback, get_length_callback):
+        # Start automatic slider updates based on playback time
         self.get_time_callback = get_time_callback
         self.get_length_callback = get_length_callback
         self.slider_update_active = True
@@ -170,13 +180,12 @@ class FloatingOverlay:
     def update_slider_position(self):
         if not self.slider_update_active or not self.time_slider:
             return
-
+        # Update slider position and time label every second
         current_time = self.get_time_callback()
         total_length = self.get_length_callback()
 
         if total_length > 0:
             percent = int((current_time / total_length) * 100)
-
             self.ignore_slider_callback = True 
             self.time_slider.set(percent)
             self.ignore_slider_callback = False
@@ -188,27 +197,33 @@ class FloatingOverlay:
         self.overlay_window.after(1000, self.update_slider_position)
      
     def resume_slider_update(self):
+        #Resume slider updates after manual drag
         self.slider_update_active = True
         self.update_slider_position() 
 
     def format_time(self, seconds):
+        # Format seconds into mm:ss string
         minutes = int(seconds // 60)
         secs = int(seconds % 60)
         return f"{minutes:02}:{secs:02}"
 
     def start_mouse_tracking(self):
+        # Enable mouse tracking loop
         if not self.mouse_tracker_active:
             self.mouse_tracker_active = True
             self.track_mouse()
 
     def stop_mouse_tracking(self):
+        # Disable mouse tracking loop
         self.mouse_tracker_active = False
 
     def on_slider_press(self, event):
+        # Mark slider as being dragged and pause automatic updates
         self.slider_being_dragged = True
         self.slider_update_active = False 
 
     def on_slider_release(self, event):
+        # Seek to new position after drag and resume updates
         self.slider_being_dragged = False
         percent = self.time_slider.get()
         total_length = self.get_length_callback()
