@@ -1,108 +1,43 @@
-# 🎛️ 1979_MODEL ___ media_player >> by DODOROVSKY
+# DK_9000
 
-A modular, retro-styled media player built with Tkinter and VLC. Inspired by vintage consoles and creative autonomy, this player blends functionality with visual storytelling. Every button, overlay, and layout choice reflects a modular mindset and a retro aesthetic.
+A retro-inspired media player built with Python/Tkinter, born from the idea of DJ software and expanded through cinema.  
+DK_9000 started as a simple audio project and evolved into a creative tool with playlists, radio streams, video playback, and compact UI modes.  
+This is my first project developed with AI assistance: Copilot acted as a tutor, helping me push the code further than a basic tutorial.
 
----
+## Motivation
+DK_9000 started as a simple media player project — the foundation for any DJ software since it handles audio. Later, I decided to introduce video support, which was a real challenge, but as a cinema lover it became one of the most rewarding parts of the project.
 
-## ✨ Features
+## Learning Journey
+I have been studying Python for about 2.5 years, with ups and downs.  
+Courses such as [Píldoras Informáticas by Juan Díaz](https://www.pildorasinformaticas.es/) and [Cristian Koch’s Pygame course on Udemy](https://www.udemy.com/course/learn-python-by-making-games/) gave me the foundation to build DK_9000 without losing control of the project.
 
-- 📂 Playlist loading with drag-and-drop support
-- 🎥 Video playback with embedded fullscreen mode
-- 🎧 Audio-aware fullscreen guard
-- 🛰️ Floating overlay controls (modularized in `modules/overlay.py`)
-- 🔁 Loop and shuffle playback
-- 🎚️ Volume control with retro meter
-- 🧠 Smart layout restoration and fullscreen toggling
-- 🧹 Clean UI separation via `setup_ui()` and modular callbacks
+## Copilot as Instructor
+This is my first project where I used AI assistance. Copilot acted like a tutor, guiding me through modularization, debugging, and expanding the player far beyond the initial tutorial.
 
----
+## Features
+- Audio and video playback with automatic detection
+- Playlist management with duplicate control
+- A five-band equalizer, expandable with a dedicated button
+- Floating overlay with playback controls
+- Visual feedback: time indicators shift from grey to green during playback
+- Random and loop modes for flexible listening
+- Fullscreen mode for video
+- Compact mode: +/- button hides the listbox or video frame
+- Hotkeys for quick control (e.g. Left: skip back, M: mute)
+- Help button showing all key bindings
 
-## 🧠 Design Philosophy
+## Radio Stations
+DK_9000 includes four curated radio streams, reflecting different moods and influences:
+- NTS: electronic and experimental      
+- KEXP: indie rock and alternative
+- SomaFM: jazzy and eclectic
+- Classic FM: timeless classical repertoire
 
-This media player is more than a tool — it's a creative artifact. Built by DODOROVSKY as part of a larger vision for a future DJ/media toolkit, it treats every feature as part of a narrative. From floating overlays to backup routines, each element reflects the artistic identity of the developer.
-
-Modularity is key: logic is separated into reusable components, visual elements are styled with intention, and the codebase is structured to evolve with new ideas.
-
----
-
-## 🚀 Getting Started
-
-Install dependencies:
-
+## Installation
+Clone the repository and run the main script:
 ```bash
-pip install python-vlc pillow tkinterdnd2
-
-```
-
-🛠️ Dependencies
-python-vlc — VLC bindings for Python
-
-Pillow — image handling for button graphics
-
-tkinterdnd2 — drag-and-drop support
-
-tkinter — core GUI framework (built-in with Python)
-
-VLC — must be installed on your system
-
----
-
-## 📁 Folder Structure
-
-media_player/
-├── graphics/
-│   └── buttons_control/
-├── modules/
-│   └── overlay.py
-├── player.py
-├── ui2.py
-├── utils.py
-
----
-
-## 📘 Version History
-
-· v1.3.0 — Modular overlay system, fullscreen logic refined
-
-· v1.2.0 — Stable fullscreen + overlay guard
-
-· v0.9-alpha — Initial UI layout and playback working
-
----
-
-## 🧩 Modular Overlay System
-The fullscreen overlay controls are now handled by a dedicated FloatingOverlay class located in modules/overlay.py. This module:
-
-· Creates a floating control window with play/pause/stop buttons
-
-· Tracks mouse movement to show/hide the overlay
-
-· Integrates seamlessly with PlaylistPlayer via callbacks
-
-· Automatically disables fullscreen for audio files
-
----
-
-🎛️ Version: v1.3.0 — Modular overlay and fullscreen refinement
-
----
-
-## 🧪 Creative Notes
-
-Future ideas include:
-
-🎛️ Modular control panels for DJ-style mixing
-
-🧠 Narrative-driven backup and recovery routines
-
-🖼️ Retro visual themes and animated overlays
-
-🧩 Plugin system for custom media effects
-
-This project is part of a larger creative ecosystem where software becomes stagecraft.
-
----
-
-## Made with 🧠 and 🎛️ by DODOROVSKY
+git clone https://github.com/yourusername/DK_9000.git
+cd DK_9000
+python main.py
 
 
