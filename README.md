@@ -12,7 +12,7 @@ I have been studying Python for about 2.5 years, with ups and downs.
 Courses such as [Píldoras Informáticas by Juan Díaz](https://www.pildorasinformaticas.es/) and [Cristian Koch’s Pygame course on Udemy](https://www.udemy.com/course/learn-python-by-making-games/) gave me the foundation to build DK_9000 without losing control of the project.
 
 ## Copilot as Instructor
-This is my first project where I used AI assistance. Copilot acted like a tutor, guiding me through modularization, debugging, and expanding the player far beyond the initial tutorial.
+This is my first project where I used AI assistance. Copilot acted as a tutor, guiding me through modularization, debugging, and expanding the player far beyond the initial tutorial.
 
 ## Features
 - Audio and video playback with automatic detection
@@ -28,7 +28,7 @@ This is my first project where I used AI assistance. Copilot acted like a tutor,
 
 ## Radio Stations
 DK_9000 includes four curated radio streams, reflecting different moods and influences:
-- NTS: electronic and experimental      
+- NTS: electronic and experimental
 - KEXP: indie rock and alternative
 - SomaFM: jazzy and eclectic
 - Classic FM: timeless classical repertoire
@@ -39,6 +39,7 @@ Clone the repository and run the main script:
 git clone https://github.com/yourusername/DK_9000.git
 cd DK_9000
 python main.py
+```
 
 Usage
 Load or create playlists in .txt format
@@ -78,6 +79,3 @@ Hotkeys and a help panel, emphasizing immediacy and control, reminiscent of clas
 Future ideas remain part of the philosophy. VU meters, once tested but removed due to technical issues, are envisioned as a possible return — glowing alongside the equalizer, adding a visual rhythm to the sound. DK_9000 is meant to evolve, shaped by both technical progress and aesthetic exploration.
 
 In essence, DK_9000 is a personal journey: a project that began as a tutorial, grew through experimentation, and now stands as a creative tool. It is not intended to compete with professional media players such as VLC, but to exist as a unique intersection of code, sound, and vision.
-
-License
-MIT License. Contributions and suggestions are welcome.
