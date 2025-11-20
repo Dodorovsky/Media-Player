@@ -102,8 +102,8 @@ class PlaylistPlayer:
                 self.current_file_is_audio = f.lower().endswith((".mp3", ".wav", ".flac", ".aac", ".m4a", ".ogg", ".wma", ".aiff", ".alac"))
                 if self.current_file_is_audio:
                     self.video_frame.grid_remove()
-                    self.top_frame.grid(row=2, column=0, columnspan=5, sticky="nsew")
-                    self.listbox.grid(row=1, column=0, padx=0, pady=0, sticky="nsew") 
+                    #self.top_frame.grid(row=2, column=0, columnspan=5, sticky="nsew")
+                    #self.listbox.grid(row=1, column=0, padx=0, pady=0, sticky="nsew") 
                     self.top_frame.configure(bg='#181717')
                     self.load_file_in_listbox(f)                 
                 else:
@@ -117,7 +117,7 @@ class PlaylistPlayer:
             self.listbox.activate(0)
             self.play_from_selection()
         self.playlist_button.config(bg="#BC853D")
-        
+          
     def play_from_selection(self):
         # Play the file currently selected in the playlist
         if self.current_index is None:
@@ -275,7 +275,7 @@ class PlaylistPlayer:
             self.mute_button.config(bg="#D21A1A")
             self.style.configure('TScale', troughcolor="#D21A1A")
             self.is_muted = True
-        
+               
     def volume_up(self,  event=None):
         # Increase volume by 1 unit
         volume = self.player.audio_get_volume()
@@ -283,7 +283,7 @@ class PlaylistPlayer:
         self.player.audio_set_volume(volume)
         self.volume_label.config(text=f"{volume}")
         self.volume_slider.set(volume)
-        
+          
     def volume_down(self,  event=None):
         # Decrease volume by 1 unit
         volume = self.player.audio_get_volume()
@@ -291,7 +291,7 @@ class PlaylistPlayer:
         self.player.audio_set_volume(volume)
         self.volume_label.config(text=f"{volume}")
         self.volume_slider.set(volume)
-        
+
     def set_duration(self):
         # Set total duration of current media
         length = self.player.get_length()
@@ -302,7 +302,7 @@ class PlaylistPlayer:
         else:
             # Retry until duration is available
             self.root.after(500, self.set_duration)
-
+            
     def seek_on_release(self, event):
         # Seek to position when slider is released
         val = self.time_slider.get()
@@ -347,11 +347,11 @@ class PlaylistPlayer:
     def seek_to_time(self, seconds):
         # Seek to a specific time in seconds
         self.player.set_time(seconds * 1000)  
-        
+         
     def on_slider_press(self, event):
         # Mark slider as being dragged
         self.slider_dragging = True
-
+        
     def on_slider_release(self, event):
         # Release slider and seek to position
         self.slider_dragging = False
@@ -495,7 +495,7 @@ class PlaylistPlayer:
         self.overlay.create_overlay()
         self.overlay.start_slider_update(self.get_current_time, self.get_total_length)
         self.overlay.start_mouse_tracking()
-        
+           
     def exit_fullscreen_video(self):
         #Exit fullscreen mode and restore layout
         self.root.attributes("-fullscreen", False) 
@@ -559,7 +559,7 @@ class PlaylistPlayer:
                     direction *= -1
                     next_index = index + direction
             self.root.after(80, lambda: self.breathe_hal(next_index, direction))
-
+            
     def toggle_mute(self, event=None):
         # Toggle mute state
         if self.is_muted:
@@ -665,8 +665,8 @@ class PlaylistPlayer:
             self.current_time_label.config(bg="#2C2929")
             self.total_time_label.config(bg="#2C2929")
             self.controls_frame.grid(pady=0)
-            self.radios_labels.grid(pady=0)
-            self.eq_button.grid(padx=(0), pady=0)
+            self.radios_labels.grid(pady=(0,5))
+            self.eq_button.grid(padx=(0), pady=(5,0))
             self.playlist_label.grid(padx=0, pady=0)
             self.times_frame.grid(row=0, pady=0, columnspan=5, sticky="nsew")
             self.current_time_label.grid(row=0, column=0, padx=2,pady=0, sticky="w")
@@ -749,8 +749,8 @@ class PlaylistPlayer:
         self.player.play()
            
     def pause(self):
-        self.player.pause()   
-         
+        self.player.pause()
+        
     def show_hotkeys(self, event=None):
         # Display a window with available keyboard shortcuts
         hotkey_window = tk.Toplevel(self.root)
@@ -781,22 +781,23 @@ class PlaylistPlayer:
         self.logo_listbox.place_forget()
         self.listbox.delete(0, tk.END)
         self.playlist_button.config(bg="#BC853D")
-
         url = self.radios[name]
 
         # Reset button colors and highlight selected radio
         for btn in self.radio_buttons.values():
             btn.config(bg="#006400")
         self.radio_buttons[name].config(bg="#359635")
-        
+
         # Show radio placeholder image
-        self.placeholder.config(image=self.radio_image)
         self.placeholder.place(relx=0.5, rely=0.7, anchor="center")
+        if not getattr(self, "is_compact", False):
+            self.force_layout_refresh()
         # Start radio playback
         media = self.vlc_instance.media_new(url)
         self.player.set_media(media)
         self.player.play()
-        self.force_layout_refresh()
+        self.show_radio_image()
+
 
     def load_current_playlist(self):
         archivo = filedialog.askopenfilename(
@@ -907,6 +908,10 @@ class PlaylistPlayer:
         # Force UI refresh by temporarily exiting fullscreen
         self.root.after(50, self.exit_fullscreen_video)
 
+    def show_radio_image(self):
+        if not self.is_compact:
+            self.listbox.lift()
+        self.placeholder.config(image=self.radio_image)
 
 
 
