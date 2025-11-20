@@ -91,5 +91,7 @@ Future ideas remain part of the philosophy. VU meters, once tested but removed d
 In essence, DK_9000 is a personal journey: a project that began as a tutorial, grew through experimentation, and now stands as a creative tool. It is not intended to compete with professional media players such as VLC, but to exist as a unique intersection of code, sound, and vision.
 
 
-License
-MIT License. Contributions and suggestions are welcome.
+## License
+This project is licensed under the MIT License – see the [LICENSE](LICENSE) file for details.  
+Contributions and suggestions are welcome.
+
