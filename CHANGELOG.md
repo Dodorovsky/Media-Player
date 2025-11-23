@@ -1,4 +1,16 @@
-# 📓 CHANGELOG
+# Changelog
+
+## [1.7.0] - 2025-11-23
+### Added
+- Space key toggle for pause/play button.
+
+### Fixed
+- EQ cut issue on first adjustment (smooth audio playback).
+
+### Cleaned
+- Removed redundant virtual environments and streamlined setup.
+
+
 
 ## [2025-11-18] UI Feedback Sync — Small fixes, big harmony
 
