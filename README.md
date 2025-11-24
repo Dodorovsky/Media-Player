@@ -73,3 +73,10 @@ python main.py
 > "Windows protected your PC. Microsoft Defender SmartScreen prevented an unrecognized app from starting."
 
 This happens because DK_9000 is unsigned. If you trust the project, click **More info → Run anyway**.
+
+## How to contribute
+DK_9000 is a project in motion — shaped by feedback and collaboration.  
+
+- Found a bug? 🐛 Please [open an issue](../../issues) so we can track and fix it.  
+- Have ideas or feature requests?  Share them — DK_9000 grows with community input.  
+- Want to contribute code or docs? Fork the repo and send a pull request.  
