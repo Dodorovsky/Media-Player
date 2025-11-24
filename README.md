@@ -43,9 +43,21 @@ DK_9000 includes four curated radio streams, reflecting different moods and infl
 
 ---
 
+## Compatibility
+
+Currently available for **Windows** only.  
+Support for other platforms may be added in future versions.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
 ## Installation
 Clone the repository and run the main script:
 ```bash
 git clone https://github.com/yourusername/DK_9000.git
 cd DK_9000
 python main.py
+
