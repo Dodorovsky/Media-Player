@@ -74,6 +74,8 @@ python main.py
 
 This happens because DK_9000 is unsigned. If you trust the project, click **More info → Run anyway**.
 
+---
+
 ## How to contribute
 DK_9000 is a project in motion — shaped by feedback and collaboration.  
 
