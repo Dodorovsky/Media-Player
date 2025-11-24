@@ -66,8 +66,7 @@ Clone the repository and run the main script:
 git clone https://github.com/yourusername/DK_9000.git
 cd DK_9000
 python main.py
-
----
+```
 
 ## Notes
 ⚠️ Windows Defender SmartScreen may show a warning when running the executable.  
