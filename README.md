@@ -1,6 +1,12 @@
 # DK_9000 �
 A retro-inspired media player built with Python/Tkinter, born from the idea of DJ software and expanded through cinema.
 
+## Download DK_9000
+Grab the latest build and dive into the DK_9000 experience.:
+
+- 🎧 [DK_9000 v1.7.0 Windows executable](../../releases/download/v1.7.0/DK_9000_v1.7.0_Windows.exe)
+
+
 ![Demo](DK9000_demo.gif)
 
 DK_9000 started as a simple audio project and evolved into a creative tool with playlists, radio streams, video playback, and compact UI modes.  
