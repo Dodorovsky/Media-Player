@@ -67,3 +67,10 @@ git clone https://github.com/yourusername/DK_9000.git
 cd DK_9000
 python main.py
 
+---
+
+## Notes
+⚠️ Windows Defender SmartScreen may show a warning when running the executable.  
+> "Windows protected your PC. Microsoft Defender SmartScreen prevented an unrecognized app from starting."
+
+This happens because DK_9000 is unsigned. If you trust the project, click **More info → Run anyway**.
