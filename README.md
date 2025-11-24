@@ -4,7 +4,7 @@ A retro-inspired media player built with Python/Tkinter, born from the idea of D
 ## Download DK_9000
 Grab the latest build and dive into the DK_9000 experience.:
 
-- 🎧 [DK_9000 v1.7.0 Windows executable](../../releases/download/v1.7.0/DK_9000_v1.7.0_Windows.exe)
+- [DK_9000 v1.7.0 Windows executable](https://github.com/Dodorovsky/Media-Player/releases/download/v1.7.0/DK_9000.exe)
 
 
 ![Demo](DK9000_demo.gif)
