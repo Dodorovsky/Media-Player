@@ -1,0 +1,7 @@
+# Ignorar cachés de Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignorar archivos de build
+*.spec
