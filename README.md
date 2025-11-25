@@ -1,5 +1,5 @@
 # DK_9000 �
-A retro-inspired media player built with Python/Tkinter, born from the idea of DJ software and expanded through cinema.
+“DK_9000 began as a simple media player — later I decided to introduce video support, which was a real challenge but rewarding as a cinema lover.”
 
 ## Download DK_9000
 Grab the latest build and dive into the DK_9000 experience.:
@@ -17,12 +17,6 @@ This is my first project developed with Copilot assistance, helping me push the 
 ## Motivation
 DK_9000 began as a simple media player — the foundation for any DJ software since it handles audio.  
 Later, I decided to introduce video support, which was a real challenge, but as a cinema lover it became one of the most rewarding parts of the project.
-
----
-
-## Learning Journey
-I have been studying Python for about 3 years, with ups and downs.  
-Courses such as *Píldoras Informáticas* by Juan Díaz and Cristian Koch’s Pygame course on Udemy gave me the foundation to build DK_9000 without losing control of the project.
 
 ---
 
