@@ -269,7 +269,7 @@ def setup_ui(self):
                 self.eq_frame.grid_columnconfigure(i, minsize=60)
                 
                 label = tk.Label(self.eq_light_frame, image=self.eq_light_image, bg="#2C2929")
-                label.grid(row=1, column=i, padx=32)
+                label.grid(row=1, column=i, padx=33.332)
                 self.eq_light_labels.append(label)
          
         self.playlist_menu = tk.Menu(self.playlist_button, tearoff=0)

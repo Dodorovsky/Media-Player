@@ -395,22 +395,31 @@ class PlaylistPlayer:
             btn.config(bg="#191818")
 
         if files:
-            f = files[0]
-            self.playlist = [f]
-            self.current_file_is_audio = f.lower().endswith((".mp3", ".wav", ".flac", ".aac", ".m4a", ".ogg", ".wma", ".aiff", ".alac"))
-            self.load_media_file(f)
+            # recorrer todos los archivos arrastrados
+            for f in files:
+                self.playlist.append(f)
+                self.listbox.insert(tk.END, f)
+
+            # cargar el primero como actual
+            first_file = self.playlist[0]
+            self.current_file_is_audio = first_file.lower().endswith((
+                ".mp3", ".wav", ".flac", ".aac", ".m4a", ".ogg", ".wma", ".aiff", ".alac"
+            ))
+            self.load_media_file(first_file)
 
             if self.current_file_is_audio:
-                self.show_audio_ui(f)
+                self.show_audio_ui(first_file)
             else:
-                self.show_video_ui(f)
+                self.show_video_ui(first_file)
 
             self.current_index = 0
             self.listbox.selection_clear(0, tk.END)
             self.listbox.selection_set(self.current_index)
             self.listbox.activate(self.current_index)
             self.play_from_selection()
+
         self.playlist_button.config(bg="#BC853D")
+
         
     def embed_video(self):
         # Embed video output into Tkinter frame depending on OS
@@ -574,8 +583,8 @@ class PlaylistPlayer:
             # Mute audio
             self.last_volume = self.volume_slider.get()
             self.volume_slider.set(0)
-            self.mute_button.config(bg="#D21A1A")
-            self.style.configure('TScale', troughcolor="#D21A1A")
+            self.mute_button.config(bg="#CE3E06")
+            self.style.configure('TScale', troughcolor="#CE3E06")
             self.is_muted = True
 
     def load_file_in_listbox(self,ruta):
