@@ -1,12 +1,6 @@
 # DK_9000 �
 DK_9000 began as a simple media player — later I decided to introduce video support, which was a real challenge but rewarding as a cinema lover.
 
-## Download DK_9000
-Grab the latest build and dive into the DK_9000 experience.:
-
-- [DK_9000 v1.7.0 Windows executable](https://github.com/Dodorovsky/Media-Player/releases/download/v1.7.0/DK_9000.exe)
-
-
 ![Demo](DK9000_demo.gif)
 
 DK_9000 started as a simple audio project and evolved into a creative tool with playlists, radio streams, video playback, and compact UI modes.  
@@ -61,6 +55,12 @@ git clone https://github.com/yourusername/DK_9000.git
 cd DK_9000
 python main.py
 ```
+## Download DK_9000
+Grab the latest build and dive into the DK_9000 experience.:
+
+- [DK_9000 v1.7.0 Windows executable](https://github.com/Dodorovsky/Media-Player/releases/download/v1.7.0/DK_9000.exe)
+
+---
 
 ## Notes
 ⚠️ Windows Defender SmartScreen may show a warning when running the executable.  
