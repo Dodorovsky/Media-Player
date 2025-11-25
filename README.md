@@ -1,5 +1,5 @@
 # DK_9000 �
-“DK_9000 began as a simple media player — later I decided to introduce video support, which was a real challenge but rewarding as a cinema lover.”
+DK_9000 began as a simple media player — later I decided to introduce video support, which was a real challenge but rewarding as a cinema lover.
 
 ## Download DK_9000
 Grab the latest build and dive into the DK_9000 experience.:
