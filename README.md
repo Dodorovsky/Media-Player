@@ -1,6 +1,12 @@
 # DK_9000 �
 A retro-inspired media player built with Python/Tkinter, born from the idea of DJ software and expanded through cinema.
 
+## Download DK_9000
+Grab the latest build and dive into the DK_9000 experience.:
+
+- [DK_9000 v1.7.0 Windows executable](https://github.com/Dodorovsky/Media-Player/releases/download/v1.7.0/DK_9000.exe)
+
+
 ![Demo](DK9000_demo.gif)
 
 DK_9000 started as a simple audio project and evolved into a creative tool with playlists, radio streams, video playback, and compact UI modes.  
@@ -60,4 +66,19 @@ Clone the repository and run the main script:
 git clone https://github.com/yourusername/DK_9000.git
 cd DK_9000
 python main.py
+```
 
+## Notes
+⚠️ Windows Defender SmartScreen may show a warning when running the executable.  
+> "Windows protected your PC. Microsoft Defender SmartScreen prevented an unrecognized app from starting."
+
+This happens because DK_9000 is unsigned. If you trust the project, click **More info → Run anyway**.
+
+---
+
+## How to contribute
+DK_9000 is a project in motion — shaped by feedback and collaboration.  
+
+- Found a bug? Please [open an issue](../../issues) so we can track and fix it.  
+- Have ideas or feature requests?  Share them — DK_9000 grows with community input.  
+- Want to contribute code or docs? Fork the repo and send a pull request.  
