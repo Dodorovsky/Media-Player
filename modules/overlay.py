@@ -25,6 +25,7 @@ class FloatingOverlay:
         self.ignore_slider_callback = False
         self.slider_being_dragged = False
 
+
     def create_overlay(self):
         if self.overlay_window:
             return

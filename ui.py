@@ -6,7 +6,7 @@ import tkinter.ttk as ttk
 from PIL import Image, ImageTk
 from tkinterdnd2 import DND_FILES, TkinterDnD
 import vlc 
-import os
+import os 
  
 from modules import playlist_manager
 
@@ -25,7 +25,7 @@ def setup_ui(self):
         self.root.geometry("600x385")
         self.root.resizable(False, False)
         self.root.title("DK_9000 MEDIA PL/\\YER")
-        self.root.iconbitmap(resource_path('media_player/graphics/backgrounds/dodorovsky.ico'))
+        self.root.iconbitmap(resource_path('./graphics/backgrounds/dodorovsky.ico'))
         
         # Main Frame
         self.main_frame = tk.Frame(self.root, bg="#2C2929")
@@ -46,14 +46,14 @@ def setup_ui(self):
         self.black_frame.grid_columnconfigure(2, weight=1)
         self.black_frame.grid_columnconfigure(1, weight=1)
         self.black_frame.grid_rowconfigure(0, minsize=25)
-        print(resource_path("media_player/graphics/buttons_control/power_light.png"))
-        self.hal_on = ImageTk.PhotoImage(Image.open(resource_path('media_player/graphics/buttons_control/power_light.png')).resize((21, 21)))#20,20
+        print(resource_path("./graphics/buttons_control/power_light.png"))
+        self.hal_on = ImageTk.PhotoImage(Image.open(resource_path('./graphics/buttons_control/power_light.png')).resize((21, 21)))#20,20
 
         self.hal_label = tk.Label(self.black_frame, image=self.hal_on, bg='#1D1C1B')
         self.hal_label.grid(row=0, column=1, pady=(3,0), sticky="ns")
         
         # Preload HAL eye frames for breathing animation (sequence of 83 images)
-        self.hal_frames = [ImageTk.PhotoImage(Image.open(resource_path(f"media_player/graphics/hal_ojo/hal_dim_{i}.png")).resize((21,21))) for i in range(0,83)]
+        self.hal_frames = [ImageTk.PhotoImage(Image.open(resource_path(f"./graphics/hal_ojo/hal_dim_{i}.png")).resize((21,21))) for i in range(0,83)]
         
         self.top_frame = tk.Frame(self.main_frame, bg="#2C2929")
         self.top_frame.grid(row=2, column=0, columnspan=5, sticky="nsew")
@@ -78,9 +78,9 @@ def setup_ui(self):
          
         self.placeholder = tk.Label(self.listbox, text="DRAG_YOUR_FILES_HERE",  fg="#62985C", font=("Monospace", 8), bg="black")
         self.placeholder.place(relx=0.5, rely=0.6, anchor="center")
-        print(resource_path("media_player/graphics/buttons_control/dodorovsky.pngt.png"))
-        self.logo_image = ImageTk.PhotoImage(Image.open(resource_path('media_player/graphics/backgrounds/dodorovsky.png')).resize((58, 33)))
-        self.radio_image = ImageTk.PhotoImage(Image.open(resource_path('media_player/graphics/backgrounds/radio.png')).resize((80, 47)))
+        print(resource_path("./graphics/buttons_control/dodorovsky.png"))
+        self.logo_image = ImageTk.PhotoImage(Image.open(resource_path('./graphics/backgrounds/dodorovsky.png')).resize((58, 33)))
+        self.radio_image = ImageTk.PhotoImage(Image.open(resource_path('./graphics/backgrounds/radio.png')).resize((80, 47)))
 
         self.logo_listbox = tk.Label(self.listbox, image=self.logo_image, bg="black")
         self.logo_listbox.place(relx=0.5, rely=0.4, anchor="center")
@@ -152,17 +152,17 @@ def setup_ui(self):
         self.load_button = tk.Button(self.left_frame, bd=1, command=self.load_files, bg="#BC853D")#bg="#F0C74C"
         self.load_button.grid(padx=(1,0), pady=(0,10), column=0)
         
-        self.play_off = ImageTk.PhotoImage(Image.open(resource_path('media_player/graphics/buttons_control/play_off_b.png')).resize((49, 14)))
-        self.play_on = ImageTk.PhotoImage(Image.open(resource_path('media_player/graphics/buttons_control/play_on_b_fluo.png')).resize((49, 14)))       
+        self.play_off = ImageTk.PhotoImage(Image.open(resource_path('./graphics/buttons_control/play_off_b.png')).resize((49, 14)))
+        self.play_on = ImageTk.PhotoImage(Image.open(resource_path('./graphics/buttons_control/play_on_b_fluo.png')).resize((49, 14)))       
        
-        self.pause_big = ImageTk.PhotoImage(Image.open(resource_path('media_player/graphics/buttons_control/pause_big.png')).resize((49, 14)))
-        self.pause_on = ImageTk.PhotoImage(Image.open(resource_path('media_player/graphics/buttons_control/pausa_on_b.png')).resize((28,16)))
+        self.pause_big = ImageTk.PhotoImage(Image.open(resource_path('./graphics/buttons_control/pause_big.png')).resize((49, 14)))
+        self.pause_on = ImageTk.PhotoImage(Image.open(resource_path('./graphics/buttons_control/pausa_on_b.png')).resize((28,16)))
 
-        self.stop_off = ImageTk.PhotoImage(Image.open(resource_path('media_player/graphics/buttons_control/stop_big.png')).resize((49, 14)))
-        self.stop_on = ImageTk.PhotoImage(Image.open(resource_path('media_player/graphics/buttons_control/stop_big.png')).resize((49, 14)))
+        self.stop_off = ImageTk.PhotoImage(Image.open(resource_path('./graphics/buttons_control/stop_big.png')).resize((49, 14)))
+        self.stop_on = ImageTk.PhotoImage(Image.open(resource_path('./graphics/buttons_control/stop_big.png')).resize((49, 14)))
 
-        self.previous_img = ImageTk.PhotoImage(Image.open(resource_path('media_player/graphics/buttons_control/prev.png')).resize((38,7)))
-        self.next_img = ImageTk.PhotoImage(Image.open(resource_path('media_player/graphics/buttons_control/next.png')).resize((38,7)))
+        self.previous_img = ImageTk.PhotoImage(Image.open(resource_path('./graphics/buttons_control/prev.png')).resize((38,7)))
+        self.next_img = ImageTk.PhotoImage(Image.open(resource_path('./graphics/buttons_control/next.png')).resize((38,7)))
         
         self.stop_button = tk.Button(self.sub_frame_1, image=self.stop_on, command=self.stop)
         self.stop_button.grid(row=0, column=2, padx=9, pady=5) 
@@ -212,8 +212,8 @@ def setup_ui(self):
         self.fullscreen_button.grid(pady=5)
         self.root.bind("<Escape>", lambda e: self.exit_fullscreen_video())
         
-        self.mp6 = ImageTk.PhotoImage(Image.open(resource_path('media_player/graphics/buttons_control/mp6.png')).resize((22,9)))
-        self.mp6_off = ImageTk.PhotoImage(Image.open(resource_path('media_player/graphics/buttons_control/mp6_off.png')).resize((22,9)))
+        self.mp6 = ImageTk.PhotoImage(Image.open(resource_path('./graphics/buttons_control/mp6.png')).resize((22,9)))
+        self.mp6_off = ImageTk.PhotoImage(Image.open(resource_path('./graphics/buttons_control/mp6_off.png')).resize((22,9)))
         
         self.mp6_label_left = tk.Label(self.vu_frame_left, image=self.mp6_off, bg="#2C2929")
         self.mp6_label_left.grid(padx=(0,5), pady=(0), sticky="s")
@@ -222,7 +222,7 @@ def setup_ui(self):
         self.radios = {
         "NTS": "https://stream-relay-geo.ntslive.net/stream",
         "KEXP": "https://kexp.streamguys1.com/kexp160.aac",
-        "SOMA FM": "http://ice1.somafm.com/secretagent-128-mp3",
+        "SOMA FM": "http://stream0.wfmu.org/freeform-128k",
         "CLASSIC FM": "https://media-ssl.musicradio.com/ClassicFM"}
         
         self.radio_buttons = {}
@@ -242,8 +242,8 @@ def setup_ui(self):
         self.eq_line = tk.Label(self.main_frame, bg="#2C2929", text="___________________________________________________________________________________________________________________________________")
         self.eq_line.grid(row=6, columnspan=5, pady=(0,10), sticky="n")
 
-        self.eq_light_image = ImageTk.PhotoImage(Image.open(resource_path('media_player/graphics/buttons_control/eq_light.png')).resize((11,11)))
-        self.eq_light_on_image = ImageTk.PhotoImage(Image.open(resource_path('media_player/graphics/buttons_control/eq_light_on.png')).resize((11,11)))
+        self.eq_light_image = ImageTk.PhotoImage(Image.open(resource_path('./graphics/buttons_control/eq_light.png')).resize((11,11)))
+        self.eq_light_on_image = ImageTk.PhotoImage(Image.open(resource_path('./graphics/buttons_control/eq_light_on.png')).resize((11,11)))
 
 
         self.eq_frame = tk.Frame(self.main_frame, bg="#CEA6A6")
@@ -271,6 +271,7 @@ def setup_ui(self):
                 label = tk.Label(self.eq_light_frame, image=self.eq_light_image, bg="#2C2929")
                 label.grid(row=1, column=i, padx=33.332)
                 self.eq_light_labels.append(label)
+                
          
         self.playlist_menu = tk.Menu(self.playlist_button, tearoff=0)
         self.playlist_button.config(menu=self.playlist_menu)

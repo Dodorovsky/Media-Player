@@ -2,8 +2,6 @@ from tkinter import filedialog, messagebox
 import tkinter as tk
 import os
 
-
-
 def load_playlist(file_path):
     with open(file_path, "r", encoding="utf-8") as f:
         rutas = [linea.strip() for linea in f if linea.strip()]
@@ -39,5 +37,4 @@ def add_to_playlist(file_path, rutas):
             f.write(ruta + "\n")
 
     return new, repeated
-
-                
+       
