@@ -68,6 +68,16 @@ This happens because DK_9000 is unsigned. If you trust the project, click **More
 
 ---
 
+## About the Project
+
+- First published GitHub project  
+- Developed using Python and Tkinter, assisted by AI coding tools (Copilot)  
+- Combines creative programming with hands-on **QA and testing practice**  
+- Actively maintained with new features and regression tests
+
+---
+
+
 ## How to contribute
 DK_9000 is a project in motion — shaped by feedback and collaboration.  
 
