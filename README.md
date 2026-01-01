@@ -1,39 +1,39 @@
-# DK_9000 �
-DK_9000 began as a simple media player — later I decided to introduce video support, which was a real challenge but rewarding as a cinema lover.
+DK_9000 – Retro Media Player (Python / Tkinter)
 
-![Demo](DK9000_demo.gif)
-
-DK_9000 started as a simple audio project and evolved into a creative tool with playlists, radio streams, video playback, and compact UI modes.  
-This is my first project developed with Copilot assistance, helping me push the code further than a basic tutorial.
-
----
-
-## Motivation
-DK_9000 began as a simple media player — the foundation for any DJ software since it handles audio.  
-Later, I decided to introduce video support, which was a real challenge, but as a cinema lover it became one of the most rewarding parts of the project.
+DK_9000 is a retro-inspired desktop media player built with Python and Tkinter.
+It reproduces audio and video, offers multiple UI modes, playlists, radio stations, and a 5-band EQ.
+This project started as a personal Python application and has grown into a hands-on learning platform for software testing, QA, and automation.
 
 ---
 
 ## Features
 - Audio and video playback with automatic detection  
-- Playlist management with duplicate control  
-- Five-band equalizer, expandable with a dedicated button  
-- Floating overlay with playback controls  
-- Visual feedback: time indicators shift from grey to green during playback  
-- Random and loop modes for flexible listening  
-- Fullscreen mode for video  
-- Compact mode: +/- button hides the listbox or video frame  
-- Hotkeys for quick control (e.g. Left: skip back, M: mute)  
-- Help button showing all key bindings  
+- 4 pre-configured radio stations
+- Playlist management (add/remove)
+- Mute, random, loop, and EQ (5 bands)
+- Multiple UI modes: default, compact, fullscreen with overlay for video
+- Keyboard shortcuts for playback control
 
 ---
 
-## Radio Stations
-DK_9000 includes four curated radio streams, reflecting different moods and influences:  
-- NTS: electronic and experimental  
-- KEXP: indie rock and alternative  
-- SomaFM: jazzy and eclectic  
-- Classic FM: timeless classical repertoire  
+## Testing & Quality Assurance
+
+DK_9000 also serves as a QA-focused learning project, where testing is integrated into development.
+
+Manual Testing:
+
+- Verification of UI behavior in all modes (default, compact, fullscreen)
+- Bug reproduction in playback, playlists, and EQ settings
+- Regression testing after feature updates or code refactoring
+- Edge case testing and state transition validation
+
+Automation (initial / ongoing):
+
+- Python-based scripts to test core functionality
+- User flow and state transition testing
+- Future plans: expand automated tests with Pytest or Playwright
+
+This project demonstrates hands-on learning in QA, automated testing, and software quality practices while building a functional application.
 
 ---
 
@@ -48,10 +48,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## Installation
+## Installation & Usage
 Clone the repository and run the main script:
 ```bash
-git clone https://github.com/yourusername/DK_9000.git
+git clone https://github.com/Dodotovsky/DK_9000.git
 cd DK_9000
 python main.py
 ```
