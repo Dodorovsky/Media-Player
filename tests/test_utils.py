@@ -18,6 +18,8 @@ def test_format_time_parametrized(ms, expected):
 def test_format_time_large_value():
     # 2 hours, 30 minutes, 15 seconds → 150 minutes, 15 seconds
     ms = (2 * 3600 + 30 * 60 + 15) * 1000
+
+
     assert format_time(ms) == "150:15"
 
 
