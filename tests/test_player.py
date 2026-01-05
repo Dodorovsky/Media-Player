@@ -4,11 +4,11 @@ from player import PlaylistPlayer
 
 @pytest.fixture
 def mock_player():
-    # Mock del root de Tkinter (evita errores por .bind)
+    # Tkinter root mock (prevents errors due to .bind)
     mock_root = MagicMock()
     mock_root.bind = MagicMock()
 
-    # Mock del reproductor VLC
+    # VLC Player Mock
     mock_media_player = MagicMock()
 
     with (
@@ -17,15 +17,15 @@ def mock_player():
         patch("player.PlaylistPlayer.bind_events"),   # evita binds reales
         patch("player.PlaylistPlayer.update_time"),   # evita loop .after()
     ):
-        # Configurar el mock de VLC
+        # Configure the VLC mock
         instance = MagicMock()
         instance.media_player_new.return_value = mock_media_player
         mock_vlc_instance.return_value = instance
 
-        # Crear el reproductor con dependencias parcheadas
+        # Create the player with patched dependencies
         player = PlaylistPlayer(mock_root)
 
-        # 🔥 Mocks para todos los elementos de UI usados en stop()
+        # Mocks for all UI elements used in stop()
         player.style = MagicMock()
         player.mp6_label_left = MagicMock()
         player.mp6_label_right = MagicMock()
