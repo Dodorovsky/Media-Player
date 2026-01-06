@@ -14,7 +14,7 @@ from pathlib import Path
 import random
 from pathlib import Path
 import platform 
-
+ 
 from modules import playlist_manager
 
 class PlaylistPlayer:
@@ -102,8 +102,6 @@ class PlaylistPlayer:
                 self.current_file_is_audio = f.lower().endswith((".mp3", ".wav", ".flac", ".aac", ".m4a", ".ogg", ".wma", ".aiff", ".alac"))
                 if self.current_file_is_audio:
                     self.video_frame.grid_remove()
-                    #self.top_frame.grid(row=2, column=0, columnspan=5, sticky="nsew")
-                    #self.listbox.grid(row=1, column=0, padx=0, pady=0, sticky="nsew") 
                     self.top_frame.configure(bg='#181717')
                     self.load_file_in_listbox(f)                 
                 else:
@@ -419,8 +417,7 @@ class PlaylistPlayer:
             self.play_from_selection()
 
         self.playlist_button.config(bg="#BC853D")
-
-        
+   
     def embed_video(self):
         # Embed video output into Tkinter frame depending on OS
         video_id = self.video_frame.winfo_id()
