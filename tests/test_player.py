@@ -127,3 +127,77 @@ def test_set_volume_mutes_when_volume_zero(mock_player):
     # Flag interno actualizado
     assert player.is_muted is True
 
+def test_seek_on_release_sets_vlc_time_from_slider(mock_player):
+    player, mock_vlc = mock_player
+
+    player.time_slider.get.return_value = 30000
+
+    fake_event = object()  # we don't use it, but the firm asks for it
+    player.seek_on_release(fake_event)
+
+    mock_vlc.set_time.assert_called_once_with(30000)
+    
+def test_seek_to_time_converts_seconds_to_ms(mock_player):
+    player, mock_vlc = mock_player
+
+    player.seek_to_time(42)
+
+    mock_vlc.set_time.assert_called_once_with(42000)
+
+    
+def test_on_slider_move_updates_label_when_dragging(mock_player):
+    player, mock_vlc = mock_player
+
+    player.slider_dragging = True
+
+    player.on_slider_move("15")
+
+    # We just check that the time tag is updated
+    player.current_time_label.config.assert_called_once()
+    # We could mock format_time too, 
+    # but for now just know that config() is called.
+    mock_vlc.set_time.assert_not_called()
+    
+def test_on_slider_move_does_nothing_when_not_dragging(mock_player):
+    player, mock_vlc = mock_player
+
+    player.slider_dragging = False
+
+    player.on_slider_move("20")
+
+    player.current_time_label.config.assert_not_called()
+    mock_vlc.set_time.assert_not_called()
+    
+def test_on_slider_press_sets_dragging_true(mock_player):
+    player, _ = mock_player
+
+    player.slider_dragging = False
+    fake_event = object()
+
+    player.on_slider_press(fake_event)
+
+    assert player.slider_dragging is True
+
+from unittest.mock import patch
+
+def test_on_slider_release_calls_seek_and_unsets_flag(mock_player):
+    player, _ = mock_player
+
+    player.slider_dragging = True
+    fake_event = object()
+
+    with patch.object(player, "seek_on_release") as mock_seek:
+        player.on_slider_release(fake_event)
+
+    assert player.slider_dragging is False
+    mock_seek.assert_called_once_with(fake_event)
+
+
+
+
+
+
+
+
+
+
