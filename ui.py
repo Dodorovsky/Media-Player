@@ -25,7 +25,7 @@ def setup_ui(self):
         self.root.geometry("600x385")
         self.root.resizable(False, False)
         self.root.title("DK_9000 MEDIA PL/\\YER")
-        self.root.iconbitmap(resource_path('./graphics/backgrounds/dodorovsky.ico'))
+        self.root.iconbitmap(resource_path('./graphics/backgrounds/new_logo.ico'))
         
         # Main Frame
         self.main_frame = tk.Frame(self.root, bg="#2C2929")
