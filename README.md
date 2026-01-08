@@ -84,3 +84,6 @@ DK_9000 is a project in motion — shaped by feedback and collaboration.
 - Found a bug? Please [open an issue](../../issues) so we can track and fix it.  
 - Have ideas or feature requests?  Share them — DK_9000 grows with community input.  
 - Want to contribute code or docs? Fork the repo and send a pull request.  
+
+Practice: enabling PR creation from tests-update-time branch
+
