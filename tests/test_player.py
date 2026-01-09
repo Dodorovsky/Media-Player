@@ -100,39 +100,38 @@ def test_set_volume_calls_vlc_volume(mock_player):
 def test_set_volume_unmutes_when_volume_above_one(mock_player):
     player, mock_vlc = mock_player
 
-    player.is_muted = True  # estado inicial
+    player.is_muted = True 
 
     fake_volume = 50
     player.set_volume(fake_volume)
 
-    # VLC recibe el volumen
     mock_vlc.audio_set_volume.assert_called_once_with(fake_volume)
 
-    # UI cambia a estado "unmuted"
+    # UI changes to "unmuted" state
     player.volume_label.config.assert_any_call(fg="#CAFFFE")
     player.mute_button.config.assert_called_once_with(bg="#3E3838")
     player.volume_label_frame.config.assert_called_once_with(fg="green")
     player.style.configure.assert_called_with('TScale', troughcolor="#AC8433")
 
-    # Flag interno actualizado
+    #  Updated internal flag
     assert player.is_muted is False
     
 def test_set_volume_mutes_when_volume_zero(mock_player):
     player, mock_vlc = mock_player
 
-    player.is_muted = False  # estado inicial
+    player.is_muted = False  
 
     fake_volume = 0
     player.set_volume(fake_volume)
 
-    # VLC recibe el volumen
+    # VLC receives the volume
     mock_vlc.audio_set_volume.assert_called_once_with(fake_volume)
 
-    # UI cambia a estado "muted"
+    # UI changes to "muted" state
     player.mute_button.config.assert_called_once_with(bg="#D21A1A")
     player.style.configure.assert_called_with('TScale', troughcolor="#D21A1A")
 
-    # Flag interno actualizado
+    # Updated internal flag
     assert player.is_muted is True
 
 def test_seek_on_release_sets_vlc_time_from_slider(mock_player):
@@ -140,7 +139,7 @@ def test_seek_on_release_sets_vlc_time_from_slider(mock_player):
 
     player.time_slider.get.return_value = 30000
 
-    fake_event = object()  # we don't use it, but the firm asks for it
+    fake_event = object()  
     player.seek_on_release(fake_event)
 
     mock_vlc.set_time.assert_called_once_with(30000)
@@ -161,8 +160,7 @@ def test_on_slider_move_updates_label_when_dragging(mock_player):
 
     # We just check that the time tag is updated
     player.current_time_label.config.assert_called_once()
-    # We could mock format_time too, 
-    # but for now just know that config() is called.
+   
     mock_vlc.set_time.assert_not_called()
     
 def test_on_slider_move_does_nothing_when_not_dragging(mock_player):
