@@ -15,13 +15,24 @@ def mock_player():
         patch("player.vlc.Instance") as mock_vlc_instance,
         patch("player.setup_ui"),
         patch("player.PlaylistPlayer.bind_events"),
-        patch("player.PlaylistPlayer.update_time"),
+        patch("player.PlaylistPlayer.update_time", return_value=None),
+        patch("player.PlaylistPlayer.init_eq", return_value=None),
+        patch("player.PlaylistPlayer.play_from_selection", return_value=None),
+        patch("player.PlaylistPlayer.set_duration", return_value=None),
+        patch("player.PlaylistPlayer.exit_fullscreen_video", return_value=None),
+        patch("player.PlaylistPlayer.start_eq_light_loop", return_value=None),
+        patch("player.PlaylistPlayer.force_layout_refresh", return_value=None),
+        patch("player.PlaylistPlayer.track_mouse", return_value=None),
+        patch("player.PlaylistPlayer.breathe_hal", return_value=None),
     ):
         instance = MagicMock()
         instance.media_player_new.return_value = mock_media_player
         mock_vlc_instance.return_value = instance
 
         player = PlaylistPlayer(mock_root)
+        player.is_playing = False
+        player.pause = player.pause.__func__.__get__(player, type(player))
+        player.root.after = lambda *args, **kwargs: None
 
         # UI mocks
         player.style = MagicMock()
@@ -45,7 +56,7 @@ def mock_player():
 
         # VLC methods
         player.player.get_time = MagicMock()
-        player.player.is_playing = MagicMock()
+        # player.player.is_playing = MagicMock()  
 
         # Flags
         player.slider_dragging = False
@@ -54,11 +65,13 @@ def mock_player():
         # after()
         player.root.after = MagicMock()
 
-    return player, mock_media_player
+    return player, player.player   
+
 
    
 def test_play_calls_vlc_play(mock_player):
     player, mock_vlc = mock_player
+    
     player.play()
     mock_vlc.play.assert_called_once()
     
@@ -225,8 +238,8 @@ def test_update_time_updates_ui_when_playing(mock_player):
     player.mp6_label_left.config.assert_called_with(image=player.mp6)
     player.mp6_label_right.config.assert_called_with(image=player.mp6)
     player.style.configure.assert_any_call('Custom.Horizontal.TScale', troughcolor="#8A4A06")
-    player.current_time_label.config.assert_any_call(fg="#90C87A")
-    player.total_time_label.config.assert_any_call(fg="#90C87A")
+    player.current_time_label.config.assert_any_call(fg="#F4BF22")
+    player.total_time_label.config.assert_any_call(fg="#F4BF22")
     player.play_pause_button.config.assert_called_with(image=player.pause_big)
 
 def test_update_time_moves_slider_when_not_dragging(mock_player):
@@ -284,5 +297,42 @@ def test_update_time_calls_play_next_when_not_looping(mock_player):
     player.update_time()
 
     player.play_next.assert_called_once()
+
+def test_play_does_not_call_vlc_play_if_already_playing(mock_player):
+    player, mock_vlc = mock_player
+    player.is_playing = True  # We pretend that it is already playing
+
+    player.play()
+
+    mock_vlc.play.assert_not_called()
+
+def test_play_sets_is_playing_to_true(mock_player):
+    player, _ = mock_player
+    player.is_playing = False
+
+    player.play()
+
+    assert player.is_playing is True
+
+def test_play_does_not_change_is_playing_if_already_playing(mock_player):
+    player, _= mock_player
+    player.is_playing = True
+
+    player.play()
+
+    assert player.is_playing is True
+
+def test_pause_calls_player_pause_when_playing(mock_player):
+    player, mock_vlc = mock_player
+
+    player.is_playing = True
+    print("DEBUG test: is_playing justo después de poner True =", player.is_playing)
+    assert player.is_playing is True  # ← esto es CLAVE
+
+    player.pause()
+
+    assert player.is_playing is False
+    mock_vlc.pause.assert_called_once()
+
 
 
