@@ -12,9 +12,8 @@ import uuid
 import tempfile
 from pathlib import Path
 import random
-from pathlib import Path
 import platform 
- 
+
 from modules import playlist_manager
 
 class PlaylistPlayer:
@@ -22,7 +21,7 @@ class PlaylistPlayer:
         # Initialize main window and VLC player instance
         self.root = root
         self.vlc_instance = vlc.Instance()
-        self.player = self.vlc_instance.media_player_new()
+        self.player =  self.vlc_instance.media_player_new()
         self.eq = vlc.AudioEqualizer()
         self.root.bind("<space>", self.toggle_play_pause)
         self.root.bind("<h>", self.show_hotkeys)
@@ -38,9 +37,13 @@ class PlaylistPlayer:
         self.duration = 0
         self.updating_slider = False
         # Setup UI and event bindings
+        import PIL
+        print("PIL plugins =", PIL.Image.OPEN.keys())
+
+        
         setup_ui(self)
         self.bind_events()
-        self.update_time()
+        #self.update_time()
         
         # Playback and UI state flags
         self.loop_enabled = False
@@ -62,7 +65,7 @@ class PlaylistPlayer:
         self.slider_dragging = False
         self.init_eq()
         self.eq_color = "eq_light"
-        
+         
         # Floating overlay for playback controls
         self.overlay = FloatingOverlay(
     master=self.root,
@@ -102,6 +105,8 @@ class PlaylistPlayer:
                 self.current_file_is_audio = f.lower().endswith((".mp3", ".wav", ".flac", ".aac", ".m4a", ".ogg", ".wma", ".aiff", ".alac"))
                 if self.current_file_is_audio:
                     self.video_frame.grid_remove()
+                    #self.top_frame.grid(row=2, column=0, columnspan=5, sticky="nsew")
+                    #self.listbox.grid(row=1, column=0, padx=0, pady=0, sticky="nsew") 
                     self.top_frame.configure(bg='#181717')
                     self.load_file_in_listbox(f)                 
                 else:
@@ -316,8 +321,9 @@ class PlaylistPlayer:
             self.mp6_label_left.config(image=self.mp6)
             self.mp6_label_right.config(image=self.mp6)
             self.style.configure('Custom.Horizontal.TScale', troughcolor="#8A4A06")#8A4A06
-            self.current_time_label.config(fg="#90C87A")
-            self.total_time_label.config(fg="#90C87A")
+            self.current_time_label.config(fg="#F4BF22")
+            
+            self.total_time_label.config(fg="#F4BF22")
             self.play_pause_button.config(image=self.pause_big)
             if current_time >= 0 and not self.slider_dragging and abs(current_time - self.time_slider.get()) > 500:
 
@@ -417,7 +423,8 @@ class PlaylistPlayer:
             self.play_from_selection()
 
         self.playlist_button.config(bg="#BC853D")
-   
+
+        
     def embed_video(self):
         # Embed video output into Tkinter frame depending on OS
         video_id = self.video_frame.winfo_id()
@@ -759,10 +766,17 @@ class PlaylistPlayer:
         return int(self.player.get_length() / 1000)  
 
     def play(self):
-        self.player.play()
-           
+        if not self.is_playing:
+            self.player.play()
+            self.is_playing = True
+        # Si ya está reproduciendo, NO llamamos a play() otra vez
+
+
     def pause(self):
         self.player.pause()
+        self.is_playing = False
+
+
         
     def show_hotkeys(self, event=None):
         # Display a window with available keyboard shortcuts
