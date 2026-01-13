@@ -325,12 +325,14 @@ class PlaylistPlayer:
             
             self.total_time_label.config(fg="#F4BF22")
             self.play_pause_button.config(image=self.pause_big)
-            if current_time >= 0 and not self.slider_dragging and abs(current_time - self.time_slider.get()) > 500:
-
+            if current_time >= 0 and not self.slider_dragging:
                 self.updating_slider = True
                 self.time_slider.set(current_time)
-                self.current_time_label.config(text=format_time(current_time))
-                self.updating_slider = False    
+                self.updating_slider = False
+
+            self.current_time_label.config(text=format_time(current_time))
+
+
         else:
             # Update UI when stopped or paused
             self.mp6_label_left.config(image=self.mp6_off)
@@ -366,6 +368,10 @@ class PlaylistPlayer:
         if self.slider_dragging:
             seconds = int(float(val))
             self.current_time_label.config(text=format_time(seconds))
+
+    def on_time_slider_change(self, event=None):
+        if self.player.is_playing():
+            self.seek_on_release(event)
 
     def on_double_click(self, event):
         # Play item on double-click in playlist
@@ -423,8 +429,7 @@ class PlaylistPlayer:
             self.play_from_selection()
 
         self.playlist_button.config(bg="#BC853D")
-
-        
+     
     def embed_video(self):
         # Embed video output into Tkinter frame depending on OS
         video_id = self.video_frame.winfo_id()
@@ -771,13 +776,10 @@ class PlaylistPlayer:
             self.is_playing = True
         # Si ya está reproduciendo, NO llamamos a play() otra vez
 
-
     def pause(self):
         self.player.pause()
         self.is_playing = False
-
-
-        
+       
     def show_hotkeys(self, event=None):
         # Display a window with available keyboard shortcuts
         hotkey_window = tk.Toplevel(self.root)

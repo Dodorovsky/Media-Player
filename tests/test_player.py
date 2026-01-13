@@ -66,9 +66,7 @@ def mock_player():
         player.root.after = MagicMock()
 
     return player, player.player   
-
-
-   
+ 
 def test_play_calls_vlc_play(mock_player):
     player, mock_vlc = mock_player
     
@@ -240,19 +238,6 @@ def test_update_time_updates_ui_when_playing(mock_player):
     player.total_time_label.config.assert_any_call(fg="#F4BF22")
     player.play_pause_button.config.assert_called_with(image=player.pause_big)
 
-def test_update_time_moves_slider_when_not_dragging(mock_player):
-    player, _ = mock_player
-
-    player.player.get_time.return_value = 8000
-    player.player.is_playing.return_value = True
-    player.slider_dragging = False
-    player.time_slider.get.return_value = 0  # diferencia > 500 ms
-
-    player.update_time()
-
-    player.time_slider.set.assert_called_once_with(8000)
-    player.current_time_label.config.assert_any_call(text=format_time(8000))
-
 def test_update_time_updates_ui_when_stopped(mock_player):
     player, _ = mock_player
 
@@ -332,5 +317,77 @@ def test_pause_calls_player_pause_when_playing(mock_player):
     assert player.is_playing is False
     mock_vlc.pause.assert_called_once()
 
+def test_update_time_updates_slider_position(mock_player):
+    player, _ = mock_player
 
+    # Simulate that VLC is playing
+    player.player.is_playing.return_value = True
+
+    # Simulate current time in milliseconds
+    player.player.get_time.return_value = 5000
+
+    # Simulate that the user is NOT dragging the slider
+    player.slider_dragging = False
+
+    player.update_time()
+
+    player.time_slider.set.assert_called_with(5000)
+    
+def test_update_time_moves_slider_when_not_dragging(mock_player):
+    player, _ = mock_player
+
+    player.player.get_time.return_value = 8000
+    player.player.is_playing.return_value = True
+    player.slider_dragging = False
+    player.time_slider.get.return_value = 0  # diferencia > 500 ms
+
+    player.update_time()
+
+    player.time_slider.set.assert_called_once_with(8000)
+    player.current_time_label.config.assert_any_call(text=format_time(8000))
+
+def test_update_time_does_not_update_slider_when_dragging(mock_player):
+    player, _ = mock_player
+
+    player.player.is_playing.return_value = True
+    player.player.get_time.return_value = 5000  # 5 seconds in ms
+
+    player.slider_dragging = True  # usuario arrastrando
+
+    player.update_time()
+
+    player.time_slider.set.assert_not_called()
+
+def test_slider_change_updates_player_time(mock_player):
+    player, _ = mock_player
+
+    # Simulate that the user is dragging the slider
+    player.slider_dragging = True
+
+    # Simulate that the slider returns a new value (in ms)
+    player.time_slider.get.return_value = 7000  # 7 seconds in ms
+
+    # Call the method that handles the slider change
+    player.on_time_slider_change("event")
+
+    # You must call VLC to update the time
+    player.player.set_time.assert_called_once_with(7000)
+
+def test_slider_change_ignores_updates_when_not_playing(mock_player):
+    player, _ = mock_player
+
+    # Pretend it is NOT playing
+    player.player.is_playing.return_value = False
+
+    # Simulate that the user is dragging the slider
+    player.slider_dragging = True
+
+    # Simulate a slider value
+    player.time_slider.get.return_value = 9000  
+
+    # Call the method that the tests use for the seek
+    player.on_time_slider_change("event")
+
+    
+    player.player.set_time.assert_not_called()
 

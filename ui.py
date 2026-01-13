@@ -98,7 +98,7 @@ def load_images(self):
 
     # Animaciones que dependen de las imágenes
     # (breathe_hal si la tienes definida en player.py)
-    # self.breathe_hal()
+    self.breathe_hal()
     self.start_eq_light_loop()
     self.root.after(100, self.update_time)
 
