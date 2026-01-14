@@ -10,6 +10,3 @@ if __name__ == "__main__":
     app = PlaylistPlayer(root)
     print("Entrando en loop de Tkinter")
     root.mainloop() 
-
-
- 
