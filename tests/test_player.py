@@ -46,6 +46,19 @@ def mock_player():
         player.stop_button = MagicMock()
         player.mute_button = MagicMock()
         player.volume_label_frame = MagicMock()
+        player.listbox = MagicMock()
+        player.video_frame = MagicMock()
+        player.stop_off = MagicMock()
+
+        player.listbox = MagicMock()
+        player.listbox.selection_clear = MagicMock()
+        player.listbox.selection_set = MagicMock()
+        player.listbox.activate = MagicMock()
+
+        player.play_from_selection = MagicMock()
+
+        player.player = MagicMock()
+        player.player.play = MagicMock()
 
         # Images
         player.mp6 = MagicMock()
@@ -56,7 +69,6 @@ def mock_player():
 
         # VLC methods
         player.player.get_time = MagicMock()
-        # player.player.is_playing = MagicMock()  
 
         # Flags
         player.slider_dragging = False
@@ -390,4 +402,88 @@ def test_slider_change_ignores_updates_when_not_playing(mock_player):
 
     
     player.player.set_time.assert_not_called()
+
+def test_add_file_adds_to_playlist(mock_player):
+    player, _ = mock_player
+
+    fake_path = "C:/music/song.mp3"
+
+    player.add_file(fake_path)
+
+    assert fake_path in player.playlist
+    player.listbox.insert.assert_called_once()
+
+def test_play_next_advances_index_and_calls_play_from_selection(mock_player):
+    player, _ = mock_player
+
+    # Simulate internal playlist
+    player.playlist = [
+        "C:/music/track1.mp3",
+        "C:/music/track2.mp3",
+        "C:/music/track3.mp3",
+    ]
+
+    # Initial index
+    player.current_index = 0
+
+    # Mock methods that Tkinter or VLC would use
+    player.listbox.selection_clear = MagicMock()
+    player.listbox.selection_set = MagicMock()
+    player.listbox.activate = MagicMock()
+
+    # Mock playback
+    player.play_from_selection = MagicMock()
+
+    # Run
+    player.play_next()
+
+    # You must advance to the next index
+    assert player.current_index == 1
+
+    
+    player.play_from_selection.assert_called_once()
+
+def test_add_file_updates_ui_listbox(mock_player):
+    player, _ = mock_player
+
+    fake_path = "C:/music/song.mp3"
+    
+    player.add_file(fake_path)
+
+    player.listbox.insert.assert_called_once()
+
+def test_prev_goes_to_previous_track(mock_player):
+    player, _ = mock_player
+
+    # Simular playlist interna
+    player.playlist = [
+        "C:/music/track1.mp3",
+        "C:/music/track2.mp3",
+        "C:/music/track3.mp3",
+    ]
+
+    player.current_index = 1
+
+    player.play_previous()
+
+    assert player.current_index == 0
+
+    player.play_from_selection.assert_called_once()
+
+def test_next_does_not_fail_on_last_track(mock_player):
+    player, _ = mock_player
+
+    player.playlist = [
+        "C:/music/track1.mp3",
+        "C:/music/track2.mp3",
+        "C:/music/track3.mp3",
+    ]
+    
+    player.current_index = 2
+
+    player.play_next()
+
+    assert player.current_index == 2
+
+    player.play_from_selection.assert_not_called()
 

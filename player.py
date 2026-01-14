@@ -77,13 +77,20 @@ class PlaylistPlayer:
         get_time_callback=self.get_current_time,
     get_length_callback=self.get_total_length
     
-)
+) 
        
     def bind_events(self):
         # Bind UI events for listbox and time slider
         self.listbox.bind("<Double-Button-1>", self.on_double_click)
         self.time_slider.bind("<ButtonPress-1>", self.on_slider_press)
         self.time_slider.bind("<ButtonRelease-1>", self.on_slider_release)
+    
+    def add_file(self, ruta):
+        # Añadir a playlist interna
+        self.playlist.append(ruta)
+
+        # Añadir a la UI usando tu método real
+        self.load_file_in_listbox(ruta)
 
     def load_files(self):
         # Open file dialog and load selected files into playlist
@@ -596,11 +603,18 @@ class PlaylistPlayer:
             self.style.configure('TScale', troughcolor="#CE3E06")
             self.is_muted = True
 
-    def load_file_in_listbox(self,ruta):
-        # Load audio metadata into playlist listbox
-        audio = File(ruta)
+    def load_file_in_listbox(self, ruta):
+        # Intentar cargar metadata
+        try:
+            audio = File(ruta)
+        except Exception:
+            # Archivo inexistente o corrupto → solo mostrar el nombre
+            self.listbox.insert("end", ruta.split("/")[-1])
+            return
+
+        # Si Mutagen no reconoce el archivo, audio será None
         if audio is None:
-            self.listbox.insert("end", ruta.split("/")[-1]) 
+            self.listbox.insert("end", ruta.split("/")[-1])
             return
 
         duracion = ""
@@ -939,7 +953,4 @@ class PlaylistPlayer:
             self.listbox.lift()
         self.placeholder.config(image=self.radio_image)
 
-
-
-        
-        
+              
