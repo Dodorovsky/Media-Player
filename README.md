@@ -5,6 +5,9 @@ It reproduces audio and video, offers multiple UI modes, playlists, radio statio
 This project started as a personal Python application and has grown into a hands-on learning platform for software testing, QA, and automation.
 
 ---
+![DK_9000 Demo](assets/demo.gif)
+
+---
 
 ## Features
 - Audio and video playback with automatic detection  
