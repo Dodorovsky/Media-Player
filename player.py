@@ -112,8 +112,6 @@ class PlaylistPlayer:
                 self.current_file_is_audio = f.lower().endswith((".mp3", ".wav", ".flac", ".aac", ".m4a", ".ogg", ".wma", ".aiff", ".alac"))
                 if self.current_file_is_audio:
                     self.video_frame.grid_remove()
-                    #self.top_frame.grid(row=2, column=0, columnspan=5, sticky="nsew")
-                    #self.listbox.grid(row=1, column=0, padx=0, pady=0, sticky="nsew") 
                     self.top_frame.configure(bg='#181717')
                     self.load_file_in_listbox(f)                 
                 else:
@@ -390,44 +388,45 @@ class PlaylistPlayer:
     def toggle_loop(self):
         # Toggle loop mode
         self.loop_enabled = not self.loop_enabled
-        state =  "#065509" if self.loop_enabled else "#3E3838"
+        state =  "#CE9700" if self.loop_enabled else "#3E3838"
+        state2 =  "#121001" if self.loop_enabled else "#EEE3E3"
         self.loop_button.config(bg=state)
+        self.loop_button.config(fg=state2)
 
     def toggle_shuffle(self):
         # Toggle shuffle mode
         self.shuffle_enabled = not self.shuffle_enabled
-        color = "#065509" if self.shuffle_enabled else "#3E3838"
-        self.shuffle_button.config(bg=color)
+        state = "#CE9700" if self.shuffle_enabled else "#3E3838"
+        state2 = "#130E01" if self.shuffle_enabled else "#EFE8E8"
+        self.shuffle_button.config(bg=state)
+        self.shuffle_button.config(fg=state2)
 
     def on_drop(self, event):
         # Handle drag-and-drop of files into playlist
         self.listbox.delete(0, tk.END)
         self.playlist.clear()
         self.current_index = None
+        
+        
         files = self.root.tk.splitlist(event.data)
         self.placeholder.place_forget()
         self.logo_listbox.place_forget()
-
+        
+        # Reset radio button colors
         for btn in self.radio_buttons.values():
-            btn.config(bg="#191818")
-
+            btn.config(bg="#191818", fg= "white")
         if files:
-            # recorrer todos los archivos arrastrados
-            for f in files:
-                self.playlist.append(f)
-                self.listbox.insert(tk.END, f)
+            self.playlist = list(files)
+            self.listbox.delete(0, tk.END)
+            
+            for f in self.playlist:
+                self.current_file_is_audio = f.lower().endswith((".mp3", ".wav", ".flac", ".aac", ".m4a", ".ogg", ".wma", ".aiff", ".alac"))
+                if self.current_file_is_audio:
+                    self.show_audio_ui(f)              
+                else:
 
-            # cargar el primero como actual
-            first_file = self.playlist[0]
-            self.current_file_is_audio = first_file.lower().endswith((
-                ".mp3", ".wav", ".flac", ".aac", ".m4a", ".ogg", ".wma", ".aiff", ".alac"
-            ))
-            self.load_media_file(first_file)
-
-            if self.current_file_is_audio:
-                self.show_audio_ui(first_file)
-            else:
-                self.show_video_ui(first_file)
+                    self.show_video_ui(f)
+     
 
             self.current_index = 0
             self.listbox.selection_clear(0, tk.END)
@@ -625,7 +624,9 @@ class PlaylistPlayer:
 
         titulo = ""
         artista = ""
-        if audio.tags:
+
+        # Solo usar tags si realmente existen los campos relevantes
+        if audio.tags and ("TIT2" in audio.tags or "TPE1" in audio.tags):
             if "TIT2" in audio.tags:
                 titulo = audio.tags["TIT2"].text[0]
             if "TPE1" in audio.tags:
@@ -634,7 +635,8 @@ class PlaylistPlayer:
         if titulo or artista:
             linea = f"{artista} – {titulo} {duracion}"
         else:
-            linea = f"{ruta.split('/')[-1]} {duracion}"
+            linea = f"{os.path.basename(ruta)} {duracion}"
+
 
         self.listbox.insert("end", linea)
 
@@ -643,7 +645,7 @@ class PlaylistPlayer:
             # Toggle compact UI mode
             self.force_layout_refresh()
             self.root.geometry("600x385")
-            self.compact_button.config(bg="#191818", text="-/+")
+            self.compact_button.config(bg="#191818", fg="White", text="-/+")
             self.radios_labels.grid(padx=(0), pady=(2,5), row=0)
             self.misc_label.grid(pady=(2,0))
             self.playlist_label.grid(padx=0, pady=(13,0))
@@ -655,7 +657,7 @@ class PlaylistPlayer:
             print("compact 1")
         elif self.is_compact and self.eq_t:
             self.root.geometry("600x540")
-            self.compact_button.config(bg="#191818", text="-/+")
+            self.compact_button.config(bg="#191818", fg="white", text="-/+")
             self.black_frame.grid(column=0, columnspan=5, sticky="nsew")
             self.radios_labels.grid(padx=(0), pady=(2,5), row=0)
             self.misc_label.grid(pady=(2,0))
@@ -663,7 +665,7 @@ class PlaylistPlayer:
             self.playlist_label.grid(padx=0, pady=(13,0))
             self.top_frame.grid(row=2, column=0, columnspan=5, sticky="nsew") 
             self.midle_frame.grid()
-            self.eq_button.config(bg="#006400")
+            self.eq_button.config(bg="#CE9700", fg="white")
             self.times_frame.config(bg="black")
             self.top_frame.grid()
             self.current_time_label.config(bg="black", fg="#ADADAD")
@@ -675,7 +677,7 @@ class PlaylistPlayer:
             print("compact 2")
         elif self.is_compact and self.eq_t:
             self.root.geometry("600x540")
-            self.compact_button.config(bg="#191818", text="-/+")
+            self.compact_button.config(bg="#191818", fg= "white", text="-/+")
             self.eq_button.config(bg="#0B0B0B", text="-/+")
             self.black_frame.grid(column=0, columnspan=5, sticky="nsew")
             self.top_frame.grid(row=2, column=0, columnspan=5, sticky="nsew") 
@@ -690,13 +692,13 @@ class PlaylistPlayer:
             
         else:
             self.root.geometry("600x140")
-            self.compact_button.config(bg="#006400", text="-/+")
+            self.compact_button.config(bg="#CE9700",fg ="black", text="-/+")
             self.top_frame.grid_remove()
             self.midle_frame.grid_remove()
             self.times_frame.config(bg="#2C2929")
             self.top_frame.grid_remove()
             self.black_frame.grid_remove()
-            self.eq_button.config(bg="#191818", text="EQ")
+            self.eq_button.config(bg="#191818", fg="white", text="EQ")
             self.current_time_label.config(bg="#2C2929")
             self.total_time_label.config(bg="#2C2929")
             self.controls_frame.grid(pady=0)
@@ -716,20 +718,20 @@ class PlaylistPlayer:
             if self.eq_t:
                 self.root.geometry("600x295")
                 self.eq_frame.grid(); self.eq_line.grid(); self.eq_light_frame.grid()
-                self.eq_button.config(bg="#006400", text="EQ")
+                self.eq_button.config(bg="#CE9700", fg = "black", text="EQ")
             else:
                 self.root.geometry("600x140")
                 self.eq_frame.grid_remove(); self.eq_line.grid_remove(); self.eq_light_frame.grid_remove()
-                self.eq_button.config(bg="#191818", text="EQ")
+                self.eq_button.config(bg="#191818", fg ="white", text="EQ")
         else:
             if self.eq_t:
                 self.root.geometry("600x540")
                 self.eq_frame.grid(); self.eq_line.grid(); self.eq_light_frame.grid()
-                self.eq_button.config(bg="#006400", text="EQ")
+                self.eq_button.config(bg="#CE9700", fg= "black", text="EQ")
             else:
                 self.root.geometry("600x385")
                 self.eq_frame.grid_remove(); self.eq_line.grid_remove(); self.eq_light_frame.grid_remove()
-                self.eq_button.config(bg="#191818", text="EQ")
+                self.eq_button.config(bg="#191818", fg="white", text="EQ")
 
     def update_eq_lights(self):
         # Update EQ lights depending on playback state
@@ -788,7 +790,6 @@ class PlaylistPlayer:
         if not self.is_playing:
             self.player.play()
             self.is_playing = True
-        # Si ya está reproduciendo, NO llamamos a play() otra vez
 
     def pause(self):
         self.player.pause()
@@ -828,16 +829,17 @@ class PlaylistPlayer:
 
         # Reset button colors and highlight selected radio
         for btn in self.radio_buttons.values():
-            btn.config(bg="#006400")
-        self.radio_buttons[name].config(bg="#359635")
+            btn.config(bg="#006400", fg="white")
+        self.radio_buttons[name].config(bg="#CE9700", fg= "black")
+        print(name)
 
         # Show radio placeholder image
-        self.placeholder.place(relx=0.5, rely=0.7, anchor="center")
+        self.placeholder.place(relx=0.5, rely=0.6, anchor="center")
         # Start radio playback
         media = self.vlc_instance.media_new(url)
         self.player.set_media(media)
         self.player.play()
-        self.show_radio_image()
+        self.show_radio_image(name)
 
     def load_current_playlist(self):
         archivo = filedialog.askopenfilename(
@@ -874,7 +876,7 @@ class PlaylistPlayer:
 
                 # Reset radio button colors
                 for btn in self.radio_buttons.values():
-                    btn.config(bg="#191818")
+                    btn.config(bg="#191818", fg ="white")
 
                 # Select first item and start playback
                 self.current_index = 0
@@ -948,9 +950,17 @@ class PlaylistPlayer:
         # Force UI refresh by temporarily exiting fullscreen
         self.root.after(50, self.exit_fullscreen_video)
 
-    def show_radio_image(self):
+    def show_radio_image(self, name):
         if not self.is_compact:
             self.listbox.lift()
-        self.placeholder.config(image=self.radio_image)
+            
+        if name == "CLASSIC FM":
+            self.placeholder.config(image=self.radio_image)
+        elif name == "KEXP":
+            self.placeholder.config(image=self.radio_image2)
+        elif name =="SOMA FM":
+            self.placeholder.config(image=self.radio_image3)
+        else:
+            self.placeholder.config(image=self.radio_image4)
 
               

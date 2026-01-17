@@ -32,14 +32,26 @@ def load_images(self):
 
     # Background logos
     self.logo_image = ImageTk.PhotoImage(
-        Image.open(resource_path("graphics", "backgrounds", "dodorovsky.png")).resize((58, 33))
+        Image.open(resource_path("graphics", "backgrounds", "DK_ICO.png")).resize((58, 33))
     )
     self.logo_listbox.config(image=self.logo_image)
 
     self.radio_image = ImageTk.PhotoImage(
-        Image.open(resource_path("graphics", "backgrounds", "radio.png")).resize((80, 47))
+        Image.open(resource_path("graphics", "backgrounds", "CLASSIC FM_V.png")).resize((182, 20))
     )
 
+    self.radio_image2 = ImageTk.PhotoImage(
+        Image.open(resource_path("graphics", "backgrounds", "KEXP_VV.png")).resize((182, 20))
+    )
+    
+    self.radio_image3 = ImageTk.PhotoImage(
+        Image.open(resource_path("graphics", "backgrounds", "SOMA FM_VV.png")).resize((182, 20))
+    )
+    
+    self.radio_image4 = ImageTk.PhotoImage(
+        Image.open(resource_path("graphics", "backgrounds", "NTS_VV.png")).resize((182, 20))
+    )
+    
     # Buttons
     self.play_off = ImageTk.PhotoImage(
         Image.open(resource_path("graphics", "buttons_control", "play_off_b.png")).resize((49, 14))
@@ -110,7 +122,7 @@ def setup_ui(self):
     self.root.geometry("600x385")
     self.root.resizable(False, False)
     self.root.title("DK_9000 MEDIA PL/\\YER")
-    self.root.iconbitmap(resource_path("graphics", "backgrounds", "new_logo.ico"))
+    self.root.iconbitmap(resource_path("graphics", "backgrounds", "icon.ico"))
 
     # Main Frame
     self.main_frame = tk.Frame(self.root, bg="#2C2929")
@@ -176,7 +188,7 @@ def setup_ui(self):
     self.placeholder = tk.Label(
         self.listbox,
         text="DRAG_YOUR_FILES_HERE",
-        fg="#62985C",
+        fg="#F0D804",#62985C
         font=("Monospace", 8),
         bg="black"
     )
