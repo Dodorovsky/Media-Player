@@ -61,7 +61,7 @@ python main.py
 ## Download DK_9000
 Grab the latest build and dive into the DK_9000 experience.:
 
-- [DK_9000 v1.7.0 Windows executable](https://github.com/Dodorovsky/Media-Player/releases/download/v1.7.0/DK_9000.exe)
+- [DK_9000 v1.8.0 Windows executable](https://github.com/Dodorovsky/Media-Player/releases/download/v1.8.0/DK_9000.exe)
 
 ## Notes
 ⚠️ Windows Defender SmartScreen may show a warning when running the executable.  
