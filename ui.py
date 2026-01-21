@@ -7,79 +7,60 @@ from tkinterdnd2 import DND_FILES, TkinterDnD
 import vlc
 import os
 from modules import playlist_manager
+from modules.image_utils import load_image
+from modules.utils import resource_path
 
 
-def resource_path(*paths):
-    """Builds a safe absolute path to resources, compatible with PyInstaller and development."""
-    base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
-    return os.path.join(base_path, *paths)
+
 
 
 def load_images(self):
     # HAL ON
-    self.hal_on = ImageTk.PhotoImage(
-        Image.open(resource_path("graphics", "buttons_control", "power_light.png")).resize((21, 21))
-    )
+    self.hal_on = load_image("graphics/buttons_control/power_light.png", (21, 21))
+    
     self.hal_label.config(image=self.hal_on)
 
     # HAL breathing frames
-    self.hal_frames = [
-        ImageTk.PhotoImage(
-            Image.open(resource_path("graphics", "hal_ojo", f"hal_dim_{i}.png")).resize((21, 21))
-        )
-        for i in range(83)
-    ]
+    self.hal_frames = [load_image(f"graphics/hal_ojo/hal_dim_{i}.png", (21, 21)) for i in range(83)]
+
 
     # Background logos
-    self.logo_image = ImageTk.PhotoImage(
-        Image.open(resource_path("graphics", "backgrounds", "DK_ICO.png")).resize((58, 33))
-    )
+    self.logo_image = load_image("graphics/backgrounds/DK_ICO.png", (58, 33))
+    
     self.logo_listbox.config(image=self.logo_image)
 
-    self.radio_image = ImageTk.PhotoImage(
-        Image.open(resource_path("graphics", "backgrounds", "CLASSIC FM_V.png")).resize((182, 20))
-    )
+    self.radio_image = load_image("graphics/backgrounds/CLASSIC FM_V.png", (182, 20))
+    
 
-    self.radio_image2 = ImageTk.PhotoImage(
-        Image.open(resource_path("graphics", "backgrounds", "KEXP_VV.png")).resize((182, 20))
-    )
+    self.radio_image2 = load_image("graphics/backgrounds/KEXP_VV.png", (182, 20))
     
-    self.radio_image3 = ImageTk.PhotoImage(
-        Image.open(resource_path("graphics", "backgrounds", "SOMA FM_VV.png")).resize((182, 20))
-    )
     
-    self.radio_image4 = ImageTk.PhotoImage(
-        Image.open(resource_path("graphics", "backgrounds", "NTS_VV.png")).resize((182, 20))
-    )
+    self.radio_image3 = load_image("graphics/backgrounds/SOMA FM_VV.png", (182, 20))
+    
+    
+    self.radio_image4 = load_image("graphics/backgrounds/NTS_VV.png", (182, 20))
+    
     
     # Buttons
-    self.play_off = ImageTk.PhotoImage(
-        Image.open(resource_path("graphics", "buttons_control", "play_off_b.png")).resize((49, 14))
-    )
-    self.play_on = ImageTk.PhotoImage(
-        Image.open(resource_path("graphics", "buttons_control", "play_on_b_fluo.png")).resize((49, 14))
-    )
+    self.play_off = load_image("graphics/buttons_control/play_off_b.png", (49, 14))
+    
+    self.play_on = load_image("graphics/buttons_control/play_on_b_fluo.png", (49, 14))
+    
 
-    self.pause_big = ImageTk.PhotoImage(
-        Image.open(resource_path("graphics", "buttons_control", "pause_big.png")).resize((49, 14))
-    )
-    self.pause_on = ImageTk.PhotoImage(
-        Image.open(resource_path("graphics", "buttons_control", "pausa_on_b.png")).resize((28, 16))
-    )
+    self.pause_big = load_image("graphics/buttons_control/pause_big.png", (49, 14))
+    
+    self.pause_on = load_image("graphics/buttons_control/pausa_on_b.png", (28, 16))
+    
 
-    self.stop_off = ImageTk.PhotoImage(
-        Image.open(resource_path("graphics", "buttons_control", "stop_big.png")).resize((49, 14))
-    )
-    self.stop_on = ImageTk.PhotoImage(
-        Image.open(resource_path("graphics", "buttons_control", "stop_big.png")).resize((49, 14))
-    )
+    self.stop_off = load_image("graphics/buttons_control/stop_big.png", (49, 14))
+    
+    self.stop_on = load_image("graphics/buttons_control/stop_big.png", (49, 14))
+    
 
-    self.previous_img = ImageTk.PhotoImage(
-        Image.open(resource_path("graphics", "buttons_control", "prev.png")).resize((38, 7))
-    )
-    self.next_img = ImageTk.PhotoImage(
-        Image.open(resource_path("graphics", "buttons_control", "next.png")).resize((38, 7))
-    )
+    self.previous_img = load_image("graphics/buttons_control/prev.png", (38, 7))
+    
+    self.next_img = load_image("graphics/buttons_control/next.png", (38, 7))
+    
 
     self.stop_button.config(image=self.stop_on)
     self.play_pause_button.config(image=self.play_off)
@@ -87,23 +68,19 @@ def load_images(self):
     self.next_button.config(image=self.next_img)
 
     # EQ lights
-    self.eq_light_image = ImageTk.PhotoImage(
-        Image.open(resource_path("graphics", "buttons_control", "eq_light.png")).resize((11, 11))
-    )
-    self.eq_light_on_image = ImageTk.PhotoImage(
-        Image.open(resource_path("graphics", "buttons_control", "eq_light_on.png")).resize((11, 11))
-    )
+    self.eq_light_image = load_image("graphics/buttons_control/eq_light.png", (11, 11))
+    
+    self.eq_light_on_image = load_image("graphics/buttons_control/eq_light_on.png", (11, 11))
+    
 
     for label in self.eq_light_labels:
         label.config(image=self.eq_light_image)
 
     # MP6 icons
-    self.mp6 = ImageTk.PhotoImage(
-        Image.open(resource_path("graphics", "buttons_control", "mp6.png")).resize((22, 9))
-    )
-    self.mp6_off = ImageTk.PhotoImage(
-        Image.open(resource_path("graphics", "buttons_control", "mp6_off.png")).resize((22, 9))
-    )
+    self.mp6 = load_image("graphics/buttons_control/mp6.png", (22, 9))
+    
+    self.mp6_off = load_image("graphics/buttons_control/mp6_off.png", (22, 9))
+    
 
     self.mp6_label_left.config(image=self.mp6_off)
     self.mp6_label_right.config(image=self.mp6_off)
@@ -122,7 +99,9 @@ def setup_ui(self):
     self.root.geometry("600x385")
     self.root.resizable(False, False)
     self.root.title("DK_9000 MEDIA PL/\\YER")
-    self.root.iconbitmap(resource_path("graphics", "backgrounds", "icon.ico"))
+    if not getattr(sys, "_called_from_test", False):
+        self.root.iconbitmap(resource_path("graphics/backgrounds/icon.ico"))
+
 
     # Main Frame
     self.main_frame = tk.Frame(self.root, bg="#2C2929")
@@ -144,11 +123,7 @@ def setup_ui(self):
     self.black_frame.grid_columnconfigure(1, weight=1)
     self.black_frame.grid_rowconfigure(0, minsize=25)
 
-    print("RESOURCE PATH TEST =", resource_path("graphics", "buttons_control", "power_light.png"))
-    print("EXISTS =", os.path.exists(resource_path("graphics", "buttons_control", "power_light.png")))
-
-    p = resource_path("graphics", "buttons_control", "power_light.png")
-    print("SIZE INSIDE APP =", os.path.getsize(p))
+  
 
     self.hal_label = tk.Label(self.black_frame, bg='#1D1C1B')
     self.hal_label.grid(row=0, column=1, pady=(3, 0), sticky="ns")
@@ -326,7 +301,7 @@ def setup_ui(self):
     self.stop_button = tk.Button(self.sub_frame_1, command=self.stop)
     self.stop_button.grid(row=0, column=2, padx=9, pady=5)
 
-    self.play_pause_button = tk.Button(self.sub_frame_1, command=self.play_pause)
+    self.play_pause_button = tk.Button(self.sub_frame_1, command=self.toggle_play_pause_vlc)
     self.play_pause_button.grid(row=0, column=1, padx=(10, 0), pady=5)
 
     self.prev_button = tk.Button(self.sub_frame_2, command=self.play_previous)

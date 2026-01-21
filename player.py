@@ -13,7 +13,7 @@ import tempfile
 from pathlib import Path
 import random
 import platform 
-
+import PIL
 from modules import playlist_manager
 
 class PlaylistPlayer:
@@ -23,7 +23,7 @@ class PlaylistPlayer:
         self.vlc_instance = vlc.Instance()
         self.player =  self.vlc_instance.media_player_new()
         self.eq = vlc.AudioEqualizer()
-        self.root.bind("<space>", self.toggle_play_pause)
+        self.root.bind("<space>", self.toggle_play_pause_vlc)
         self.root.bind("<h>", self.show_hotkeys)
         self.root.bind("<Left>", self.play_previous)
         self.root.bind("<Right>", self.play_next)
@@ -36,10 +36,10 @@ class PlaylistPlayer:
         self.current_index = None
         self.duration = 0
         self.updating_slider = False
+        self.is_playing = False
+        self.status_label = None 
+        self.play_button_label = None
         # Setup UI and event bindings
-        import PIL
-        print("PIL plugins =", PIL.Image.OPEN.keys())
-
         
         setup_ui(self)
         self.bind_events()
@@ -63,6 +63,8 @@ class PlaylistPlayer:
         self.eq_t = False
         self.subtitles_path = None
         self.slider_dragging = False
+        
+
         self.init_eq()
         self.eq_color = "eq_light"
          
@@ -121,22 +123,20 @@ class PlaylistPlayer:
             # Reset playback state
             self.pantlla_completa =False
             self.current_index = 0
-            self.listbox.selection_set(0)
-            self.listbox.activate(0)
-            self.play_from_selection()
+            self.highlight_and_scroll(self.current_index)
         self.playlist_button.config(bg="#BC853D")
           
     def play_from_selection(self):
         # Play the file currently selected in the playlist
         if self.current_index is None:
-            print("Kein Element in der Playlist ausgewählt.")
+            
             return
         
         filepath = self.playlist[self.current_index]
         media = self.vlc_instance.media_new(filepath)
         
         # Load subtitles if available
-        auto_sub = Path(filepath).with_suffix(".srt")
+        #auto_sub = Path(filepath).with_suffix(".srt")
         if self.subtitles_path:
             ruta_sub = Path(self.subtitles_path).as_posix()
             media.add_option(f'sub-file="{ruta_sub}"') 
@@ -198,20 +198,37 @@ class PlaylistPlayer:
         self.root.after(500, self.set_duration)
         self.update_time()
         
+    def toggle_play_pause(self, event=None):
+        self.is_playing = not self.is_playing
+
+        if self.status_label:
+            if self.is_playing:
+                self.status_label.config(text="Playing…")
+            else:
+                self.status_label.config(text="Paused")
+
+        if self.play_button_label:
+            if self.is_playing:
+                self.play_button_label.config(text="Pause")
+            else:
+                self.play_button_label.config(text="Play")
+            
     def play_pause(self):
-        # Toggle between play and pause
+        self.toggle_play_pause()  
+
         selection = self.listbox.curselection()
         media = self.player.get_media()
         if not selection and not media:
             return
+
         if self.player.is_playing():
-            self.player.pause()  
-            
+            self.player.pause()
         else:
             state = self.player.get_state()
             self.player.play()
             if state == vlc.State.Paused:
                 self.player.play()
+
            
     def stop(self):
         # Stop playback and reset UI
@@ -236,10 +253,7 @@ class PlaylistPlayer:
         # Play the previous item in the playlist
         if self.current_index is not None and self.current_index > 0:
             self.current_index -= 1
-            self.listbox.selection_clear(0, tk.END)
-            self.listbox.selection_set(self.current_index)
-            self.listbox.activate(self.current_index)
-            self.play_from_selection()
+            self.highlight_and_scroll(self.current_index)
 
     def play_next(self, event=None):
         # Play the next item in the playlist (supports shuffle mode)
@@ -259,10 +273,7 @@ class PlaylistPlayer:
             else:
                 return  
 
-        self.listbox.selection_clear(0, tk.END)
-        self.listbox.selection_set(self.current_index)
-        self.listbox.activate(self.current_index)
-        self.play_from_selection()
+        self.highlight_and_scroll(self.current_index)
       
     def set_volume(self, val):
         # Set volume based on slider value
@@ -388,9 +399,9 @@ class PlaylistPlayer:
     def toggle_loop(self):
         # Toggle loop mode
         self.loop_enabled = not self.loop_enabled
-        state =  "#CE9700" if self.loop_enabled else "#3E3838"
+        state1 =  "#CE9700" if self.loop_enabled else "#3E3838"
         state2 =  "#121001" if self.loop_enabled else "#EEE3E3"
-        self.loop_button.config(bg=state)
+        self.loop_button.config(bg=state1)
         self.loop_button.config(fg=state2)
 
     def toggle_shuffle(self):
@@ -429,10 +440,7 @@ class PlaylistPlayer:
      
 
             self.current_index = 0
-            self.listbox.selection_clear(0, tk.END)
-            self.listbox.selection_set(self.current_index)
-            self.listbox.activate(self.current_index)
-            self.play_from_selection()
+            self.highlight_and_scroll(self.current_index)
 
         self.playlist_button.config(bg="#BC853D")
      
@@ -771,7 +779,7 @@ class PlaylistPlayer:
         # Prevents audio cut on first EQ adjustment
         self.on_slider_change(1, 1)
 
-    def toggle_play_pause(self, event=None):
+    def toggle_play_pause_vlc(self, event=None):
         # Toggle between play and pause states
         if self.player.is_playing():
             self.player.pause()
@@ -870,7 +878,7 @@ class PlaylistPlayer:
                         self.listbox.grid(row=1, column=0, sticky="nsew")
                         self.listbox.lift()
                         self.load_file_in_listbox(f)
-                        self.playlist_button.config(bg="#006400")
+                        self.playlist_button.config(bg="#8EFF65")#8EFF65
                     else:
                         self.listbox.insert(tk.END, os.path.basename(f))
 
@@ -880,9 +888,9 @@ class PlaylistPlayer:
 
                 # Select first item and start playback
                 self.current_index = 0
-                self.listbox.selection_set(0)
-                self.listbox.activate(0)
-                self.play_from_selection()
+                self.highlight_and_scroll(self.current_index)
+
+                
 
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo cargar la lista:\n{e}")
@@ -962,5 +970,10 @@ class PlaylistPlayer:
             self.placeholder.config(image=self.radio_image3)
         else:
             self.placeholder.config(image=self.radio_image4)
-
-              
+ 
+    def highlight_and_scroll(self, index):
+        self.listbox.selection_clear(0, tk.END)
+        self.listbox.selection_set(self.current_index)
+        self.listbox.activate(self.current_index)
+        self.listbox.see(self.current_index)
+        self.play_from_selection()

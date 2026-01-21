@@ -3,6 +3,9 @@ from unittest.mock import MagicMock, patch
 from player import PlaylistPlayer
 from unittest.mock import patch
 from modules.utils import format_time
+from unittest.mock import patch, MagicMock
+from modules.image_utils import load_image
+
 
 @pytest.fixture
 def mock_player():
@@ -221,7 +224,7 @@ def test_on_slider_release_calls_seek_and_unsets_flag(mock_player):
 def test_update_time_calls_after(mock_player):
     player, _ = mock_player
 
-    # Mockear comportamiento mínimo
+    # Mock minimal behavior
     player.player.get_time.return_value = 0
     player.player.is_playing.return_value = False
 
@@ -273,8 +276,6 @@ def test_update_time_calls_play_from_selection_when_loop_enabled(mock_player):
     player.player.get_time.return_value = 9500
     player.player.is_playing.return_value = False
 
-    player.play_from_selection = MagicMock()
-
     player.update_time()
 
     player.play_from_selection.assert_called_once()
@@ -321,8 +322,6 @@ def test_pause_calls_player_pause_when_playing(mock_player):
     player, mock_vlc = mock_player
 
     player.is_playing = True
-    print("DEBUG test: is_playing justo después de poner True =", player.is_playing)
-    assert player.is_playing is True  # ← esto es CLAVE
 
     player.pause()
 
@@ -351,7 +350,7 @@ def test_update_time_moves_slider_when_not_dragging(mock_player):
     player.player.get_time.return_value = 8000
     player.player.is_playing.return_value = True
     player.slider_dragging = False
-    player.time_slider.get.return_value = 0  # diferencia > 500 ms
+    player.time_slider.get.return_value = 0  # difference > 500 ms
 
     player.update_time()
 
@@ -364,7 +363,7 @@ def test_update_time_does_not_update_slider_when_dragging(mock_player):
     player.player.is_playing.return_value = True
     player.player.get_time.return_value = 5000  # 5 seconds in ms
 
-    player.slider_dragging = True  # usuario arrastrando
+    player.slider_dragging = True  # user dragging
 
     player.update_time()
 
@@ -400,7 +399,6 @@ def test_slider_change_ignores_updates_when_not_playing(mock_player):
     # Call the method that the tests use for the seek
     player.on_time_slider_change("event")
 
-    
     player.player.set_time.assert_not_called()
 
 def test_add_file_adds_to_playlist(mock_player):
@@ -426,21 +424,12 @@ def test_play_next_advances_index_and_calls_play_from_selection(mock_player):
     # Initial index
     player.current_index = 0
 
-    # Mock methods that Tkinter or VLC would use
-    player.listbox.selection_clear = MagicMock()
-    player.listbox.selection_set = MagicMock()
-    player.listbox.activate = MagicMock()
-
-    # Mock playback
-    player.play_from_selection = MagicMock()
-
     # Run
     player.play_next()
 
     # You must advance to the next index
     assert player.current_index == 1
 
-    
     player.play_from_selection.assert_called_once()
 
 def test_add_file_updates_ui_listbox(mock_player):
@@ -486,4 +475,55 @@ def test_next_does_not_fail_on_last_track(mock_player):
     assert player.current_index == 2
 
     player.play_from_selection.assert_not_called()
+
+def test_load_image_returns_photoimage(patched_image_utils):
+    result = load_image("logo.png")
+
+    assert result is patched_image_utils["fake_photo"]
+    patched_image_utils["mock_open"].assert_called_once()
+    patched_image_utils["mock_photo"].assert_called_once_with(
+        patched_image_utils["fake_image"]
+    )
+
+def test_load_image_uses_resource_path(patched_image_utils):
+
+        load_image("graphics/icon.png")
+
+        patched_image_utils["mock_resource"].assert_called_once_with("graphics/icon.png")
+        patched_image_utils["mock_open"].assert_called_once_with("fake/path.png")
+
+def test_load_image_resizes_image_when_size_is_given(patched_image_utils):
+
+        result = load_image("graphics/icon.png", size=(50, 50))
+
+        # Verifications
+        patched_image_utils["mock_resource"].assert_called_once_with("graphics/icon.png")
+        patched_image_utils["mock_open"].assert_called_once_with("fake/path.png")
+        patched_image_utils["fake_image"].resize.assert_called_once_with((50, 50))
+        patched_image_utils["mock_photo"].assert_called_once_with(patched_image_utils["fake_resized"])
+        assert result is patched_image_utils["fake_photo"]
+
+def test_labels_update_on_play_pause(mock_player):
+    player, _ = mock_player
+    
+    player.status_label = MagicMock()
+    player.play_button_label = MagicMock()
+
+    player.is_playing = False
+    
+    player.toggle_play_pause()
+
+    assert player.is_playing is True
+
+    player.status_label.config.assert_called_with(text="Playing…")
+    player.play_button_label.config.assert_called_with(text="Pause")
+
+    player.is_playing = True
+
+    player.toggle_play_pause()
+
+    assert player.is_playing is False
+
+    player.status_label.config.assert_called_with(text="Paused")
+    player.play_button_label.config.assert_called_with(text="Play")
 
