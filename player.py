@@ -67,6 +67,11 @@ class PlaylistPlayer:
 
         self.init_eq()
         self.eq_color = "eq_light"
+        
+        self.player.event_manager().event_attach(
+    vlc.EventType.MediaPlayerEndReached,
+    self._on_vlc_end
+)
          
         # Floating overlay for playback controls
         self.overlay = FloatingOverlay(
@@ -80,7 +85,8 @@ class PlaylistPlayer:
     get_length_callback=self.get_total_length
     
 ) 
-       
+
+    
     def bind_events(self):
         # Bind UI events for listbox and time slider
         self.listbox.bind("<Double-Button-1>", self.on_double_click)
@@ -125,23 +131,65 @@ class PlaylistPlayer:
             self.current_index = 0
             self.highlight_and_scroll(self.current_index)
         self.playlist_button.config(bg="#BC853D")
-          
-    def play_from_selection(self):
-        # Play the file currently selected in the playlist
-        if self.current_index is None:
+        
+    def on_drop(self, event):
+        # Handle drag-and-drop of files into playlist
+        self.listbox.delete(0, tk.END)
+        self.playlist.clear()
+        self.current_index = None
+        
+        
+        files = self.root.tk.splitlist(event.data)
+        self.placeholder.place_forget()
+        self.logo_listbox.place_forget()
+        
+        # Reset radio button colors
+        for btn in self.radio_buttons.values():
+            btn.config(bg="#191818", fg= "white")
             
+        valid_extensions = (".mp4", ".avi", ".mkv", ".mov",".mp3", ".wav", ".flac", ".aac", ".m4a", ".ogg", ".wma", ".aiff", ".alac")
+        valid_files = [f for f in files if f.lower().endswith(valid_extensions)]
+        
+        if not valid_files:
             return
         
-        filepath = self.playlist[self.current_index]
-        media = self.vlc_instance.media_new(filepath)
-        
-        # Load subtitles if available
-        #auto_sub = Path(filepath).with_suffix(".srt")
-        if self.subtitles_path:
-            ruta_sub = Path(self.subtitles_path).as_posix()
-            media.add_option(f'sub-file="{ruta_sub}"') 
-        self.player.set_media(media)
-        self.player.play()
+        if files:
+            self.playlist = list(files)
+            self.listbox.delete(0, tk.END)
+            
+            for f in self.playlist:
+                self.current_file_is_audio = f.lower().endswith((".mp3", ".wav", ".flac", ".aac", ".m4a", ".ogg", ".wma", ".aiff", ".alac"))
+                if self.current_file_is_audio:
+                    self.show_audio_ui(f)              
+                else:
+                    self.show_video_ui(f)
+     
+            self.current_index = 0
+        self.highlight_and_scroll(self.current_index)
+
+        self.playlist_button.config(bg="#BC853D")
+          
+    def play_from_selection(self):
+        print(">>> ENTRANDO EN play_from_selection")
+        try:
+            if self.current_index is None or not self.playlist:
+                return
+
+            filepath = self.playlist[self.current_index]
+
+            media = self.vlc_instance.media_new(filepath)
+
+            if self.subtitles_path:
+                ruta_sub = Path(self.subtitles_path).as_posix()
+                media.add_option(f'sub-file="{ruta_sub}"')
+
+            self.player.set_media(media)
+            self.player.play()
+            self.is_playing = True
+
+        except Exception:
+            self.handle_load_error()
+            return
         
         # Configure UI depending on file type (video vs audio)
         if filepath.lower().endswith(('.mp4', '.avi', '.mkv', '.mov')):
@@ -228,11 +276,13 @@ class PlaylistPlayer:
             self.player.play()
             if state == vlc.State.Paused:
                 self.player.play()
-
-           
+      
     def stop(self):
-        # Stop playback and reset UI
-        self.player.stop() 
+        try:
+            self.player.stop()
+        except Exception:
+            pass
+            
         self.style.configure('Custom.Horizontal.TScale', troughcolor="black")
         self.mp6_label_left.config(image=self.mp6_off)
         self.mp6_label_right.config(image=self.mp6_off)
@@ -412,38 +462,6 @@ class PlaylistPlayer:
         self.shuffle_button.config(bg=state)
         self.shuffle_button.config(fg=state2)
 
-    def on_drop(self, event):
-        # Handle drag-and-drop of files into playlist
-        self.listbox.delete(0, tk.END)
-        self.playlist.clear()
-        self.current_index = None
-        
-        
-        files = self.root.tk.splitlist(event.data)
-        self.placeholder.place_forget()
-        self.logo_listbox.place_forget()
-        
-        # Reset radio button colors
-        for btn in self.radio_buttons.values():
-            btn.config(bg="#191818", fg= "white")
-        if files:
-            self.playlist = list(files)
-            self.listbox.delete(0, tk.END)
-            
-            for f in self.playlist:
-                self.current_file_is_audio = f.lower().endswith((".mp3", ".wav", ".flac", ".aac", ".m4a", ".ogg", ".wma", ".aiff", ".alac"))
-                if self.current_file_is_audio:
-                    self.show_audio_ui(f)              
-                else:
-
-                    self.show_video_ui(f)
-     
-
-            self.current_index = 0
-            self.highlight_and_scroll(self.current_index)
-
-        self.playlist_button.config(bg="#BC853D")
-     
     def embed_video(self):
         # Embed video output into Tkinter frame depending on OS
         video_id = self.video_frame.winfo_id()
@@ -780,11 +798,15 @@ class PlaylistPlayer:
         self.on_slider_change(1, 1)
 
     def toggle_play_pause_vlc(self, event=None):
-        # Toggle between play and pause states
-        if self.player.is_playing():
-            self.player.pause()
-        else:
-            self.player.play()
+        try:
+            if self.player.is_playing():
+                self.player.pause()
+                self.is_playing = False
+            else:
+                self.player.play()
+                self.is_playing = True
+        except Exception:
+            self.handle_load_error()
 
     def get_current_time(self):
         # Return current playback time in seconds
@@ -846,9 +868,17 @@ class PlaylistPlayer:
         # Start radio playback
         media = self.vlc_instance.media_new(url)
         self.player.set_media(media)
-        self.player.play()
-        self.show_radio_image(name)
+        try:
+            media = self.vlc_instance.media_new(url)
+            self.player.set_media(media)
 
+            self.player.play()
+            self.is_playing = True
+            self.show_radio_image(name)
+
+        except Exception:
+            self.handle_load_error()
+        
     def load_current_playlist(self):
         archivo = filedialog.askopenfilename(
             title="Load playlist",
@@ -950,10 +980,12 @@ class PlaylistPlayer:
         self.force_layout_refresh()
         
     def load_media_file(self, f):
-        # Load a media file into the VLC player
-        media = self.vlc_instance.media_new(f)
-        self.player.set_media(media)
-        
+        try:
+            media = self.vlc_instance.media_new(f)
+            self.player.set_media(media)
+        except Exception:
+            self.handle_load_error()
+
     def force_layout_refresh(self):
         # Force UI refresh by temporarily exiting fullscreen
         self.root.after(50, self.exit_fullscreen_video)
@@ -977,3 +1009,17 @@ class PlaylistPlayer:
         self.listbox.activate(self.current_index)
         self.listbox.see(self.current_index)
         self.play_from_selection()
+        
+    def handle_end_of_track(self):
+        self.is_playing = False
+        self.stop()
+        
+    def _on_vlc_end(self, event):
+        self.handle_end_of_track()
+
+    def handle_load_error(self):
+        self.is_playing = False
+        self.current_index = None
+
+        
+        

@@ -1,86 +1,9 @@
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, Mock, patch
 from player import PlaylistPlayer
-from unittest.mock import patch
 from modules.utils import format_time
-from unittest.mock import patch, MagicMock
 from modules.image_utils import load_image
 
-
-@pytest.fixture
-def mock_player():
-    mock_root = MagicMock()
-    mock_root.bind = MagicMock()
-
-    mock_media_player = MagicMock()
-
-    with (
-        patch("player.vlc.Instance") as mock_vlc_instance,
-        patch("player.setup_ui"),
-        patch("player.PlaylistPlayer.bind_events"),
-        patch("player.PlaylistPlayer.update_time", return_value=None),
-        patch("player.PlaylistPlayer.init_eq", return_value=None),
-        patch("player.PlaylistPlayer.play_from_selection", return_value=None),
-        patch("player.PlaylistPlayer.set_duration", return_value=None),
-        patch("player.PlaylistPlayer.exit_fullscreen_video", return_value=None),
-        patch("player.PlaylistPlayer.start_eq_light_loop", return_value=None),
-        patch("player.PlaylistPlayer.force_layout_refresh", return_value=None),
-        patch("player.PlaylistPlayer.track_mouse", return_value=None),
-        patch("player.PlaylistPlayer.breathe_hal", return_value=None),
-    ):
-        instance = MagicMock()
-        instance.media_player_new.return_value = mock_media_player
-        mock_vlc_instance.return_value = instance
-
-        player = PlaylistPlayer(mock_root)
-        player.is_playing = False
-        player.pause = player.pause.__func__.__get__(player, type(player))
-        player.root.after = lambda *args, **kwargs: None
-
-        # UI mocks
-        player.style = MagicMock()
-        player.mp6_label_left = MagicMock()
-        player.mp6_label_right = MagicMock()
-        player.time_slider = MagicMock()
-        player.current_time_label = MagicMock()
-        player.total_time_label = MagicMock()
-        player.volume_label = MagicMock()
-        player.play_pause_button = MagicMock()
-        player.stop_button = MagicMock()
-        player.mute_button = MagicMock()
-        player.volume_label_frame = MagicMock()
-        player.listbox = MagicMock()
-        player.video_frame = MagicMock()
-        player.stop_off = MagicMock()
-
-        player.listbox = MagicMock()
-        player.listbox.selection_clear = MagicMock()
-        player.listbox.selection_set = MagicMock()
-        player.listbox.activate = MagicMock()
-
-        player.play_from_selection = MagicMock()
-
-        player.player = MagicMock()
-        player.player.play = MagicMock()
-
-        # Images
-        player.mp6 = MagicMock()
-        player.mp6_off = MagicMock()
-        player.pause_big = MagicMock()
-        player.play_off = MagicMock()
-        player.stop_on = MagicMock()
-
-        # VLC methods
-        player.player.get_time = MagicMock()
-
-        # Flags
-        player.slider_dragging = False
-        player.updating_slider = False
-
-        # after()
-        player.root.after = MagicMock()
-
-    return player, player.player   
  
 def test_play_calls_vlc_play(mock_player):
     player, mock_vlc = mock_player
@@ -270,12 +193,12 @@ def test_update_time_updates_ui_when_stopped(mock_player):
 
 def test_update_time_calls_play_from_selection_when_loop_enabled(mock_player):
     player, _ = mock_player
-
+    
     player.duration = 10000
     player.loop_enabled = True
     player.player.get_time.return_value = 9500
     player.player.is_playing.return_value = False
-
+    
     player.update_time()
 
     player.play_from_selection.assert_called_once()
@@ -526,4 +449,42 @@ def test_labels_update_on_play_pause(mock_player):
 
     player.status_label.config.assert_called_with(text="Paused")
     player.play_button_label.config.assert_called_with(text="Play")
+
+def test_player_initial_state(mock_player):
+    player, _ = mock_player
+    assert player.is_playing is False
+    assert player.current_index is None
+    assert player.playlist == []
+    assert player.loop_enabled is False
+    assert player.shuffle_enabled is False
+    assert player.is_muted is False
+    assert player.last_volume == 50
+    assert player.duration == 0
+    assert player.slider_dragging is False
+
+def test_player_stops_on_end_of_track(mock_player):
+    player, _ = mock_player
+    player.stop = MagicMock()
+    player.handle_end_of_track()
+
+    assert player.is_playing is False
+    player.stop.assert_called_once()
+
+def test_player_handles_invalid_file_gracefully(mock_player_real):
+    player = mock_player_real
+
+    player.playlist = ["fake/broken.mp3"]
+    player.current_index = 0
+
+    # Simulate failure in media_new
+    player.vlc_instance.media_new.side_effect = Exception("Invalid file")
+
+    player.play_from_selection()
+
+    assert player.is_playing is False
+    assert player.current_index is None
+
+
+
+
 
