@@ -243,7 +243,7 @@ def setup_ui(self):
         bg="#2C2929",
         fg="green"
     )
-    self.controls_frame.grid(row=0, column=0, padx=(40, 0), pady=(7, 0))
+    self.controls_frame.grid(row=0, column=0, padx=(40, 0), pady=(4, 0))
 
     self.sub_frame_1 = tk.Frame(self.controls_frame, bg="#2C2929")
     self.sub_frame_1.grid()
@@ -300,6 +300,8 @@ def setup_ui(self):
 
     self.stop_button = tk.Button(self.sub_frame_1, command=self.stop)
     self.stop_button.grid(row=0, column=2, padx=9, pady=5)
+    
+    
 
     self.play_pause_button = tk.Button(self.sub_frame_1, command=self.toggle_play_pause_vlc)
     self.play_pause_button.grid(row=0, column=1, padx=(10, 0), pady=5)
@@ -369,6 +371,22 @@ def setup_ui(self):
         command=self.toggle_loop
     )
     self.loop_button.grid(row=1, padx=(90, 0), pady=(5))
+    
+
+
+    self.sleep_button = tk.Button(
+        self.central_frame,
+        text="SLEEP: OFF",
+        font=("Terminal", 6),
+        bg="#3E3838",
+        fg="#E0D2D2",
+        command=self.cycle_sleep_timer
+    )
+    self.sleep_button.grid(row=2, padx=(40, 0), pady=(2))
+    
+    
+    
+    
 
     self.misc_label = tk.Label(
         self.vu_frame_left,

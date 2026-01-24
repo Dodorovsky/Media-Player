@@ -1,6 +1,42 @@
 import pytest
 from unittest.mock import patch, MagicMock
 from player import PlaylistPlayer
+import tkinter as tk
+
+import pytest
+from unittest.mock import MagicMock, patch
+from player import PlaylistPlayer
+
+
+@pytest.fixture
+def mock_tk():
+    with patch("tkinter.Tk", MagicMock()), \
+         patch("tkinter.Toplevel", MagicMock()), \
+         patch("tkinter.Frame", MagicMock()), \
+         patch("tkinter.Label", MagicMock()), \
+         patch("tkinter.PhotoImage", MagicMock()), \
+         patch("tkinter.Menu", MagicMock()), \
+         patch("tkinter.Canvas", MagicMock()), \
+         patch("tkinter.Scrollbar", MagicMock()), \
+         patch("tkinter.filedialog", MagicMock()), \
+         patch("tkinter.messagebox", MagicMock()):
+        yield
+
+@pytest.fixture
+def mock_vlc():
+    mock = MagicMock()
+    mock.is_playing.return_value = False
+    return mock
+
+
+@pytest.fixture(autouse=True)
+def cleanup_tk():
+    yield
+    try:
+        tk._default_root.destroy()
+    except:
+        pass
+
 
 # ============================================================
 #  FIXTURE: patched_image_utils
@@ -61,6 +97,7 @@ def mock_player_real(mocker):
 def mock_player():
     mock_root = MagicMock()
     mock_root.bind = MagicMock()
+    
 
     mock_media_player = MagicMock()
 
@@ -129,3 +166,20 @@ def mock_player():
         player.updating_slider = False
 
     return player, player.player
+<<<<<<< Updated upstream
+=======
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+>>>>>>> Stashed changes

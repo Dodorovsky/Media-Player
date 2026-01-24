@@ -20,6 +20,7 @@ class PlaylistPlayer:
     def __init__(self, root):
         # Initialize main window and VLC player instance
         self.root = root
+     
         self.vlc_instance = vlc.Instance()
         self.player =  self.vlc_instance.media_player_new()
         self.eq = vlc.AudioEqualizer()
@@ -64,6 +65,11 @@ class PlaylistPlayer:
         self.subtitles_path = None
         self.slider_dragging = False
         
+        self.sleep_times = [None, 30, 60, 90 ]  # None = OFF
+        self.sleep_index = 0
+        self.sleep_timer_id = None
+        self.sleep_timer_active = False
+
 
         self.init_eq()
         self.eq_color = "eq_light"
@@ -109,10 +115,12 @@ class PlaylistPlayer:
         self.player.stop()
         self.player.release()
         self.player = self.vlc_instance.media_player_new()
+        self.load_label_frame.config(fg="#76CE62")
+        self.load_button.config(bg="#8EFF65")
 
         # Reset radio button colors
         for btn in self.radio_buttons.values():
-            btn.config(bg="#191818")
+            btn.config(bg="#191818", fg="white")
         if files:
             self.playlist = list(files)
             self.listbox.delete(0, tk.END)
@@ -131,6 +139,8 @@ class PlaylistPlayer:
             self.current_index = 0
             self.highlight_and_scroll(self.current_index)
         self.playlist_button.config(bg="#BC853D")
+        self.radios_labels.config(fg="green")
+        self.playlist_label.config(fg="green")
         
     def on_drop(self, event):
         # Handle drag-and-drop of files into playlist
@@ -168,6 +178,10 @@ class PlaylistPlayer:
         self.highlight_and_scroll(self.current_index)
 
         self.playlist_button.config(bg="#BC853D")
+        self.playlist_label.config(fg="green")
+        self.radios_labels.config(fg="green")
+        self.load_label_frame.config(fg="#76CE62")
+        self.load_button.config(bg="#8EFF65")
           
     def play_from_selection(self):
         print(">>> ENTRANDO EN play_from_selection")
@@ -797,6 +811,7 @@ class PlaylistPlayer:
         # Prevents audio cut on first EQ adjustment
         self.on_slider_change(1, 1)
 
+<<<<<<< Updated upstream
     def toggle_play_pause_vlc(self, event=None):
         try:
             if self.player.is_playing():
@@ -808,6 +823,8 @@ class PlaylistPlayer:
         except Exception:
             self.handle_load_error()
 
+=======
+>>>>>>> Stashed changes
     def get_current_time(self):
         # Return current playback time in seconds
         return int(self.player.get_time() / 1000) 
@@ -855,6 +872,10 @@ class PlaylistPlayer:
         self.logo_listbox.place_forget()
         self.listbox.delete(0, tk.END)
         self.playlist_button.config(bg="#BC853D")
+        self.radios_labels.config(fg="#76CE62")
+        self.load_label_frame.config(fg="green")
+        self.load_button.config(bg="#BC853D")
+        self.playlist_label.config(fg="green")
         url = self.radios[name]
 
         # Reset button colors and highlight selected radio
@@ -909,6 +930,10 @@ class PlaylistPlayer:
                         self.listbox.lift()
                         self.load_file_in_listbox(f)
                         self.playlist_button.config(bg="#8EFF65")#8EFF65
+                        self.playlist_label.config(fg="#76CE62")
+                        self.radios_labels.config(fg="green")
+                        self.load_label_frame.config(fg="green")
+                        self.load_button.config(bg="#BC853D")
                     else:
                         self.listbox.insert(tk.END, os.path.basename(f))
 
@@ -1021,5 +1046,83 @@ class PlaylistPlayer:
         self.is_playing = False
         self.current_index = None
 
+    def cycle_sleep_timer(self):
+        # Advance to tracking mode
+        self.sleep_index = (self.sleep_index + 1) % len(self.sleep_times) 
         
         
+        minutes = self.sleep_times[self.sleep_index]
+
+        if minutes is None:
+            # OFF
+            self.cancel_sleep_timer()
+            self.sleep_button.configure(text="SLEEP: OFF")
+            self.sleep_button.config(fg="#E0D2D2", font=("Terminal", 6), bg="#383E38")
+
+        else:
+            # Activate timed
+            self.start_sleep_timer(minutes)
+            #self.sleep_button.configure(text=f"SLEEP: {minutes}m")
+            #self.sleep_button.config(fg="#F4D568", font=("Terminal", 6), bg="#AC5803")
+            
+    def start_sleep_timer(self, minutes):
+        # Cancelar temporizador previo si existe
+        if self.sleep_timer_id:
+            self.root.after_cancel(self.sleep_timer_id)
+            
+        self.sleep_remaining_seconds = minutes * 60
+        milliseconds = minutes * 60 * 1000
+
+        self.sleep_timer_id = self.root.after(milliseconds, self.sleep_timer_finished)
+        self.sleep_timer_active = True
+        self.update_sleep_countdown()
+
+
+    def cancel_sleep_timer(self):
+        if self.sleep_timer_id:
+            self.root.after_cancel(self.sleep_timer_id)
+
+        self.sleep_timer_id = None
+        self.sleep_timer_active = False
+        self.sleep_button.configure(text="SEEP: OFF")
+        self.sleep_button.config(fg="#E0D2D2", font=("Terminal", 6))
+
+
+    def sleep_timer_finished(self):
+        # Detener reproducción
+        self.player.stop()
+        self.update_ui_state()
+
+        # Resetear estado del temporizador
+        self.sleep_timer_id = None
+        self.sleep_timer_active = False
+        self.sleep_index = 0  # volver a OFF
+        self.sleep_button.configure(text="SLEEP: OFF")
+        self.sleep_button.config(fg="#E0D2D2", font=("Terminal", 6))
+        self.sleep_timer_active = False
+        self.sleep_index = 0
+
+    def update_sleep_countdown(self):
+        if not self.sleep_timer_active:
+            return
+
+        # Reducir 1 segundo
+        self.sleep_remaining_seconds -= 1
+
+        # Si llega a cero → terminar temporizador
+        if self.sleep_remaining_seconds <= 0:
+            self.sleep_timer_finished()
+            return
+
+        # Formatear mm:ss
+        minutes = self.sleep_remaining_seconds // 60
+        seconds = self.sleep_remaining_seconds % 60
+        formatted = f"{minutes}:{seconds:02d}"
+
+        # Actualizar texto del botón
+        self.sleep_button.configure(text=f"SLEEP: {formatted}")
+        self.sleep_button.config(fg="#F6A224", font=("Terminal", 6), bg="#203B1E")
+
+        # Volver a llamar dentro de 1 segundo
+        self.root.after(1000, self.update_sleep_countdown)
+
