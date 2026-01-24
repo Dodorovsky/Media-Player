@@ -811,7 +811,7 @@ class PlaylistPlayer:
         # Prevents audio cut on first EQ adjustment
         self.on_slider_change(1, 1)
 
-<<<<<<< Updated upstream
+
     def toggle_play_pause_vlc(self, event=None):
         try:
             if self.player.is_playing():
@@ -823,8 +823,6 @@ class PlaylistPlayer:
         except Exception:
             self.handle_load_error()
 
-=======
->>>>>>> Stashed changes
     def get_current_time(self):
         # Return current playback time in seconds
         return int(self.player.get_time() / 1000) 
