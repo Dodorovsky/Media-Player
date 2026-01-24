@@ -4,7 +4,7 @@ from player import PlaylistPlayer
 
 # ============================================================
 #  FIXTURE: patched_image_utils
-#  - Mockea PIL and ImageTk to avoid loading real images
+#  - Mock PIL and ImageTk to avoid loading real images
 #  - It is used in tests that need icons or images
 # ============================================================
 @pytest.fixture
@@ -33,7 +33,7 @@ def patched_image_utils():
 # ============================================================
 #  FIXTURE: mock_player_real
 #  - REAL Player (real logic)
-#  - Mocke ONLY VLC and Tkinter root
+#  - Mock ONLY VLC and Tkinter root
 #  - Ideal for tests that need to prove real errors
 # ============================================================
 @pytest.fixture
@@ -54,7 +54,7 @@ def mock_player_real(mocker):
 # ============================================================
 #  FIXTURE: mock_player
 #  - Completely isolated player
-#  - Mockea UI, VLC and methods that should not be executed
+#  - Mock UI, VLC and methods that should not be executed
 #  - Ideal for tests that do NOT want real logic
 # ============================================================
 @pytest.fixture
@@ -129,3 +129,10 @@ def mock_player():
         player.updating_slider = False
 
     return player, player.player
+
+
+
+
+
+
+

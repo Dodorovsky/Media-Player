@@ -301,7 +301,7 @@ def setup_ui(self):
     self.stop_button = tk.Button(self.sub_frame_1, command=self.stop)
     self.stop_button.grid(row=0, column=2, padx=9, pady=5)
 
-    self.play_pause_button = tk.Button(self.sub_frame_1, command=self.toggle_play_pause_vlc)
+    self.play_pause_button = tk.Button(self.sub_frame_1, command=self.toggle_play)
     self.play_pause_button.grid(row=0, column=1, padx=(10, 0), pady=5)
 
     self.prev_button = tk.Button(self.sub_frame_2, command=self.play_previous)

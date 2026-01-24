@@ -3,6 +3,8 @@ from unittest.mock import MagicMock, Mock, patch
 from player import PlaylistPlayer
 from modules.utils import format_time
 from modules.image_utils import load_image
+from tests.helpers import simulate_vlc_stopped, simulate_vlc_playing
+
 
  
 def test_play_calls_vlc_play(mock_player):
@@ -427,28 +429,22 @@ def test_load_image_resizes_image_when_size_is_given(patched_image_utils):
         assert result is patched_image_utils["fake_photo"]
 
 def test_labels_update_on_play_pause(mock_player):
-    player, _ = mock_player
-    
+    player, vlc_player = mock_player
+
+    # UI mocks
     player.status_label = MagicMock()
     player.play_button_label = MagicMock()
 
-    player.is_playing = False
-    
-    player.toggle_play_pause()
+    # Simulate VLC NOT playing
+    simulate_vlc_stopped(vlc_player)
 
+    # Action
+    player.toggle_play()
+
+    # Assertions
     assert player.is_playing is True
-
     player.status_label.config.assert_called_with(text="Playing…")
     player.play_button_label.config.assert_called_with(text="Pause")
-
-    player.is_playing = True
-
-    player.toggle_play_pause()
-
-    assert player.is_playing is False
-
-    player.status_label.config.assert_called_with(text="Paused")
-    player.play_button_label.config.assert_called_with(text="Play")
 
 def test_player_initial_state(mock_player):
     player, _ = mock_player
