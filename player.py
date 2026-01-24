@@ -23,7 +23,7 @@ class PlaylistPlayer:
         self.vlc_instance = vlc.Instance()
         self.player =  self.vlc_instance.media_player_new()
         self.eq = vlc.AudioEqualizer()
-        self.root.bind("<space>", self.toggle_play_pause_vlc)
+        self.root.bind("<space>", self.toggle_play)
         self.root.bind("<h>", self.show_hotkeys)
         self.root.bind("<Left>", self.play_previous)
         self.root.bind("<Right>", self.play_next)
@@ -86,7 +86,7 @@ class PlaylistPlayer:
     
 ) 
 
-    
+
     def bind_events(self):
         # Bind UI events for listbox and time slider
         self.listbox.bind("<Double-Button-1>", self.on_double_click)
@@ -246,37 +246,50 @@ class PlaylistPlayer:
         self.root.after(500, self.set_duration)
         self.update_time()
         
-    def toggle_play_pause(self, event=None):
-        self.is_playing = not self.is_playing
+    def toggle_play(self, event=None):
+        """Unified play/pause handler that manages UI, playlist logic, VLC state,
+        and internal flags in a consistent and testable way."""
 
-        if self.status_label:
-            if self.is_playing:
-                self.status_label.config(text="Playing…")
+        try:
+            # 1. Determine if VLC is currently playing
+            is_vlc_playing = self.player.is_playing()
+
+            # 2. If VLC is playing → pause
+            if is_vlc_playing:
+                self.player.pause()
+                self.is_playing = False
+
             else:
-                self.status_label.config(text="Paused")
+                # 3. If VLC is NOT playing → check if we need to load media first
+                selection = self.listbox.curselection()
+                media = self.player.get_media()
 
-        if self.play_button_label:
-            if self.is_playing:
-                self.play_button_label.config(text="Pause")
-            else:
-                self.play_button_label.config(text="Play")
-            
-    def play_pause(self):
-        self.toggle_play_pause()  
+                # If no media loaded but a playlist item is selected → load it
+                if not media and selection:
+                    self.play_from_selection()
+                    self.is_playing = True
 
-        selection = self.listbox.curselection()
-        media = self.player.get_media()
-        if not selection and not media:
-            return
+                else:
+                    # Otherwise just play/resume
+                    self.player.play()
+                    self.is_playing = True
 
-        if self.player.is_playing():
-            self.player.pause()
-        else:
-            state = self.player.get_state()
-            self.player.play()
-            if state == vlc.State.Paused:
-                self.player.play()
-      
+            # 4. Update UI labels (if they exist)
+            if self.status_label:
+                self.status_label.config(text="Playing…" if self.is_playing else "Paused")
+
+            if self.play_button_label:
+                self.play_button_label.config(text="Pause" if self.is_playing else "Play")
+
+            # 5. Update play/pause button icon (if exists)
+            if self.play_pause_button:
+                icon = self.pause_big if self.is_playing else self.play_big
+                self.play_pause_button.configure(image=icon)
+
+        except Exception:
+            # 6. Handle any VLC or loading errors
+            self.handle_load_error()
+
     def stop(self):
         try:
             self.player.stop()
@@ -797,16 +810,6 @@ class PlaylistPlayer:
         # Prevents audio cut on first EQ adjustment
         self.on_slider_change(1, 1)
 
-    def toggle_play_pause_vlc(self, event=None):
-        try:
-            if self.player.is_playing():
-                self.player.pause()
-                self.is_playing = False
-            else:
-                self.player.play()
-                self.is_playing = True
-        except Exception:
-            self.handle_load_error()
 
     def get_current_time(self):
         # Return current playback time in seconds
