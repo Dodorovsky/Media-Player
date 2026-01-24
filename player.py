@@ -69,6 +69,8 @@ class PlaylistPlayer:
         self.sleep_index = 0
         self.sleep_timer_id = None
         self.sleep_timer_active = False
+        self.sleep_countdown_id = None
+
 
 
         self.init_eq()
@@ -1064,6 +1066,11 @@ class PlaylistPlayer:
             #self.sleep_button.config(fg="#F4D568", font=("Terminal", 6), bg="#AC5803")
             
     def start_sleep_timer(self, minutes):
+        # Cancelar countdown previo
+        if self.sleep_countdown_id:
+            self.root.after_cancel(self.sleep_countdown_id)
+            self.sleep_countdown_id = None
+
         # Cancelar temporizador previo si existe
         if self.sleep_timer_id:
             self.root.after_cancel(self.sleep_timer_id)
@@ -1084,6 +1091,11 @@ class PlaylistPlayer:
         self.sleep_timer_active = False
         self.sleep_button.configure(text="SEEP: OFF")
         self.sleep_button.config(fg="#E0D2D2", font=("Terminal", 6))
+        
+        if self.sleep_countdown_id:
+            self.root.after_cancel(self.sleep_countdown_id)
+            self.sleep_countdown_id = None
+
 
 
     def sleep_timer_finished(self):
@@ -1099,6 +1111,11 @@ class PlaylistPlayer:
         self.sleep_button.config(fg="#E0D2D2", font=("Terminal", 6))
         self.sleep_timer_active = False
         self.sleep_index = 0
+        
+        if self.sleep_countdown_id:
+            self.root.after_cancel(self.sleep_countdown_id)
+            self.sleep_countdown_id = None
+
 
     def update_sleep_countdown(self):
         if not self.sleep_timer_active:
@@ -1122,5 +1139,6 @@ class PlaylistPlayer:
         self.sleep_button.config(fg="#F6A224", font=("Terminal", 6), bg="#203B1E")
 
         # Volver a llamar dentro de 1 segundo
-        self.root.after(1000, self.update_sleep_countdown)
+        self.sleep_countdown_id = self.root.after(1000, self.update_sleep_countdown)
+
 
