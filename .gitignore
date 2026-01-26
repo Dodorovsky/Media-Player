@@ -1,10 +1,14 @@
-# Ignorar cachés de Python
+# Ignor cachés de Python
 __pycache__/
 *.pyc
 *.pyo
 
-# Ignorar archivos de build
+# Ignor build
 *.spec
 
 venv/
+
+dist/
+build/
+
 
