@@ -5,3 +5,6 @@ __pycache__/
 
 # Ignorar archivos de build
 *.spec
+
+venv/
+

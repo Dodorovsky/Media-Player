@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import MagicMock, Mock, patch
-from tests.helpers import simulate_vlc_stopped, simulate_vlc_playing
+#from tests.helpers import simulate_vlc_stopped, simulate_vlc_playing
  
  
 def test_toggle_play_pause_vlc_starts_playback_when_stopped(mock_player):
