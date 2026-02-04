@@ -75,11 +75,6 @@ class PlaylistPlayer:
 
         self.init_eq()
         self.eq_color = "eq_light"
-        
-        self.player.event_manager().event_attach(
-    vlc.EventType.MediaPlayerEndReached,
-    self._on_vlc_end
-)
          
         # Floating overlay for playback controls
         self.overlay = FloatingOverlay(
@@ -1037,7 +1032,10 @@ class PlaylistPlayer:
         
     def handle_end_of_track(self):
         self.is_playing = False
-        self.stop()
+        self.play_next()
+
+
+
         
     def _on_vlc_end(self, event):
         self.handle_end_of_track()
