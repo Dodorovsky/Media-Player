@@ -464,11 +464,12 @@ def test_player_initial_state(mock_player):
 
 def test_player_stops_on_end_of_track(mock_player):
     player, _ = mock_player
-    player.stop = MagicMock()
+
     player.handle_end_of_track()
 
+    # Ya no se llama a stop() en la nueva lógica
     assert player.is_playing is False
-    player.stop.assert_called_once()
+
 
 def test_player_handles_invalid_file_gracefully(mock_player_real):
     player = mock_player_real

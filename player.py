@@ -23,6 +23,8 @@ class PlaylistPlayer:
      
         self.vlc_instance = vlc.Instance()
         self.player =  self.vlc_instance.media_player_new()
+        self.vlc_player = self.player
+
         self.eq = vlc.AudioEqualizer()
         self.root.bind("<space>", self.toggle_play_pause_vlc)
         self.root.bind("<h>", self.show_hotkeys)
@@ -179,6 +181,9 @@ class PlaylistPlayer:
         self.radios_labels.config(fg="green")
         self.load_label_frame.config(fg="#76CE62")
         self.load_button.config(bg="#8EFF65")
+        
+
+
           
     def play_from_selection(self):
         print(">>> ENTRANDO EN play_from_selection")
@@ -677,6 +682,19 @@ class PlaylistPlayer:
 
         self.listbox.insert("end", linea)
 
+    def toggle_play(self):
+        if self.player.is_playing():
+            self.player.pause()
+            self.is_playing = False
+        else:
+            self.player.play()
+            self.is_playing = True
+
+
+
+
+
+
     def compact(self):
         if self.is_compact and not self.eq_t:
             # Toggle compact UI mode
@@ -827,7 +845,7 @@ class PlaylistPlayer:
     def get_total_length(self):
         # Return total media length in seconds
         return int(self.player.get_length() / 1000)  
-
+    
     def play(self):
         if not self.is_playing:
             self.player.play()
@@ -836,6 +854,9 @@ class PlaylistPlayer:
     def pause(self):
         self.player.pause()
         self.is_playing = False
+
+
+
        
     def show_hotkeys(self, event=None):
         # Display a window with available keyboard shortcuts

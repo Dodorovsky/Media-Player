@@ -166,20 +166,3 @@ def mock_player():
         player.updating_slider = False
 
     return player, player.player
-<<<<<<< Updated upstream
-=======
-
-
-
-
-
-
-
-
-
-
-
-
-
-
->>>>>>> Stashed changes
