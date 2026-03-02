@@ -1,8 +1,11 @@
 DK_9000 – Retro Media Player (Python / Tkinter)
 
-DK_9000 is a retro-inspired desktop media player built with Python and Tkinter.
-It reproduces audio and video, offers multiple UI modes, playlists, radio stations, and a 5-band EQ.
-This project started as a personal Python application and has grown into a hands-on learning platform for software testing, QA, and automation.
+DK_9000 is a retro-inspired desktop media player built with Python and Tkinter.  
+It supports audio and video playback, multiple UI modes, playlists, radio stations and a 5-band equalizer.
+
+Designed as a fully functional desktop application, DK_9000 focuses on usability, state management and smooth user interaction while maintaining a modular and scalable architecture.
+
+It is intended to behave like a real-world media player, prioritizing stability and predictable behavior across different UI modes.
 
 ---
 ![DK_9000 Demo](assets/demo.gif)
@@ -10,33 +13,40 @@ This project started as a personal Python application and has grown into a hands
 ---
 
 ## Features
-- Audio and video playback with automatic detection  
+- Audio & video playback with automatic format detection  
+- Multiple UI modes: default, compact, fullscreen (with video overlay)
+- Playlist management (add / remove tracks)
+- 5-band equalizer
 - 4 pre-configured radio stations
-- Playlist management (add/remove)
-- Mute, random, loop, and EQ (5 bands)
-- Multiple UI modes: default, compact, fullscreen with overlay for video
-- Keyboard shortcuts for playback control
+- Playback controls: mute, shuffle, loop
+- Keyboard shortcuts for quick interaction
 
 ---
 
-## Testing & Quality Assurance
+## Quality & Testing
 
-DK_9000 also serves as a QA-focused learning project, where testing is integrated into development.
+DK_9000 is developed with a strong focus on quality and reliability.
 
-Manual Testing:
+- Manual regression testing across all UI modes
+- Edge case and state transition validation
+- Structured test scripts for core functionality
+- Ongoing automation efforts using Pytest / Playwright
 
-- Verification of UI behavior in all modes (default, compact, fullscreen)
-- Bug reproduction in playback, playlists, and EQ settings
-- Regression testing after feature updates or code refactoring
-- Edge case testing and state transition validation
+Quality is treated as part of the design process, not an afterthought.
 
-Automation (initial / ongoing):
+---
 
-- Python-based scripts to test core functionality
-- User flow and state transition testing
-- Future plans: expand automated tests with Pytest or Playwright
+## Architecture Overview
 
-This project demonstrates hands-on learning in QA, automated testing, and software quality practices while building a functional application.
+DK_9000 follows a modular structure separating:
+
+- UI layer (Tkinter interface & view modes)
+- Playback engine
+- Playlist & state management
+- Equalizer processing
+- Input handling (keyboard & controls)
+
+Each module has a clearly defined responsibility, helping to reduce coupling and improve maintainability as the project evolves.
 
 ---
 
@@ -73,10 +83,10 @@ This happens because DK_9000 is unsigned. If you trust the project, click **More
 
 ## About the Project
 
-- First published GitHub project  
-- Developed using Python and Tkinter, assisted by AI coding tools (Copilot)  
-- Combines creative programming with hands-on **QA and testing practice**  
-- Actively maintained with new features and regression tests
+- Developed in Python using Tkinter  
+- Built iteratively with a focus on architecture and maintainability  
+- Combines creative programming with hands-on quality practices  
+- Actively maintained with new features and regression improvements
 
 ---
 
@@ -87,6 +97,4 @@ DK_9000 is a project in motion — shaped by feedback and collaboration.
 - Found a bug? Please [open an issue](../../issues) so we can track and fix it.  
 - Have ideas or feature requests?  Share them — DK_9000 grows with community input.  
 - Want to contribute code or docs? Fork the repo and send a pull request.  
-
-Practice: enabling PR creation from tests-update-time branch
 
